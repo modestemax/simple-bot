@@ -1,0 +1,25 @@
+{
+  "name": "simple-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modestemax/simple-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/modestemax/simple-bot/issues"
+  },
+  "homepage": "https://github.com/modestemax/simple-bot#readme",
+  "dependencies": {
+    "fetch-json": "^2.2.7",
+    "node-fetch": "^2.6.0",
+    "ws": "^7.3.1"
+  }
+}
