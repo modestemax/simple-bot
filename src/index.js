@@ -1,7 +1,8 @@
-/*
-import './trading-view-data-loader.mjs'
-import './binance-tick.mjs'
-*/
+import {initTradingView} from './trading-view-data-loader.mjs'
+import {initTick} from './binance-tick.mjs'
+import {initFireStore} from './db/firestore.mjs'
 
-
-import './db/firestore.mjs'
+initFireStore().then(config => {
+    initTradingView(config)
+    initTick(config)
+})
