@@ -1,5 +1,5 @@
 import  WebSocket from 'ws';
-import   {cryptoMap,findFirst} from './db.mjs' ;
+import   {cryptoMap,findFirst} from './db/index.mjs' ;
 
 const handleTicker = ({data}) =>{
    if(cryptoMap){
