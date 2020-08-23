@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "GOOGLE_APPLICATION_CREDENTIALS='/home/max/projects/bot/simple-bot/simple trading bot-6faa02758c7f.json' node  src/index.js ",
-    "debug": "GOOGLE_APPLICATION_CREDENTIALS='/home/max/projects/bot/simple-bot/simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.js "
+    "start": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect src/index.js ",
+    "debug": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.js "
   },
   "repository": {
     "type": "git",
