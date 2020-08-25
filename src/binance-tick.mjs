@@ -9,13 +9,27 @@ const handleTicker = ({data}) => {
                 crypto.close = +tick.c
             }
         })
-        // console.log(cryptoMap)
+        //  console.log(cryptoMap)
         findFirst(cryptoMap)
     }
 }
 
 
 export function initTicker() {
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
+    ws.onmessage = ({data}) => {
+        data = JSON.parse(data)
+        debugger
+    }
+    const ws1 = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
+    ws1.onmessage = ({data}) => {
+        data = JSON.parse(data)
+        debugger
+    }
+//w.close()
+}
+
+export function initTicker1() {
     const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
     ws.onmessage = handleTicker
 //w.close()

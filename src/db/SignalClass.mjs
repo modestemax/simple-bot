@@ -1,14 +1,17 @@
-import {config} from './firestore.mjs';
+import {config, saveGrandMin} from './firestore.mjs';
 import consola from 'consola'
+
+const twoDecimal = (value) => Math.trunc(value * 100) / 100
 
 export class Signal {
     symbol;
     _open;
     _close;
     _percent;
-    _max = -Infinity;
-    _min = Infinity;
+    _max = 0;
+    _min = 0;
     _time;
+    _grandMin = 0;
 
     constructor({symbol, open, close, ...other}) {
         Object.assign(this, other)
@@ -48,10 +51,13 @@ export class Signal {
         return this._max
     }
 
+    get min() {
+        return this._min
+    }
+
     $percent() {
         if (this.open && this.close) {
-            this._percent = (((this.close - this.open) / this.open) * 100)
-            this._percent = Math.trunc(this._percent * 100) / 100
+            this._percent = twoDecimal(((this.close - this.open) / this.open) * 100)
             this.#max()
             this.#min()
         }
@@ -63,7 +69,16 @@ export class Signal {
 
     #min() {
         if (this.percent === this.max) {
-            this._min = this.percent
+            if (this.min) {
+                const minValue = twoDecimal(this.max - this.min)
+                minValue > 1 && consola.info('min', this.symbol, minValue)
+                const oldGrandMin = this._grandMin
+                this._grandMin = Math.max(this._grandMin, minValue)
+                if (oldGrandMin !== this._grandMin) {
+                    saveGrandMin(this.symbol, this._grandMin)
+                }
+            }
+            this._min = this.max
         } else {
             this._min = Math.min(this.percent, this._min)
         }
@@ -110,12 +125,13 @@ export class Trade extends Signal {
     get tradeStartedAtPercent() {
         return this._tradeStartedAtPercent
     }
-   get stopLoss() {
+
+    get stopLoss() {
         return this._stopLoss
     }
 
     isBelowStopLoss() {
-        return this.tradeStartedAtPercent - this.percent >= this.stopLoss
+        return this.percent<this.stopLoss
     }
 
     isAboveTakeProfit() {

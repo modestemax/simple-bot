@@ -63,6 +63,17 @@ export async function savePreviousTrade(trade) {
     previousTradeRef.set({trades: previousTrades.map(o => Object.assign({}, o))}).catch(noop);
 }
 
+export async function saveGrandMin(symbol, value) {
+
+    const minRef = db.collection('bot').doc('min');
+    let min = (await minRef.get()).data()
+    min = min || {}
+
+    min[symbol] = min[symbol] || []
+    min[symbol] = [...min[symbol], value].sort()
+    minRef.set(min).catch(noop);
+}
+
 /*
  docRef.set({
     first: 'Ada',

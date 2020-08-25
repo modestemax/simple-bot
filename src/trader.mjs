@@ -8,7 +8,8 @@ import consola from 'consola'
 
 let currentTrade
 const noTrade = () => !currentTrade
-const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade && first.percent >= config.first.max //must be greater than day max
+const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade && (config.first ? first.percent >= config.first.max : true) //todo Cannot read property 'max' of undefined
+
 const setCurrentTrade = (currentValue) => currentTrade = currentValue
 const setFirstAsCurrentTrade = () =>
     setCurrentTrade(new Trade(Object.assign({}, first, {tradeStartedAtPercent: first.percent, max: first.percent,})))
