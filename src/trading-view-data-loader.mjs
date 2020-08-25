@@ -24,7 +24,8 @@ export function initTradingView() {
     const time = Date.now()
     const midnight = time - (time % DAY)
     const nextMinight = midnight + DAY;
-    setTimeout(initTradingView, nextMinight - time);
+    // setTimeout(initTradingView, nextMinight - time);
+    setTimeout(() => Object.values(cryptoMap).forEach(signal => signal.open = signal.close), nextMinight - time);
     return fetch("https://scanner.tradingview.com/crypto/scan",
         {
             "filter": [{"left": "change", "operation": "nempty"}, {

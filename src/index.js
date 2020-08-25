@@ -4,8 +4,15 @@ import {initFireStore} from './db/firestore.mjs'
 import {initTrader} from "./trader.mjs";
 
 (async () => {
-    await initFireStore()
-    await initTradingView()
-    await initTicker()
-    await initTrader()
+    try {
+
+        await initFireStore()
+        await initTradingView()
+        await initTicker()
+        await initTrader()
+    } catch {
+
+    }
 })()
+
+//todo a miniut vendre tout

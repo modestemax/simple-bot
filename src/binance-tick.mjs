@@ -29,7 +29,11 @@ export function tickUniqSymbol({symbol, handler}) {
 }
 
 export function stopTickUniqSymbol() {
-    tracking && tracking.close()
+    try {
+        tracking && tracking.close()
+    } catch {
+
+    }
 }
 
 function trackSymbol({symbol, handler}) {
