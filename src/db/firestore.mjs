@@ -48,11 +48,11 @@ export function saveCurrentTrade(trade) {
         currentTradeRef.set(Object.assign({}, trade)).catch(noop);
     }
 }
-
-export function saveFirst(first) {
-    config.first = first
-    firstRef.set(Object.assign({}, first)).catch(noop);
-}
+//
+// export function saveFirst(first) {
+//     config.first = first
+//     firstRef.set(Object.assign({}, first)).catch(noop);
+// }
 
 export async function savePreviousTrade(trade) {
 

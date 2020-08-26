@@ -8,29 +8,43 @@ export class Signal {
     _open;
     _close;
     _percent;
-    _max = 0;
-    _min = 0;
+    _max = -Infinity;
+    _min = Infinity;
     _time;
     _grandMin = 0;
 
-    constructor({symbol, open, close, ...other}) {
+    constructor({symbol, open, close, max, ...other}) {
         Object.assign(this, other)
         this.symbol = symbol;
-        +open && (this.open = +open);
-        +close && (this.close = +close)
-
-        this._time = new Date().toTimeString()
+        this.update({open, close, max})
 
     }
 
+    update({open, close, high, max, min, ...other}) {
+        Object.assign(this, other);
+        this.open = open;
+        this.close = close
+        this.max = max
+        this.min = min
+        this.high = high
+        this._time = new Date().toTimeString()
+    }
+
+    set high(value) {
+        if (value) {
+            this.max = twoDecimal(((+value - this.open) / this.open) * 100)
+        }
+    }
 
     get open() {
         return this._open
     }
 
     set open(value) {
-        this._open = value;
-        this.$percent()
+        if (value) {
+            this._open = +value;
+            this.$percent()
+        }
     }
 
     get close() {
@@ -38,49 +52,62 @@ export class Signal {
     }
 
     set close(value) {
-        this._close = value;
-        this.$percent()
-        this._time = new Date().toTimeString()
-    }
-
-    get percent() {
-        return this._percent
+        if (value) {
+            this._close = +value;
+            this.$percent()
+        }
     }
 
     get max() {
         return this._max
     }
 
+    set max(value) {
+        if (value) {
+            this._max = +value
+        }
+    }
+
+    get percent() {
+        return this._percent
+    }
+
+
     get min() {
         return this._min
+    }
+
+    set min(value) {
+        if (value) {
+            this._min = +value
+        }
     }
 
     $percent() {
         if (this.open && this.close) {
             this._percent = twoDecimal(((this.close - this.open) / this.open) * 100)
-            this.#max()
             this.#min()
         }
     }
 
-    #max() {
-        this._max = Math.max(this.percent, this._max)
-    }
-
     #min() {
+        this.#grandMin()
         if (this.percent === this.max) {
-            if (this.min) {
-                const minValue = twoDecimal(this.max - this.min)
-                minValue > 1 && consola.info('min', this.symbol, minValue)
-                const oldGrandMin = this._grandMin
-                this._grandMin = Math.max(this._grandMin, minValue)
-                if (oldGrandMin !== this._grandMin) {
-                    saveGrandMin(this.symbol, this._grandMin)
-                }
-            }
             this._min = this.max
         } else {
             this._min = Math.min(this.percent, this._min)
+        }
+    }
+
+    #grandMin() {
+        if (this.min !== this.max) {
+            const diff = twoDecimal(this.max - this.min)
+            // diff > 1 && consola.info('min', this.symbol, diff)
+            const oldGrandMin = this._grandMin
+            this._grandMin = Math.max(this._grandMin, diff)
+            if (oldGrandMin !== this._grandMin) {
+                saveGrandMin(this.symbol, this._grandMin)
+            }
         }
     }
 
@@ -97,8 +124,7 @@ export class Trade extends Signal {
         Object.assign(this, signal)
         if (tradeStartedAtPercent && max) {
             this._tradeStartedAtPercent = tradeStartedAtPercent
-            max && (this._max = max);
-            min && (this._min = min)
+            this.update({min, max})
         } else if (!(this.tradeStartedAtPercent && this.max)) {
             const error = new Error('cannot init trade')
             consola.error(error)
@@ -108,12 +134,6 @@ export class Trade extends Signal {
         this._startTime = this._startTime ? this._startTime : new Date().toTimeString()
     }
 
-    update({open, close, ...other}) {
-        Object.assign(this, other)
-        this.open = open
-        this.close = close
-        this._time = new Date().toTimeString()
-    }
 
     $percent() {
         super.$percent()
@@ -131,7 +151,7 @@ export class Trade extends Signal {
     }
 
     isBelowStopLoss() {
-        return this.percent<this.stopLoss
+        return this.percent < this.stopLoss
     }
 
     isAboveTakeProfit() {

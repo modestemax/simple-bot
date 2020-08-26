@@ -1,7 +1,7 @@
 import {Signal,} from "./SignalClass.mjs";
 import consola from 'consola'
 import EventEmitter from 'events'
-import {config, saveFirst} from "./firestore.mjs";
+import {config} from "./firestore.mjs";
 
 export const MAX_CHANGED = 'max-changed'
 
@@ -10,10 +10,12 @@ class MyEmitter extends EventEmitter {
 
 export const dbEvent = new MyEmitter();
 
-
 export const cryptoMap = {}
+
 let dayMax = config.first.max || config.enter_trade
+
 export const first = new Signal(Object.assign({}, config.first))
+
 export const findFirst = (cryptoMap) => {
     const sortedList = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
     const [newFirst] = sortedList
@@ -26,12 +28,16 @@ export const findFirst = (cryptoMap) => {
         if (first.max > dayMax && first.max >= config.enter_trade) {
             dbEvent.emit(MAX_CHANGED)
             dayMax = first.max
-            saveFirst(first)
+            // saveFirst(first)
         }
     }
 }
 
 export function getSignal(symbol) {
-    return cryptoMap[symbol]
+    if (!cryptoMap[symbol]) {
+        return cryptoMap[symbol] = new Signal({symbol})
+    } else {
+        return cryptoMap[symbol]
+    }
 }
 
