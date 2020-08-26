@@ -1,32 +1,35 @@
 import WebSocket from 'ws';
 import {cryptoMap, getSignal, findFirst} from './db/index.mjs' ;
 
-const handleTicker = ({data}) => {
-    if (cryptoMap) {
-        JSON.parse(data).map(tick => {
-            const crypto = getSignal(tick.s.toLowerCase())
-            if (crypto) {
-                crypto.close = +tick.c
-            }
-        })
-        //  console.log(cryptoMap)
-        findFirst(cryptoMap)
+const candlesWebsocket = {}
+const upsertSignal = (symbol) => ({data}) => {
+
+    const {o: open, c: close, h: high} = data.close ? {c: data.close} : JSON.parse(data).k
+    const signal = getSignal(symbol)
+    signal.update({close, open, high})
+    //console.log(cryptoMap,data.symbol)
+    findFirst(cryptoMap)
+}
+
+const updateSignal = ({data}) => {
+    data = JSON.parse(data)
+    const symbol = data.s.toLowerCase()
+    if (/btc$/.test(symbol)) {
+        if (!candlesWebsocket[symbol]) {
+            const ws = candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_1d`)
+            ws.onmessage = upsertSignal(symbol)
+        } else {
+            upsertSignal(symbol)({data: {close: data.a}})
+        }
     }
 }
 
-
 export function initTicker() {
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
-    ws.onmessage = ({data}) => {
-        data = JSON.parse(data)
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
+    ws.onmessage = updateSignal
+    ws.on('ping', (ping) => {
         debugger
-    }
-    const ws1 = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
-    ws1.onmessage = ({data}) => {
-        data = JSON.parse(data)
-        debugger
-    }
-//w.close()
+    })
 }
 
 export function initTicker1() {
