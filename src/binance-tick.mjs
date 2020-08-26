@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import {cryptoMap, getSignal, findFirst} from './db/index.mjs' ;
+import {config} from "./db/firestore.mjs";
 
 const candlesWebsocket = {}
 const upsertSignal = (symbol) => ({data}) => {
@@ -16,8 +17,10 @@ const updateSignal = ({data}) => {
     const symbol = data.s.toLowerCase()
     if (/btc$/.test(symbol)) {
         if (!candlesWebsocket[symbol]) {
-            const ws = candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_1d`)
+            const ws = candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe||'1h'}`)
             ws.onmessage = upsertSignal(symbol)
+            ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+
         } else {
             upsertSignal(symbol)({data: {close: data.a}})
         }
@@ -27,9 +30,11 @@ const updateSignal = ({data}) => {
 export function initTicker() {
     const ws = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
     ws.onmessage = updateSignal
-    ws.on('ping', (ping) => {
-        debugger
-    })
+    ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+}
+
+function noop() {
+// debugger
 }
 
 export function initTicker1() {

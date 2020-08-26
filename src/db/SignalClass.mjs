@@ -104,9 +104,12 @@ export class Signal {
             const diff = twoDecimal(this.max - this.min)
             // diff > 1 && consola.info('min', this.symbol, diff)
             const oldGrandMin = this._grandMin
-            this._grandMin = Math.max(this._grandMin, diff)
+            // this._grandMin = Math.max(this._grandMin, diff)
+            this._grandMin = this._grandMin || []
+            if (!this._grandMin.includes(diff.toFixed(0)))
+                this._grandMin = [diff.toFixed(0), ...this._grandMin]
             if (oldGrandMin !== this._grandMin) {
-                saveGrandMin(this.symbol, this._grandMin)
+                // saveGrandMin(this.symbol, this._grandMin)
             }
         }
     }
