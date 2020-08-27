@@ -1,6 +1,6 @@
 import {dbEvent, MAX_CHANGED, first, getSignal} from "./db/index.mjs";
 import {config, saveCurrentTrade, savePreviousTrade} from "./db/firestore.mjs";
-import {tickUniqSymbol, stopTickUniqSymbol} from "./binance-tick.mjs";
+// import  from "./binance-tick.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
@@ -71,29 +71,23 @@ async function switchFirstCurrent() {
 
 function setEyesOnCurrentTrade() {
     let percent;
-    tickUniqSymbol({
-        symbol: currentTrade.symbol, async handler({open, close}) {
-            if (currentTrade) {
-                currentTrade.update({open, close})
-                if (currentTrade.isBelowStopLoss()) {
-                    consola.info('Stop loss')
+    binance.on(currentTrade.symbol, async ({open, close}) => {
+        if (currentTrade) {
+            currentTrade.update({open, close})
+            if (currentTrade.isBelowStopLoss()) {
+                consola.info('Stop loss')
+                await stopTrade()
+            } else if (currentTrade.isAboveTakeProfit()) {
+                if (currentTrade.hasLossOnGain()) {
+                    consola.info('Stop trade and take profit')
                     await stopTrade()
-                } else if (currentTrade.isAboveTakeProfit()) {
-                    if (currentTrade.hasLossOnGain()) {
-                        consola.info('Stop trade and take profit')
-                        await stopTrade()
-                    }
                 }
-                if (currentTrade && percent !== currentTrade.percent) {
-                    consola.info(currentTrade)
-                    percent = currentTrade.percent
-                    saveCurrentTrade(currentTrade)
-                }
-            } else {
-                stopTickUniqSymbol()
+            }
+            if (currentTrade && percent !== currentTrade.percent) {
+                consola.info(currentTrade)
+                percent = currentTrade.percent
+                saveCurrentTrade(currentTrade)
             }
         }
     })
 }
-
-

@@ -12,22 +12,23 @@ export const dbEvent = new MyEmitter();
 
 export const cryptoMap = {}
 
-let dayMax = config.first.max || config.enter_trade
 
-export const first = new Signal(Object.assign({}, config.first))
+export const max = new Signal()
+export const first = new Signal()
 
 export const findFirst = (cryptoMap) => {
-    const sortedList = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
-    const [newFirst] = sortedList
+    const sortedPercentList = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
+    const sortedMaxList = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
+    const [max] = sortedMaxList
+    const [newFirst] = sortedPercentList
     if (newFirst) {
         if (newFirst.symbol !== first.symbol || first.percent !== newFirst.percent) {
             consola.log(newFirst)
         }
         Object.assign(first, newFirst)
 
-        if (first.max > dayMax && first.max >= config.enter_trade) {
+        if (first.max >= max.max && first.max >= config.enter_trade) {
             dbEvent.emit(MAX_CHANGED)
-            dayMax = first.max
             // saveFirst(first)
         }
     }

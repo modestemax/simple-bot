@@ -1,7 +1,11 @@
 import WebSocket from 'ws';
 import {cryptoMap, getSignal, findFirst} from './db/index.mjs' ;
 import {config} from "./db/firestore.mjs";
+import {percent} from "./db/SignalClass.mjs";
+import EventEmitter from 'events'
 
+export const signal = new class SignalEvent extends EventEmitter {
+}
 const candlesWebsocket = {}
 const upsertSignal = (symbol) => ({data}) => {
 
@@ -14,16 +18,21 @@ const upsertSignal = (symbol) => ({data}) => {
 
 const updateSignal = ({data}) => {
     data = JSON.parse(data)
-    const symbol = data.s.toLowerCase()
-    if (/btc$/.test(symbol)) {
-        if (!candlesWebsocket[symbol]) {
-            const ws = candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe||'1h'}`)
-            ws.onmessage = upsertSignal(symbol)
-            ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+    const {a: ask, b: bid} = data
+    if (percent(ask, bid) < 1) {
 
-        } else {
-            upsertSignal(symbol)({data: {close: data.a}})
+        const symbol = data.s.toLowerCase()
+        if (/btc$/.test(symbol)) {
+            if (!candlesWebsocket[symbol]) {
+                const ws = candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe || '1h'}`)
+                ws.onmessage = upsertSignal(symbol)
+                ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+
+            } else {
+                upsertSignal(symbol)({data: {close: ask}})
+            }
         }
+        signal.emit(symbol, getSignal(symbol))
     }
 }
 
@@ -37,36 +46,3 @@ function noop() {
 // debugger
 }
 
-export function initTicker1() {
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
-    ws.onmessage = handleTicker
-//w.close()
-}
-
-let tracking;
-
-export function tickUniqSymbol({symbol, handler}) {
-    tracking && tracking.close()
-    tracking = trackSymbol({symbol, handler})
-}
-
-export function stopTickUniqSymbol() {
-    try {
-        tracking && tracking.close()
-    } catch {
-
-    }
-}
-
-function trackSymbol({symbol, handler}) {
-    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@miniTicker`)
-    ws.onmessage = ({data}) => {
-        const tick = JSON.parse(data)
-        const crypto = getSignal(tick.s.toLowerCase())
-        if (crypto) {
-            crypto.close = +tick.c
-            handler(crypto)
-        }
-    }
-    return ws
-}

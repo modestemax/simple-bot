@@ -2,6 +2,7 @@ import {config, saveGrandMin} from './firestore.mjs';
 import consola from 'consola'
 
 const twoDecimal = (value) => Math.trunc(value * 100) / 100
+export const percent = (close, open) => (close - open) / open * 100
 
 export class Signal {
     symbol;
@@ -13,7 +14,7 @@ export class Signal {
     _time;
     _grandMin = 0;
 
-    constructor({symbol, open, close, max, ...other}) {
+    constructor({symbol, open, close, max, ...other}={}) {
         Object.assign(this, other)
         this.symbol = symbol;
         this.update({open, close, max})
@@ -32,7 +33,7 @@ export class Signal {
 
     set high(value) {
         if (value) {
-            this.max = twoDecimal(((+value - this.open) / this.open) * 100)
+            this.max = twoDecimal(percent(value, this.open))
         }
     }
 
@@ -42,7 +43,7 @@ export class Signal {
 
     set open(value) {
         if (value) {
-            this._open = +value;
+            this._open = value;
             this.$percent()
         }
     }
@@ -53,7 +54,7 @@ export class Signal {
 
     set close(value) {
         if (value) {
-            this._close = +value;
+            this._close = value;
             this.$percent()
         }
     }
@@ -64,7 +65,7 @@ export class Signal {
 
     set max(value) {
         if (value) {
-            this._max = +value
+            this._max = value
         }
     }
 
@@ -79,13 +80,13 @@ export class Signal {
 
     set min(value) {
         if (value) {
-            this._min = +value
+            this._min = value
         }
     }
 
     $percent() {
         if (this.open && this.close) {
-            this._percent = twoDecimal(((this.close - this.open) / this.open) * 100)
+            this._percent = twoDecimal(percent(this.close, this.open))
             this.#min()
         }
     }
