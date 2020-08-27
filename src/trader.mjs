@@ -1,6 +1,6 @@
-import {dbEvent, MAX_CHANGED, first, getSignal} from "./db/index.mjs";
-import {config, saveCurrentTrade, savePreviousTrade} from "./db/firestore.mjs";
-// import  from "./binance-tick.mjs";
+import {dbEvent, MAX_CHANGED, first, max, getSignal} from "./db/index.mjs";
+import {config, firestore} from "./db/firestore.mjs";
+import {binance} from "./binance-tick.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
@@ -8,7 +8,7 @@ import consola from 'consola'
 
 let currentTrade
 const noTrade = () => !currentTrade
-const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade && (config.first ? first.percent >= config.first.max : true) //todo Cannot read property 'max' of undefined
+const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade && first.percent >= max.max //todo Cannot read property 'max' of undefined
 
 const setCurrentTrade = (currentValue) => currentTrade = currentValue
 const setFirstAsCurrentTrade = () =>
@@ -43,16 +43,15 @@ export function initTrader() {
 async function startTrade() {
     await bid();
     setFirstAsCurrentTrade()
-    saveCurrentTrade(currentTrade)
+    firestore.saveCurrentTrade(currentTrade)
     setEyesOnCurrentTrade()
 }
 
 async function stopTrade() {
     await ask();
-    savePreviousTrade(currentTrade)
-    saveCurrentTrade({})
+    firestore.savePreviousTrade(currentTrade)
+    firestore.saveCurrentTrade({})
     clearCurrentTrade()
-    stopTickUniqSymbol()
 }
 
 async function bid() {
@@ -71,7 +70,7 @@ async function switchFirstCurrent() {
 
 function setEyesOnCurrentTrade() {
     let percent;
-    binance.on(currentTrade.symbol, async ({open, close}) => {
+    binance.on(binance.getTickEvent(currentTrade.symbol), async ({open, close}) => {
         if (currentTrade) {
             currentTrade.update({open, close})
             if (currentTrade.isBelowStopLoss()) {
@@ -86,7 +85,7 @@ function setEyesOnCurrentTrade() {
             if (currentTrade && percent !== currentTrade.percent) {
                 consola.info(currentTrade)
                 percent = currentTrade.percent
-                saveCurrentTrade(currentTrade)
+                firestore.saveCurrentTrade(currentTrade)
             }
         }
     })

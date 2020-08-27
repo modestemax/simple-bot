@@ -1,20 +1,27 @@
 import {initTradingView} from './trading-view-data-loader.mjs'
-import {initTicker} from './binance-tick.mjs'
-import {initFireStore} from './db/firestore.mjs'
+import {binance} from './binance-tick.mjs'
+import {firestore} from './db/firestore.mjs'
 import {initTrader} from "./trader.mjs";
 
-import {initSocket} from './balance.mjs'
+// import {initSocket} from './_balance.mjs'
+import {config} from "./db/firestore.mjs";
+import {api} from "./binance.mjs";
+import consola from "consola";
 
 (async () => {
     try {
 
-        await initFireStore()
-        // await initTradingView()
-        await initTicker()
-        await initTrader()
-        await initSocket()
-    } catch {
+        await firestore.initFireStore()
+        await api.init(config.auth)
+        console.log('timeframe: ', config.timeframe)
+        console.log('bal: ', await api.getBalances())
+        console.log('ping: ', await api.ping())
 
+        binance.init()
+        await initTrader()
+        // await initSocket()
+    } catch (ex) {
+        consola.error(ex)
     }
 })()
 

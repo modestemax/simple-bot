@@ -19,11 +19,11 @@ export const first = new Signal()
 export const findFirst = (cryptoMap) => {
     const sortedPercentList = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
     const sortedMaxList = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
-    const [max] = sortedMaxList
+
     const [newFirst] = sortedPercentList
     if (newFirst) {
         if (newFirst.symbol !== first.symbol || first.percent !== newFirst.percent) {
-            consola.log(newFirst)
+            consola.log('first', newFirst.symbol, newFirst.percent)
         }
         Object.assign(first, newFirst)
 
@@ -31,6 +31,10 @@ export const findFirst = (cryptoMap) => {
             dbEvent.emit(MAX_CHANGED)
             // saveFirst(first)
         }
+    }
+    if (max.max < sortedMaxList[0].max) {
+        Object.assign(max, sortedMaxList[0])
+        consola.log('max', max.symbol, max.max)
     }
 }
 

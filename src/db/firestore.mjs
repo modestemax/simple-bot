@@ -19,67 +19,65 @@ const configRef = db.collection('bot').doc('config');
 const currentTradeRef = db.collection('bot').doc(CURRENT_TRADE_ID);
 const firstRef = db.collection('bot').doc(FIRST_ID);
 
-export async function initFireStore() {
-    const [configData, currentTradeData, firstData] = await Promise.all([configRef.get(), currentTradeRef.get(), firstRef.get()])
-    if (!configData.data().enter_trade) {
-        await configRef.set(Object.assign({}, config, {current_trade: void 0}))
-    } else {
-        Object.assign(config, configData.data());
+class Firestore2 {
+    async initFireStore() {
+        const [configData, currentTradeData, firstData] = await Promise.all([configRef.get(), currentTradeRef.get(), firstRef.get()])
+        if (!configData.data().enter_trade) {
+            await configRef.set(Object.assign({}, config, {current_trade: void 0}))
+        } else {
+            Object.assign(config, configData.data());
+        }
+        config.current_trade = currentTradeData.data()
+        config.first = firstData.data()
+        return config
     }
-    config.current_trade = currentTradeData.data()
-    config.first = firstData.data()
-    return config
-}
 
-export function saveCurrentTrade(trade) {
-    if (!config.current_trade) {
-        return save()
-    }
-    if (config.current_trade.symbol !== trade.symbol) {
-        return save()
-    }
-    // if (Math.abs(config.current_trade.percent - trade.percent) > .25) {
-    save()
+    async saveCurrentTrade(trade) {
+        if (!config.current_trade) {
+            return save()
+        }
+        if (config.current_trade.symbol !== trade.symbol) {
+            return save()
+        }
+        // if (Math.abs(config.current_trade.percent - trade.percent) > .25) {
+        save()
 
-    // }
+        // }
 
-    function save() {
-        config.current_trade = trade
-        currentTradeRef.set(Object.assign({}, trade)).catch(noop);
+        function save() {
+            config.current_trade = trade
+            currentTradeRef.set(Object.assign({}, trade)).catch(noop);
+        }
     }
-}
+
 //
 // export function saveFirst(first) {
 //     config.first = first
 //     firstRef.set(Object.assign({}, first)).catch(noop);
 // }
 
-export async function savePreviousTrade(trade) {
+    async savePreviousTrade(trade) {
 
-    const previousTradeRef = db.collection('bot').doc(PREVIOUS_TRADES_ID);
-    let previousTrades = (await previousTradeRef.get()).data()
-    previousTrades = previousTrades && previousTrades.trades ? previousTrades.trades : []
-    previousTrades = [...previousTrades, trade]
-    previousTradeRef.set({trades: previousTrades.map(o => Object.assign({}, o))}).catch(noop);
+        const previousTradeRef = db.collection('bot').doc(PREVIOUS_TRADES_ID);
+        let previousTrades = (await previousTradeRef.get()).data()
+        previousTrades = previousTrades && previousTrades.trades ? previousTrades.trades : []
+        previousTrades = [trade, ...previousTrades,]
+        previousTradeRef.set({trades: previousTrades.map(o => Object.assign({}, o))}).catch(noop);
+    }
+
+    async saveGrandMin(symbol, value) {
+
+        const minRef = db.collection('bot').doc('min');
+        let min = (await minRef.get()).data()
+        min = min || {}
+
+        min[symbol] = min[symbol] || []
+        min[symbol] = [...min[symbol], value].sort()
+        minRef.set(min).catch(noop);
+    }
 }
 
-export async function saveGrandMin(symbol, value) {
-
-    const minRef = db.collection('bot').doc('min');
-    let min = (await minRef.get()).data()
-    min = min || {}
-
-    min[symbol] = min[symbol] || []
-    min[symbol] = [...min[symbol], value].sort()
-    minRef.set(min).catch(noop);
-}
-
-/*
- docRef.set({
-    first: 'Ada',
-    last: 'Lovelace',
-    born: 1815
-});
-*/
 function noop() {
 }
+
+export const firestore = new Firestore2()

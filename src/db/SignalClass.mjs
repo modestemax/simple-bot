@@ -1,4 +1,4 @@
-import {config, saveGrandMin} from './firestore.mjs';
+import {config, firestore} from './firestore.mjs';
 import consola from 'consola'
 
 const twoDecimal = (value) => Math.trunc(value * 100) / 100
@@ -14,7 +14,7 @@ export class Signal {
     _time;
     _grandMin = 0;
 
-    constructor({symbol, open, close, max, ...other}={}) {
+    constructor({symbol, open, close, max, ...other} = {}) {
         Object.assign(this, other)
         this.symbol = symbol;
         this.update({open, close, max})
@@ -107,10 +107,10 @@ export class Signal {
             const oldGrandMin = this._grandMin
             // this._grandMin = Math.max(this._grandMin, diff)
             this._grandMin = this._grandMin || []
-            if (!this._grandMin.includes(diff.toFixed(0)))
+            if (isFinite(diff) && !this._grandMin.includes(diff.toFixed(0)))
                 this._grandMin = [diff.toFixed(0), ...this._grandMin]
             if (oldGrandMin !== this._grandMin) {
-                // saveGrandMin(this.symbol, this._grandMin)
+                //firestore.saveGrandMin(this.symbol, this._grandMin)
             }
         }
     }
