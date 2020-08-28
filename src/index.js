@@ -14,8 +14,9 @@ import consola from "consola";
         await firestore.initFireStore()
         await api.init(config.auth)
         console.log('timeframe: ', config.timeframe)
+        const bal= await api.getOpenOrders()
         console.log('bal: ', await api.getBalances())
-        console.log('ping: ', await api.ping())
+        // console.log('ping: ', await api.ping())
 
         binance.init()
         await initTrader()
