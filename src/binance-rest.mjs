@@ -110,7 +110,7 @@ export class BinanceRest {
         return this.#postOrder({symbol, quantity, side: 'SELL'})
     }
 
-    async buyMarketPrice(symbol) {
+    async bid(symbol) {
         consola.log(`buying ${symbol} at market price`)
         return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
@@ -149,7 +149,7 @@ export class BinanceRest {
         return quantity && this.sellMarketPrice({symbol, quantity})
     }
 
-    #sellSymbol(symbol) {
+    ask(symbol) {
         consola.log(`selling ${symbol}`)
         const assetName = this.getAssetName(symbol)
         const quantity = this.balances[assetName] && this.balances[assetName].free
@@ -159,7 +159,7 @@ export class BinanceRest {
     #buyAsset(assetName) {
         consola.log(`selling ${assetName}`)
         const symbol = this.getSymbol(assetName)
-        return this.buyMarketPrice(symbol)
+        return this.bid(symbol)
     }
 
     async #sellAllAssets() {

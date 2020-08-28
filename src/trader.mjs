@@ -57,12 +57,12 @@ async function stopTrade() {
 
 async function bid() {
     console.log('bid', first)
-    await restAPI.buyMarketPrice(first.symbol)
+    await restAPI.bid(first.symbol)
 }
 
 async function ask() {
     console.log('ask', currentTrade)
-    currentTrade && await restAPI.sellMarketPrice(currentTrade.symbol)
+    currentTrade && await restAPI.ask(currentTrade.symbol)
 }
 
 async function switchFirstCurrent() {
