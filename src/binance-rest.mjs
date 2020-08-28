@@ -3,7 +3,6 @@ import qs from 'qs'
 import {config} from "./db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
-import Binance from 'binance-api-node'
 
 const BTC_ASSET_NAME = 'btc'
 
@@ -11,32 +10,22 @@ export class BinanceRest {
     #baseUrl = 'https://api.binance.com';
 
     auth;
-    balances = [];
+    balances = {};
     bnbBalance;
     btcBalance;
 
-    async init1(auth) {
-        const client = Binance.default({
-            apiKey: auth.api_key,
-            apiSecret: auth.secret,
-            getTime: () => Date.now()
-        })
-        console.log(await client.ping())
-        console.log(await client.orderTest({
-            symbol: 'TRXBTC',
-            side: 'SELL',
-            type: 'MARKET',
-            quantity: 1000
-        }))
-    }
 
     async init(auth) {
         consola.log('init binance rest api')
         this.auth = auth
-
-        await this.#cancelAllOpenOrders()
+        // await this.#cancelAllOpenOrders()
         await this.#getBalances()
         await this.#sellAllAssets()
+
+        // await this.#buyAsset('eth')
+        // await this.#sellAsset('eth')
+
+        // await this.#sellSymbol('ethbtc')
     }
 
     async #cancelAllOpenOrders() {
@@ -63,9 +52,10 @@ export class BinanceRest {
             .filter(hasValue)
             .map(format)
 
-        this.balances = balances.filter(b => !/bnb|btc/i.test(b.asset))
-        this.btcBalance = balances.filter(b => /btc/i.test(b.asset))[0]
-        this.bnbBalance = balances.filter(b => /bnb/i.test(b.asset))[0]
+        this.balances = balances.filter(b => !/bnb|trx|btc/i.test(b.asset))
+            .reduce((balance, asset) => ({...balance, [asset.asset]: asset}), {})
+        this.btcBalance = balances.filter(b => /btc/i.test(b.asset))[0]?.free
+        this.bnbBalance = balances.filter(b => /bnb/i.test(b.asset))[0]?.free
 
     }
 
@@ -115,47 +105,28 @@ export class BinanceRest {
     }
 
 
-    get currentTrade() {
-        const balance = this.balances[0]
-        if (balance) {
-            return balance.asset + 'btc'
-        }
-    }
-
-
-    get isCurrentTradeAsked() {
-        const balance = this.balances[0]
-        if (balance) {
-            return balance.locked
-        }
-    }
-
-    get currentTradeQuantity() {
-        const balance = this.balances[0]
-        if (balance) {
-            return balance.free + balance.locked
-        }
-    }
-
-
-    async #sellMarketPrice(symbol) {
+    async sellMarketPrice({symbol, quantity}) {
         consola.log(`selling ${symbol} at market price`)
-        return this.#postOrder({symbol, quoteOrderQty: 1, side: 'SELL'})
+        return this.#postOrder({symbol, quantity, side: 'SELL'})
     }
 
-    async #buyMarketPrice(symbol) {
+    async buyMarketPrice(symbol) {
         consola.log(`buying ${symbol} at market price`)
         return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
-    #postOrder({symbol, side, quoteOrderQty}) {
+    async #postOrder({symbol, side, quantity, quoteOrderQty}) {
         symbol = symbol.toUpperCase()
         consola.log(`${side} ${symbol} at market price`)
-        return this.#secureAPI({
-            method: 'post', uri: '/api/v3/order/test', params: {
-                symbol, side, type: "MARKET", quoteOrderQty
+        // const uri= '/api/v3/order/test'
+        const uri = '/api/v3/order'
+        const res = await this.#secureAPI({
+            method: 'post', uri, params: {
+                symbol, side, type: "MARKET", quoteOrderQty, quantity
             }
         })
+        await this.#getBalances()
+        return res
     }
 
 
@@ -167,16 +138,34 @@ export class BinanceRest {
         return (asset + BTC_ASSET_NAME)
     }
 
+    getAssetName(symbol) {
+        return symbol?.replace(/btc$/i,'')
+    }
+
     #sellAsset(assetName) {
         consola.log(`selling ${assetName}`)
         const symbol = this.getSymbol(assetName)
-        return this.#sellMarketPrice(symbol)
+        const quantity = this.balances[assetName] && this.balances[assetName].free
+        return quantity && this.sellMarketPrice({symbol, quantity})
+    }
+
+    #sellSymbol(symbol) {
+        consola.log(`selling ${symbol}`)
+        const assetName = this.getAssetName(symbol)
+        const quantity = this.balances[assetName] && this.balances[assetName].free
+        return quantity && this.sellMarketPrice({symbol, quantity})
+    }
+
+    #buyAsset(assetName) {
+        consola.log(`selling ${assetName}`)
+        const symbol = this.getSymbol(assetName)
+        return this.buyMarketPrice(symbol)
     }
 
     async #sellAllAssets() {
         consola.log('selling all assets')
-        for (let b of this.balances) {
-            await this.#sellAsset(b.asset)
+        for (let asset in this.balances) {
+            await this.#sellAsset(asset)
         }
     }
 

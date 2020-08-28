@@ -10,15 +10,9 @@ import consola from "consola";
 
 (async () => {
     try {
-
         await firestore.initFireStore()
         console.log('timeframe: ', config.timeframe)
         await restAPI.init(config.auth)
-
-        // const bal= await restAPI.getOpenOrders()
-        // console.log('bal: ', await restAPI.getBalances())
-        // console.log('ping: ', await api.ping())
-
         socketAPI.init()
         await initTrader()
         // await initSocket()

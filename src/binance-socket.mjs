@@ -38,7 +38,7 @@ class BinanceSocket extends EventEmitter {
     updateSignal({data}) {
         data = JSON.parse(data)
         const {a: ask, b: bid} = data
-        if (percent(ask, bid) < 1) {
+        if (percent(ask, bid) < .35) {
 
             const symbol = data.s.toLowerCase()
             if (/btc$/.test(symbol)) {

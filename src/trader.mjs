@@ -4,6 +4,7 @@ import {socketAPI} from "./binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
+import {restAPI} from "./binance-rest.mjs";
 
 
 let currentTrade
@@ -22,7 +23,7 @@ const resetCurrentTrade = () => {
         setEyesOnCurrentTrade()
     }
 }
-const firstIsAboveCurrent = () => currentTrade.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
+const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
 
 export function initTrader() {
     resetCurrentTrade()
@@ -56,15 +57,16 @@ async function stopTrade() {
 
 async function bid() {
     console.log('bid', first)
+    await restAPI.buyMarketPrice(first.symbol)
 }
 
 async function ask() {
     console.log('ask', currentTrade)
+    currentTrade && await restAPI.sellMarketPrice(currentTrade.symbol)
 }
 
 async function switchFirstCurrent() {
     await stopTrade()
-    setFirstAsCurrentTrade()
     await startTrade()
 }
 
@@ -77,14 +79,17 @@ function setEyesOnCurrentTrade() {
                 consola.info('Stop loss')
                 await stopTrade()
             } else if (currentTrade.isAboveTakeProfit()) {
+                consola.info('Stop trade and take profit')
+                await stopTrade()
+            } else if (currentTrade.isMaxAboveTakeProfit()) {
                 if (currentTrade.hasLossOnGain()) {
                     consola.info('Stop trade and take profit')
                     await stopTrade()
                 }
             }
-            if (currentTrade && percent !== currentTrade.percent) {
+            if (percent !== currentTrade?.percent) {
                 consola.info(currentTrade)
-                percent = currentTrade.percent
+                percent = currentTrade?.percent
                 firestore.saveCurrentTrade(currentTrade)
             }
         }

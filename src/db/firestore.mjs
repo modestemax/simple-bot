@@ -33,10 +33,7 @@ class Firestore2 {
     }
 
     async saveCurrentTrade(trade) {
-        if (!config.current_trade) {
-            return save()
-        }
-        if (config.current_trade.symbol !== trade.symbol) {
+        if (config.current_trade?.symbol !== trade?.symbol) {
             return save()
         }
         // if (Math.abs(config.current_trade.percent - trade.percent) > .25) {
@@ -46,7 +43,7 @@ class Firestore2 {
 
         function save() {
             config.current_trade = trade
-            currentTradeRef.set(Object.assign({}, trade)).catch(noop);
+            trade && currentTradeRef.set(Object.assign({}, trade)).catch(noop);
         }
     }
 
