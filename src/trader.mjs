@@ -91,10 +91,10 @@ function setEyesOnCurrentTrade() {
                     if (currentTrade.isBelowStopLoss()) {
                         consola.info('Stop loss')
                         await stopTrade()
-                    } else if (currentTrade.isAboveTakeProfit()) {
+                    } /*else if (currentTrade.isAboveTakeProfit()) {
                         consola.info('Stop trade and take profit')
                         await stopTrade()
-                    } else if (currentTrade.isMaxAboveTakeProfit()) {
+                    }*/ else if (currentTrade.isMaxAboveTakeProfit()) {
                         if (currentTrade.hasLossOnGain()) {
                             consola.info('Stop trade and take profit')
                             await stopTrade()
