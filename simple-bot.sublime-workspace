@@ -37,7 +37,7 @@
 			}
 		},
 		{
-			"file": "src/index.js",
+			"file": "src/index.mjs",
 			"settings":
 			{
 				"buffer_size": 69,
@@ -181,7 +181,7 @@
 				},
 				{
 					"buffer": 1,
-					"file": "src/index.js",
+					"file": "src/index.mjs",
 					"semi_transient": false,
 					"settings":
 					{

@@ -1,6 +1,6 @@
-export {
+module.exports = {
   apps : [{
-    name: 'API',
+    name: 'simple-bot',
     script: 'npm start',
 
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/

@@ -2,12 +2,12 @@
   "name": "simple-bot",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
+
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect src/index.js ",
-    "debug": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.js "
+    "start": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect src/index.mjs ",
+    "debug": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.mjs "
   },
   "repository": {
     "type": "git",
