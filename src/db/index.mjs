@@ -23,7 +23,8 @@ export const findFirst = (cryptoMap) => {
     const [newFirst] = sortedPercentList
     if (newFirst) {
         if (newFirst.symbol !== first.symbol || first.percent !== newFirst.percent) {
-            consola.log('first', newFirst.symbol, newFirst.percent)
+            consola.log('max', max.symbol, max.max)
+            consola.log('first', newFirst.symbol, newFirst.max,newFirst.percent)
         }
         Object.assign(first, newFirst)
 
