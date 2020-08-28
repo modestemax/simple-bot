@@ -3,7 +3,7 @@ import qs from 'qs'
 import {config} from "./db/firestore.mjs";
 import crypto from 'crypto'
 
-export class Binance {
+export class BinanceRest {
     #baseUrl = 'https://api.binance.com';
 
     auth;
@@ -147,4 +147,4 @@ export class Binance {
     }
 }
 
-export const api = new Binance()
+export const restAPI = new BinanceRest()

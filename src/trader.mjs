@@ -1,6 +1,6 @@
 import {dbEvent, MAX_CHANGED, first, max, getSignal} from "./db/index.mjs";
 import {config, firestore} from "./db/firestore.mjs";
-import {binance} from "./binance-tick.mjs";
+import {socketAPI} from "./binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
@@ -70,7 +70,7 @@ async function switchFirstCurrent() {
 
 function setEyesOnCurrentTrade() {
     let percent;
-    binance.on(binance.getTickEvent(currentTrade.symbol), async ({open, close}) => {
+    socketAPI.on(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
         if (currentTrade) {
             currentTrade.update({open, close})
             if (currentTrade.isBelowStopLoss()) {

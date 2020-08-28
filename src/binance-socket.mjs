@@ -8,7 +8,7 @@ import EventEmitter from 'events'
 
 export const SYMBOL_TICK = 'SYMBOL_TICK'
 
-class Binance extends EventEmitter {
+class BinanceSocket extends EventEmitter {
 
     candlesWebsocket = {};
 
@@ -59,7 +59,7 @@ class Binance extends EventEmitter {
     }
 }
 
-export const binance = new Binance()
+export const socketAPI = new BinanceSocket()
 
 function noop() {
 // debugger

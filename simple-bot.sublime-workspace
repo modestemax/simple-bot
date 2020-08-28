@@ -46,7 +46,7 @@
 			}
 		},
 		{
-			"file": "src/binance-tick.mjs",
+			"file": "src/binance-socket.mjs",
 			"settings":
 			{
 				"buffer_size": 441,
@@ -209,7 +209,7 @@
 				},
 				{
 					"buffer": 2,
-					"file": "src/binance-tick.mjs",
+					"file": "src/binance-socket.mjs",
 					"semi_transient": false,
 					"settings":
 					{
