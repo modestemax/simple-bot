@@ -29,8 +29,9 @@ export function initTrader() {
     // resetCurrentTrade()
     let working
     dbEvent.on(MAX_CHANGED, async () => {
-        try {
-            if (!working) {
+
+        if (!working) {
+            try {
                 working = true
                 if (maxIsGoodToGo()) {
                     if (noTrade()) {
@@ -41,10 +42,11 @@ export function initTrader() {
                         await switchFirstCurrent()
                     }
                 }
+            } finally {
+                working = false
             }
-        } finally {
-            working = false
         }
+
     })
 }
 
@@ -81,8 +83,9 @@ async function switchFirstCurrent() {
 function setEyesOnCurrentTrade() {
     let percent, working;
     socketAPI.on(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
-        try {
-            if (!working) {
+
+        if (!working) {
+            try {
                 working = true
                 if (currentTrade) {
                     currentTrade.update({open, close})
@@ -106,9 +109,10 @@ function setEyesOnCurrentTrade() {
                     consola.info('trade', currentTrade?.symbol,
                         currentTrade?.tradeStartedAtPercent, currentTrade?.percent)
                 }
+            } finally {
+                working = false
             }
-        } finally {
-            working = false
         }
+
     })
 }
