@@ -12,10 +12,11 @@ import consola from "consola";
     try {
 
         await firestore.initFireStore()
-        await restAPI.init(config.auth)
         console.log('timeframe: ', config.timeframe)
-        const bal= await restAPI.getOpenOrders()
-        console.log('bal: ', await restAPI.getBalances())
+        await restAPI.init(config.auth)
+
+        // const bal= await restAPI.getOpenOrders()
+        // console.log('bal: ', await restAPI.getBalances())
         // console.log('ping: ', await api.ping())
 
         socketAPI.init()
