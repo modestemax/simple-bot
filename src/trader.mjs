@@ -27,15 +27,23 @@ const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first
 
 export function initTrader() {
     // resetCurrentTrade()
+    let working
     dbEvent.on(MAX_CHANGED, async () => {
-        if (maxIsGoodToGo()) {
-            if (noTrade()) {
-                consola.info('Start trade')
-                await startTrade()
-            } else if (firstIsAboveCurrent()) {
-                consola.info('Switch  trade')
-                await switchFirstCurrent()
+        try {
+            if (!working) {
+                working = true
+                if (maxIsGoodToGo()) {
+                    if (noTrade()) {
+                        consola.info('Start trade')
+                        await startTrade()
+                    } else if (firstIsAboveCurrent()) {
+                        consola.info('Switch  trade')
+                        await switchFirstCurrent()
+                    }
+                }
             }
+        } finally {
+            working = false
         }
     })
 }
@@ -71,27 +79,36 @@ async function switchFirstCurrent() {
 }
 
 function setEyesOnCurrentTrade() {
-    let percent;
+    let percent, working;
     socketAPI.on(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
-        if (currentTrade) {
-            currentTrade.update({open, close})
-            if (currentTrade.isBelowStopLoss()) {
-                consola.info('Stop loss')
-                await stopTrade()
-            } else if (currentTrade.isAboveTakeProfit()) {
-                consola.info('Stop trade and take profit')
-                await stopTrade()
-            } else if (currentTrade.isMaxAboveTakeProfit()) {
-                if (currentTrade.hasLossOnGain()) {
-                    consola.info('Stop trade and take profit')
-                    await stopTrade()
+        try {
+            if (!working) {
+                working = true
+                if (currentTrade) {
+                    currentTrade.update({open, close})
+                    if (currentTrade.isBelowStopLoss()) {
+                        consola.info('Stop loss')
+                        await stopTrade()
+                    } else if (currentTrade.isAboveTakeProfit()) {
+                        consola.info('Stop trade and take profit')
+                        await stopTrade()
+                    } else if (currentTrade.isMaxAboveTakeProfit()) {
+                        if (currentTrade.hasLossOnGain()) {
+                            consola.info('Stop trade and take profit')
+                            await stopTrade()
+                        }
+                    }
+                    if (percent !== currentTrade?.percent) {
+                        consola.info(currentTrade)
+                        percent = currentTrade?.percent
+                        firestore.saveCurrentTrade(currentTrade)
+                    }
+                    consola.info('trade', currentTrade?.symbol,
+                        currentTrade?.tradeStartedAtPercent, currentTrade?.percent)
                 }
             }
-            if (percent !== currentTrade?.percent) {
-                consola.info(currentTrade)
-                percent = currentTrade?.percent
-                firestore.saveCurrentTrade(currentTrade)
-            }
+        } finally {
+            working = false
         }
     })
 }

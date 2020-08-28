@@ -88,6 +88,7 @@ export class Signal {
         if (this.open && this.close) {
             this._percent = twoDecimal(percent(this.close, this.open))
             this.#min()
+            this.#max()
         }
     }
 
@@ -98,6 +99,10 @@ export class Signal {
         } else {
             this._min = Math.min(this.percent, this._min)
         }
+    }
+
+    #max() {
+        this.max = Math.max(this.percent, this.max)
     }
 
     #grandMin() {
