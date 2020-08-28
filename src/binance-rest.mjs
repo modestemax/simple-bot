@@ -99,6 +99,7 @@ export class BinanceRest {
         } catch (e) {
             consola.error(e)
             consola.error(e?.response?.data)
+            consola.info(arguments)
             throw e
         }
 
@@ -139,7 +140,7 @@ export class BinanceRest {
     }
 
     getAssetName(symbol) {
-        return symbol?.replace(/btc$/i,'')
+        return symbol?.replace(/btc$/i, '')
     }
 
     #sellAsset(assetName) {
