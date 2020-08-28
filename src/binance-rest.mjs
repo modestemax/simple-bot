@@ -72,7 +72,7 @@ export class BinanceRest {
             consola.log(`api ${method} ${uri}`)
             const url = `${this.#baseUrl}${uri}`
             params.timestamp = Date.now()
-            params.recvWindow = 3e3 * 20
+            params.recvWindow = 3e3// * 20
             params.signature = this.#getHmacSignature(qs.stringify(params))
             let res
             switch (method) {

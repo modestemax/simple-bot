@@ -83,7 +83,6 @@ async function switchFirstCurrent() {
 function setEyesOnCurrentTrade() {
     let percent, working;
     socketAPI.on(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
-
         if (!working) {
             try {
                 working = true
