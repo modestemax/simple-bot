@@ -26,7 +26,7 @@ const resetCurrentTrade = () => {
 const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
 
 export function initTrader() {
-    resetCurrentTrade()
+    // resetCurrentTrade()
     dbEvent.on(MAX_CHANGED, async () => {
         if (maxIsGoodToGo()) {
             if (noTrade()) {
