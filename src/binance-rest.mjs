@@ -45,8 +45,8 @@ export class BinanceRest {
                     [s.symbol.toLowerCase()]: {
                         symbol: s.symbol.toLowerCase(),
                         assetName: s.baseAsset.toLowerCase(),
-                        minQty: s.filters[2].minQty,
-                        minNotional: s.filters[3].minNotional
+                        minQty: +s.filters[2].minQty,
+                        minNotional: +s.filters[3].minNotional
                     }
                 }
             }, {})
@@ -188,7 +188,10 @@ export class BinanceRest {
         const symbol = this.getSymbol(assetName);
         const quantity = this.balances[assetName] && this.balances[assetName].free
         quantity && socketAPI.once(socketAPI.getTickEvent(symbol), ({open, close}) => {
-            close && this.#postOrder({symbol, quoteOrderQty: (quantity * close).toFixed(8), side: 'SELL'})
+            const quoteOrderQty = (quantity * close).toFixed(8)
+            if (quoteOrderQty > this.binanceInfo[symbol].minNotional) {
+                this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
+            }
         })
     }
 
