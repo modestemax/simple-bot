@@ -17,25 +17,26 @@ export const max = new Signal()
 export const first = new Signal()
 
 export const findFirst = (cryptoMap) => {
-    const sortedPercentList = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
-    const sortedMaxList = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
+    const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
+    const sortedByMax = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
 
-    const [newFirst] = sortedPercentList
+    const [newFirst] = sortedByPercent
+    const [newMax] = sortedByMax
     if (newFirst) {
         if (newFirst.symbol !== first.symbol || first.percent !== newFirst.percent) {
-            consola.log('max', max.symbol, max.max)
-            consola.log('first', newFirst.symbol, newFirst.max,newFirst.percent)
+            consola.log('first', newFirst.symbol, newFirst.max, newFirst.percent)
         }
-        Object.assign(first, newFirst)
-
-        if (first.max >= max.max && first.max >= config.enter_trade) {
-            dbEvent.emit(MAX_CHANGED)
-            // saveFirst(first)
-        }
+        first.updateWith(newFirst)
     }
-    if (max.max < sortedMaxList[0].max) {
-        Object.assign(max, sortedMaxList[0])
-        consola.log('max', max.symbol, max.max)
+    if (newMax) {
+        if (newMax.symbol !== max.symbol || max.max !== newMax.max) {
+            consola.log('max', newMax.symbol, newMax.max)
+        }
+        max.updateWith(newMax)
+
+        if (first.max >= max.max && first.percent >= config.enter_trade) {
+            dbEvent.emit(MAX_CHANGED)
+        }
     }
 }
 

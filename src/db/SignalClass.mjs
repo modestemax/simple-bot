@@ -21,6 +21,10 @@ export class Signal {
 
     }
 
+    updateWith(signal) {
+        Object.assign(this, signal)
+    }
+
     update({open, close, high, max, min, ...other}) {
         Object.assign(this, other);
         this.open = open;
