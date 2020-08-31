@@ -35,9 +35,9 @@ async function startTrade() {
 
 async function stopTrade() {
     await ask();
-    firestore.savePreviousTrade(currentTrade)
-    firestore.saveCurrentTrade({})
-    clearCurrentTrade()
+    await firestore.savePreviousTrade(currentTrade)
+    await firestore.saveCurrentTrade({})
+    await clearCurrentTrade()
 }
 
 async function bid() {
@@ -61,13 +61,14 @@ function setEyesOnCurrentTrade() {
         try {
             if (currentTrade) {
                 currentTrade.update({open, close})
+
                 if (currentTrade.isBelowStopLoss()) {
                     consola.info('Stop loss')
                     await stopTrade()
-                } /*else if (currentTrade.isAboveTakeProfit()) {
-                        consola.info('Stop trade and take profit')
-                        await stopTrade()
-                    }*/ else if (currentTrade.isMaxAboveTakeProfit()) {
+                } else if (currentTrade.isAboveTakeProfit()) {
+                    consola.info('Stop trade and take profit')
+                    await stopTrade()
+                } else if (currentTrade.isMaxAboveTakeProfit()) {
                     if (currentTrade.hasLossOnGain()) {
                         consola.info('Stop trade and take profit')
                         await stopTrade()
