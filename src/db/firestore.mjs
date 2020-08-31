@@ -37,13 +37,13 @@ class Firestore2 {
             return save()
         }
         // if (Math.abs(config.current_trade.percent - trade.percent) > .25) {
-        save()
+        return save()
 
         // }
 
-        function save() {
+        async function save() {
             config.current_trade = trade
-            trade && currentTradeRef.set(Object.assign({}, trade)).catch(noop);
+            trade && await currentTradeRef.set(Object.assign({}, trade)).catch(noop);
         }
     }
 

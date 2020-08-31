@@ -5,7 +5,6 @@ import {percent} from "./db/SignalClass.mjs";
 import EventEmitter from 'events'
 
 
-
 export const SYMBOL_TICK = 'SYMBOL_TICK'
 
 class BinanceSocket extends EventEmitter {
@@ -48,9 +47,10 @@ class BinanceSocket extends EventEmitter {
                     ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
                 } else {
                     this.upsertSignal(symbol)({data: {close: ask}})
+                    const signal = getSignal(symbol)
+                    signal.close && this.emit(this.getTickEvent(symbol), signal)
                 }
             }
-            this.emit(this.getTickEvent(symbol), getSignal(symbol))
         }
     }
 

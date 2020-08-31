@@ -25,37 +25,12 @@ const resetCurrentTrade = () => {
 }
 const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
 
-export function initTrader() {
-    // resetCurrentTrade()
-    let working
-    dbEvent.on(MAX_CHANGED, async () => {
-
-        if (!working) {
-            try {
-                working = true
-                if (maxIsGoodToGo()) {
-                    if (noTrade()) {
-                        consola.info('Start trade')
-                        await startTrade()
-                    } else if (firstIsAboveCurrent()) {
-                        consola.info('Switch  trade')
-                        await switchFirstCurrent()
-                    }
-                }
-            } finally {
-                working = false
-            }
-        }
-
-    })
-}
-
 
 async function startTrade() {
     await bid();
-    setFirstAsCurrentTrade()
-    firestore.saveCurrentTrade(currentTrade)
-    setEyesOnCurrentTrade()
+    await setFirstAsCurrentTrade()
+    await firestore.saveCurrentTrade(currentTrade)
+    await setEyesOnCurrentTrade()
 }
 
 async function stopTrade() {
@@ -72,7 +47,7 @@ async function bid() {
 
 async function ask() {
     console.log('ask', currentTrade)
-    currentTrade && await restAPI.ask(currentTrade.symbol)
+    currentTrade && await restAPI.ask({symbol: currentTrade.symbol, quoteOrderQty: currentTrade.close})
 }
 
 async function switchFirstCurrent() {
@@ -81,36 +56,53 @@ async function switchFirstCurrent() {
 }
 
 function setEyesOnCurrentTrade() {
-    let percent, working;
-    socketAPI.on(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
-        if (!working) {
-            try {
-                working = true
-                if (currentTrade) {
-                    currentTrade.update({open, close})
-                    if (currentTrade.isBelowStopLoss()) {
-                        consola.info('Stop loss')
-                        await stopTrade()
-                    } /*else if (currentTrade.isAboveTakeProfit()) {
+    let percent;
+    currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
+        try {
+            if (currentTrade) {
+                currentTrade.update({open, close})
+                if (currentTrade.isBelowStopLoss()) {
+                    consola.info('Stop loss')
+                    await stopTrade()
+                } /*else if (currentTrade.isAboveTakeProfit()) {
                         consola.info('Stop trade and take profit')
                         await stopTrade()
                     }*/ else if (currentTrade.isMaxAboveTakeProfit()) {
-                        if (currentTrade.hasLossOnGain()) {
-                            consola.info('Stop trade and take profit')
-                            await stopTrade()
-                        }
+                    if (currentTrade.hasLossOnGain()) {
+                        consola.info('Stop trade and take profit')
+                        await stopTrade()
                     }
-                    if (percent !== currentTrade?.percent) {
-                        consola.info(currentTrade)
-                        percent = currentTrade?.percent
-                        firestore.saveCurrentTrade(currentTrade)
-                    }
-                    consola.info('trade', currentTrade?.symbol,
-                        currentTrade?.tradeStartedAtPercent, currentTrade?.percent)
                 }
-            } finally {
-                working = false
+                if (percent !== currentTrade?.percent) {
+                    consola.info(currentTrade)
+                    percent = currentTrade?.percent
+                    firestore.saveCurrentTrade(currentTrade)
+                }
+                consola.info('trade', currentTrade?.symbol,
+                    currentTrade?.tradeStartedAtPercent, currentTrade?.percent)
             }
+        } finally {
+            setCurrentTrade()
+        }
+
+    })
+}
+
+export function initTrader() {
+    // resetCurrentTrade()
+    dbEvent.once(MAX_CHANGED, async () => {
+        try {
+            if (await maxIsGoodToGo()) {
+                if (await noTrade()) {
+                    consola.info('Start trade')
+                    await startTrade()
+                } else if (await firstIsAboveCurrent()) {
+                    consola.info('Switch  trade')
+                    await switchFirstCurrent()
+                }
+            }
+        } finally {
+            initTrader()
         }
 
     })
