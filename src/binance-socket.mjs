@@ -9,6 +9,10 @@ export const SYMBOL_TICK = 'SYMBOL_TICK'
 
 class BinanceSocket extends EventEmitter {
 
+    get FINAL_EVENT() {
+        return 'FINAL_EVENT'
+    };
+
     candlesWebsocket = {};
 
 
@@ -26,12 +30,13 @@ class BinanceSocket extends EventEmitter {
 
 
     upsertSignal = (symbol) => ({data}) => {
-
-        const {o: open, c: close, h: high} = data.close ? {c: data.close} : JSON.parse(data).k
+        const {o: open, c: close, h: high, x: isFinal} = data.close ? {c: data.close} : JSON.parse(data).k
         const signal = getSignal(symbol)
         signal.update({close, open, high})
-        //console.log(cryptoMap,data.symbol)
         findFirst(cryptoMap)
+        if (isFinal) {
+            this.emit(this.FINAL_EVENT, symbol)
+        }
     };
 
     updateSignal({data}) {

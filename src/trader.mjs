@@ -91,20 +91,35 @@ function setEyesOnCurrentTrade() {
 
 export function initTrader() {
     // resetCurrentTrade()
-    dbEvent.once(MAX_CHANGED, async () => {
-        try {
-            if (await maxIsGoodToGo()) {
-                if (await noTrade()) {
-                    consola.info('Start trade')
-                    await startTrade()
-                } else if (await firstIsAboveCurrent()) {
-                    consola.info('Switch  trade')
-                    await switchFirstCurrent()
-                }
-            }
-        } finally {
-            initTrader()
-        }
+    checkMax()
+    checkFinal()
 
-    })
+    function checkMax() {
+        dbEvent.once(MAX_CHANGED, async () => {
+            try {
+                if (await maxIsGoodToGo()) {
+                    if (await noTrade()) {
+                        consola.info('Start trade')
+                        await startTrade()
+                    } else if (await firstIsAboveCurrent()) {
+                        consola.info('Switch  trade')
+                        await switchFirstCurrent()
+                    }
+                }
+            } finally {
+                checkMax()
+            }
+
+        })
+    }
+
+    function checkFinal() {
+        dbEvent.once(socketAPI.FINAL_EVENT, async (symbol) => {
+            try {
+                currentTrade?.symbol === symbol && await stopTrade()
+            } finally {
+                checkFinal()
+            }
+        })
+    }
 }
