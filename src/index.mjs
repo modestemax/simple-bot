@@ -22,5 +22,4 @@ import consola from "consola";
     }
 })()
 
-//todo a miniut vendre tout
 

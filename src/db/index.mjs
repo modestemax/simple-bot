@@ -2,6 +2,7 @@ import {Signal,} from "./SignalClass.mjs";
 import consola from 'consola'
 import EventEmitter from 'events'
 import {config} from "./firestore.mjs";
+import {throttle} from "../utils.mjs";
 
 export const MAX_CHANGED = 'max-changed'
 
@@ -15,6 +16,13 @@ export const cryptoMap = {}
 
 export const max = new Signal()
 export const first = new Signal()
+
+const logMax = () => consola.log('max', max?.symbol, max?.max)
+const logFirst = () => consola.log('first', first?.symbol, first?.max, first?.percent)
+
+const logFirstThrottle = throttle(logFirst, 30e3)
+const logMaxThrottle = throttle(logMax, 30e3)
+
 
 export const findFirst = (cryptoMap) => {
     const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
@@ -35,11 +43,15 @@ export const findFirst = (cryptoMap) => {
     }
 
     if (newFirst?.symbol !== oldFirst.symbol || oldFirst.percent !== oldFirst.percent) {
-        consola.log('first', newFirst?.symbol, newFirst?.max, newFirst?.percent)
+        logFirst()
+    } else {
+        logFirstThrottle()
     }
 
     if (newMax?.symbol !== oldMax.symbol || oldMax.max !== newMax?.max) {
-        consola.log('max', newMax?.symbol, newMax?.max)
+        logMax()
+    } else {
+        logMaxThrottle()
     }
 }
 
