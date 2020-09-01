@@ -22,13 +22,14 @@ export const findFirst = (cryptoMap) => {
 
     const [newFirst] = sortedByPercent
     const [newMax] = sortedByMax
-    const oldFirst = Object.assign({}, first)
-    const oldMax = Object.assign({}, max)
+    const oldFirst = Object.assign(new Signal(), first)
+    const oldMax = Object.assign(new Signal(), max)
     first.updateWith(newFirst)
     max.updateWith(newMax)
     if (first.percent >= config.enter_trade) {
-        if (first.max >= max.max) {
+        if (first.max >= max.max /*|| first.symbol !== max.symbol*/) {
             dbEvent.emit(MAX_CHANGED)
+            consola.info('MAX CHANGED', first.symbol, first.percent)
         }
     }
 
