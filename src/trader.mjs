@@ -79,12 +79,10 @@ function setEyesOnCurrentTrade() {
                         }
                     }
                     if (percent !== currentTrade?.percent) {
-                        consola.info(currentTrade)
+                        consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                         percent = currentTrade?.percent
                         firestore.saveCurrentTrade(currentTrade)
                     }
-
-                    consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                 }
             } finally {
                 followTrade()
