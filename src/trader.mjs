@@ -47,7 +47,8 @@ async function bid() {
 
 async function ask() {
     console.log('ask', currentTrade)
-    currentTrade && await restAPI.ask({symbol: currentTrade.symbol, quoteOrderQty: currentTrade.close})
+    // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
+    currentTrade && await restAPI.ask(currentTrade.symbol)
 }
 
 async function switchFirstCurrent() {

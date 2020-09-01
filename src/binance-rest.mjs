@@ -46,7 +46,9 @@ export class BinanceRest {
                         symbol: s.symbol.toLowerCase(),
                         assetName: s.baseAsset.toLowerCase(),
                         minQty: +s.filters[2].minQty,
-                        minNotional: +s.filters[3].minNotional
+                        maxQty: +s.filters[2].maxQty,
+                        stepSize: +s.filters[2].stepSize,
+                        minNotional: +s.filters[3].minNotional,
                     }
                 }
             }, {})
@@ -135,10 +137,10 @@ export class BinanceRest {
     }
 
 
-    async sellMarketPrice({symbol, quoteOrderQty}) {
+    async sellMarketPrice({symbol,/* quoteOrderQty,*/ quantity}) {
         consola.log(`selling ${symbol} at market price`)
-        // return this.#postOrder({symbol, quantity, side: 'SELL'})
-        return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
+        return this.#postOrder({symbol, quantity, side: 'SELL'})
+        // return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
     }
 
     async bid(symbol) {
@@ -146,11 +148,13 @@ export class BinanceRest {
         return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
-    ask({symbol, quoteOrderQty}) {
+    // ask({symbol/*, quoteOrderQty*/}) {
+    ask(symbol) {
         consola.log(`selling ${symbol}`)
         const assetName = this.getAssetName(symbol)
-        const quantity = this.balances[assetName] && this.balances[assetName].free
-        return quantity && this.sellMarketPrice({symbol, quoteOrderQty})
+        // const quantity = this.balances[assetName] && this.balances[assetName].free
+        // return quantity && this.sellMarketPrice({symbol, quoteOrderQty})
+        return this.#sellAsset(assetName)
     }
 
     async #postOrder({symbol, side, quantity, quoteOrderQty}) {
@@ -180,7 +184,28 @@ export class BinanceRest {
     async #sellAllAssets() {
         consola.log('selling all assets')
         for (let assetName in this.balances) {
-            this.#checkPriceThenSell(assetName)
+            // this.#checkPriceThenSell(assetName)
+            await this.#sellAsset(assetName)
+        }
+    }
+
+    #sellAsset(assetName) {
+        consola.log(`selling ${assetName}`)
+        const symbol = this.getSymbol(assetName)
+        let quantity = this.balances[assetName] && this.balances[assetName].free
+        quantity = this.normalizeQuantity({symbol, quantity})
+        return quantity && this.sellMarketPrice({symbol, quantity})
+    }
+
+    normalizeQuantity({symbol, quantity}) {
+        //https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#lot_size
+        const {minQty, maxQty, stepSize} = this.binanceInfo[symbol]
+        if (quantity >= minQty && quantity <= maxQty) {
+            if ((quantity - minQty) % stepSize === 0) {
+                return quantity
+            } else {
+                return quantity - ((quantity - minQty) % stepSize)
+            }
         }
     }
 
@@ -215,12 +240,7 @@ export class BinanceRest {
 //         return this.bid(symbol)
 //     }
 //
-//     #sellAsset(assetName) {
-//         consola.log(`selling ${assetName}`)
-//         const symbol = this.getSymbol(assetName)
-//         const quantity = this.balances[assetName] && this.balances[assetName].free
-//         return quantity && this.sellMarketPrice({symbol, quantity})
-//     }
+
 //
 //
 //     #cancelOrder(symbol) {
