@@ -24,7 +24,7 @@ const logFirstThrottle = throttle(logFirst, 30e3)
 const logMaxThrottle = throttle(logMax, 30e3)
 
 
-export const findFirst = (cryptoMap) => {
+export const findFirst = () => {
     const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
     const sortedByMax = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
 

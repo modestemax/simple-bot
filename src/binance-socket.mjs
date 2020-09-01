@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import {cryptoMap, getSignal, findFirst} from './db/index.mjs' ;
+import { getSignal, findFirst} from './db/index.mjs' ;
 import {config} from "./db/firestore.mjs";
 import {percent} from "./db/SignalClass.mjs";
 import EventEmitter from 'events'
@@ -33,7 +33,7 @@ class BinanceSocket extends EventEmitter {
         const {o: open, c: close, h: high, x: isFinal} = data.close ? {c: data.close} : JSON.parse(data).k
         const signal = getSignal(symbol)
         signal.update({close, open, high})
-        findFirst(cryptoMap)
+        findFirst()
         if (isFinal) {
             this.emit(this.FINAL_EVENT, symbol)
         }
