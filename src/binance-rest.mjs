@@ -108,7 +108,7 @@ export class BinanceRest {
                     })
             }
 
-            consola.info('api result', res)
+            // consola.info('api result', res)
             return res;
         } catch (e) {
             consola.error(e)
@@ -125,7 +125,7 @@ export class BinanceRest {
             const url = `${this.#baseUrl}${uri}`
             let res = await axios[method](url)
 
-            consola.info('api result', res)
+           // consola.info('api result', res)
             return res.data
         } catch (e) {
             consola.error(e)

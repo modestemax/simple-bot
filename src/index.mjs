@@ -11,14 +11,16 @@ import consola from "consola";
 (async () => {
     try {
         await firestore.initFireStore()
-        console.log('timeframe: ', config.timeframe)
-        console.log('enter_trade: ', config.enter_trade)
         await restAPI.init(config.auth)
         socketAPI.init()
         await initTrader()
-        // await initSocket()
+
+        console.log('timeframe: ', config.timeframe)
+        console.log('enter_trade: ', config.enter_trade)
+
     } catch (ex) {
         consola.error(ex)
+        throw ex
     }
 })()
 
