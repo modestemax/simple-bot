@@ -83,8 +83,8 @@ function setEyesOnCurrentTrade() {
                         percent = currentTrade?.percent
                         firestore.saveCurrentTrade(currentTrade)
                     }
-                    consola.info('trade', currentTrade?.symbol,
-                        currentTrade?.tradeStartedAtPercent, currentTrade?.percent)
+
+                    consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                 }
             } finally {
                 followTrade()
