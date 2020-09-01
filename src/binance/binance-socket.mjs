@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
-import {getSignal, findFirst} from './db/index.mjs' ;
-import {config} from "./db/firestore.mjs";
-import {percent} from "./db/SignalClass.mjs";
-import {noop} from "./utils.mjs";
+import {getSignal, findFirst} from '../db/index.mjs' ;
+import {config} from "../db/firestore.mjs";
+import {percent} from "../db/SignalClass.mjs";
+import {noop} from "../utils.mjs";
 import EventEmitter from 'events'
 
 

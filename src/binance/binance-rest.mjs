@@ -1,6 +1,6 @@
 import axios from 'axios';
 import qs from 'qs'
-import {config} from "./db/firestore.mjs";
+import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";

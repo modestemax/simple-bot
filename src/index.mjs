@@ -1,11 +1,10 @@
-import {initTradingView} from './trading-view-data-loader.mjs'
-import {socketAPI} from './binance-socket.mjs'
+import {socketAPI} from './binance/binance-socket.mjs'
 import {firestore} from './db/firestore.mjs'
 import {initTrader} from "./trader.mjs";
 
 // import {initSocket} from './_balance.mjs'
 import {config} from "./db/firestore.mjs";
-import {restAPI} from "./binance-rest.mjs";
+import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
 
 (async () => {

@@ -1,6 +1,6 @@
 import fetchJson from 'fetch-json'
-import {cryptoMap} from './db/index.mjs' ;
-import {Signal} from './db/SignalClass.mjs' ;
+import {cryptoMap} from '../src/db/index.mjs' ;
+import {Signal} from '../src/db/SignalClass.mjs' ;
 
 const fetch = fetchJson.post
 

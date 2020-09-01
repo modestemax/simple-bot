@@ -1,10 +1,10 @@
 import {dbEvent, MAX_CHANGED, first, max, getSignal} from "./db/index.mjs";
 import {config, firestore} from "./db/firestore.mjs";
-import {socketAPI} from "./binance-socket.mjs";
+import {socketAPI} from "./binance/binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
-import {restAPI} from "./binance-rest.mjs";
+import {restAPI} from "./binance/binance-rest.mjs";
 
 
 let currentTrade
