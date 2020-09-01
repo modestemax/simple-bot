@@ -1,3 +1,8 @@
+import cstamp from 'console-stamp'
+
+cstamp(consola, 'HH:MM:ss.l');
+// cstamp(consola );
+
 import {socketAPI} from './binance/binance-socket.mjs'
 import {firestore} from './db/firestore.mjs'
 import {initTrader} from "./trader.mjs";

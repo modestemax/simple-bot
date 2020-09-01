@@ -2,7 +2,6 @@
   "name": "simple-bot",
   "version": "1.0.0",
   "description": "",
-
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -26,6 +25,7 @@
     "axios": "^0.20.0",
     "binance-api-node": "^0.10.4",
     "consola": "^2.15.0",
+    "console-stamp": "^0.2.9",
     "fetch-json": "^2.2.7",
     "firebase": "^7.19.0",
     "node-fetch": "^2.6.0",
