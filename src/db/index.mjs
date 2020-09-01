@@ -42,6 +42,19 @@ export const findFirst = () => {
         }
     }
 
+    logSignal({newFirst, oldFirst, newMax, oldMax});
+}
+
+export function getSignal(symbol) {
+    if (!cryptoMap[symbol]) {
+        return cryptoMap[symbol] = new Signal({symbol})
+    } else {
+        return cryptoMap[symbol]
+    }
+}
+
+
+function logSignal({newFirst, oldFirst, newMax, oldMax}) {
     if (newFirst?.symbol !== oldFirst.symbol || oldFirst.percent !== oldFirst.percent) {
         logFirst()
     } else {
@@ -54,12 +67,3 @@ export const findFirst = () => {
         logMaxThrottle()
     }
 }
-
-export function getSignal(symbol) {
-    if (!cryptoMap[symbol]) {
-        return cryptoMap[symbol] = new Signal({symbol})
-    } else {
-        return cryptoMap[symbol]
-    }
-}
-
