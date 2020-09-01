@@ -9,7 +9,7 @@ import {restAPI} from "./binance-rest.mjs";
 
 let currentTrade
 const noTrade = () => !currentTrade
-const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade && first.percent >= max.max
+const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade //&& first.percent >= max.max
 
 const setCurrentTrade = (currentValue) => currentTrade = currentValue
 const setFirstAsCurrentTrade = () =>

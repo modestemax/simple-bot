@@ -27,7 +27,8 @@ export const findFirst = (cryptoMap) => {
     first.updateWith(newFirst)
     max.updateWith(newMax)
     if (first.percent >= config.enter_trade) {
-        if (first.max >= max.max /*|| first.symbol !== max.symbol*/) {
+        // if (first.max >= max.max /*|| first.symbol !== max.symbol*/) {
+        if (first.percent >= first.max /*|| first.symbol !== max.symbol*/) {
             dbEvent.emit(MAX_CHANGED)
             consola.info('MAX CHANGED', first.symbol, first.percent)
         }
