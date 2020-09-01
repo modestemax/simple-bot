@@ -1,4 +1,5 @@
 import Firestore from '@google-cloud/firestore'
+import {noop} from "../utils.mjs";
 
 export const config = {
     enter_trade: 25,
@@ -72,9 +73,6 @@ class Firestore2 {
         min[symbol] = [...min[symbol], value].sort()
         minRef.set(min).catch(noop);
     }
-}
-
-function noop() {
 }
 
 export const firestore = new Firestore2()
