@@ -188,7 +188,7 @@ export class BinanceRest {
         const symbol = this.getSymbol(assetName);
         const quantity = this.balances[assetName] && this.balances[assetName].free
         quantity && socketAPI.once(socketAPI.getTickEvent(symbol), ({open, close}) => {
-            const quoteOrderQty = (quantity * close).toFixed(8)
+            const quoteOrderQty = +(quantity * close).toFixed(8)
             if (quoteOrderQty > this.binanceInfo[symbol].minNotional) {
                 this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
             }

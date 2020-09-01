@@ -22,21 +22,22 @@ export const findFirst = (cryptoMap) => {
 
     const [newFirst] = sortedByPercent
     const [newMax] = sortedByMax
-    if (newFirst) {
-        if (newFirst.symbol !== first.symbol || first.percent !== newFirst.percent) {
-            consola.log('first', newFirst.symbol, newFirst.max, newFirst.percent)
-        }
-        first.updateWith(newFirst)
-    }
-    if (newMax) {
-        if (newMax.symbol !== max.symbol || max.max !== newMax.max) {
-            consola.log('max', newMax.symbol, newMax.max)
-        }
-        max.updateWith(newMax)
-
-        if (first.max >= max.max && first.percent >= config.enter_trade) {
+    const oldFirst = Object.assign({}, first)
+    const oldMax = Object.assign({}, max)
+    first.updateWith(newFirst)
+    max.updateWith(newMax)
+    if (first.percent >= config.enter_trade) {
+        if (first.max >= max.max) {
             dbEvent.emit(MAX_CHANGED)
         }
+    }
+
+    if (newFirst?.symbol !== oldFirst.symbol || oldFirst.percent !== oldFirst.percent) {
+        consola.log('first', newFirst?.symbol, newFirst?.max, newFirst?.percent)
+    }
+
+    if (newMax?.symbol !== oldMax.symbol || oldMax.max !== newMax?.max) {
+        consola.log('max', newMax?.symbol, newMax?.max)
     }
 }
 
