@@ -34,15 +34,22 @@ export const findFirst = () => {
     const oldMax = Object.assign(new Signal(), max)
     first.updateWith(newFirst)
     max.updateWith(newMax)
-    if (first.percent >= config.enter_trade) {
-        // if (first.max >= max.max /*|| first.symbol !== max.symbol*/) {
-        if (first.percent >= first.max /*|| first.symbol !== max.symbol*/) {
-            dbEvent.emit(MAX_CHANGED)
-            consola.info('MAX CHANGED', first.symbol, first.percent)
-        }
-    }
+
+    findTradablesThenSendThemToTrader(sortedByPercent)
 
     logSignal({newFirst, oldFirst, newMax, oldMax});
+}
+const firsts = {}
+
+function findTradablesThenSendThemToTrader(sortedByPercent) {
+    const firstList = sortedByPercent.filter(a => a.percent >= config.enter_trade && a.percent >= a.max)
+    firstList.forEach(first => {
+        dbEvent.emit(MAX_CHANGED)
+        if (!firsts[first.symbol] || firsts[first.symbol] !== first.percent) {
+            firsts[first.symbol] = first.percent
+            consola.info('MAX CHANGED', first.symbol, first.percent)
+        }
+    })
 }
 
 export function getSignal(symbol) {

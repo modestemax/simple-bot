@@ -1,6 +1,6 @@
 import cstamp from 'console-stamp'
 
-cstamp(consola, 'HH:MM:ss.l');
+// cstamp(consola, 'HH:MM:ss.l');
 // cstamp(consola );
 
 import {socketAPI} from './binance/binance-socket.mjs'
