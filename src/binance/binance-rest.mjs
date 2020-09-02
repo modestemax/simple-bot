@@ -200,13 +200,15 @@ export class BinanceRest {
     normalizeQuantity({symbol, quantity}) {
         //https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#lot_size
         const {minQty, maxQty, stepSize} = this.binanceInfo[symbol]
+        let qty
         if (quantity >= minQty && quantity <= maxQty) {
             if ((quantity - minQty) % stepSize === 0) {
-                return quantity
+                qty= quantity
             } else {
-                return quantity - ((quantity - minQty) % stepSize)
+                qty= quantity - ((quantity - minQty) % stepSize)
             }
         }
+       return qty.toFixed(8)
     }
 
     async #checkPriceThenSell(assetName) {
