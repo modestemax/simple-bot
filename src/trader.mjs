@@ -27,28 +27,30 @@ const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first
 
 
 async function startTrade() {
-    await bid();
-    await setFirstAsCurrentTrade()
-    await firestore.saveCurrentTrade(currentTrade)
-    await setEyesOnCurrentTrade()
+    if (await bid()) {
+        await setFirstAsCurrentTrade()
+        await firestore.saveCurrentTrade(currentTrade)
+        await setEyesOnCurrentTrade()
+    }
 }
 
 async function stopTrade() {
-    await ask();
-    await firestore.savePreviousTrade(currentTrade)
-    await firestore.saveCurrentTrade({})
-    await clearCurrentTrade()
+    if (await ask()) {
+        await firestore.savePreviousTrade(currentTrade)
+        await firestore.saveCurrentTrade({})
+        await clearCurrentTrade()
+    }
 }
 
 async function bid() {
     console.log('bid', first)
-    await restAPI.bid(first.symbol)
+    return await restAPI.bid(first.symbol)
 }
 
 async function ask() {
     console.log('ask', currentTrade)
     // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
-    currentTrade && await restAPI.ask(currentTrade.symbol)
+    return currentTrade && await restAPI.ask(currentTrade.symbol)
 }
 
 async function switchFirstCurrent() {

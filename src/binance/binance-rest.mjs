@@ -125,7 +125,7 @@ export class BinanceRest {
             const url = `${this.#baseUrl}${uri}`
             let res = await axios[method](url)
 
-           // consola.info('api result', res)
+            // consola.info('api result', res)
             return res.data
         } catch (e) {
             consola.error(e)
@@ -145,7 +145,7 @@ export class BinanceRest {
 
     async bid(symbol) {
         consola.log(`buying ${symbol} at market price`)
-        return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        return this.btcBalance && this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
     // ask({symbol/*, quoteOrderQty*/}) {
@@ -167,7 +167,7 @@ export class BinanceRest {
                 symbol, side, type: "MARKET", quoteOrderQty, quantity
             }
         })
-        await this.#getBalances()
+        this.#getBalances()
         return res
     }
 
@@ -203,12 +203,12 @@ export class BinanceRest {
         let qty
         if (quantity >= minQty && quantity <= maxQty) {
             if ((quantity - minQty) % stepSize === 0) {
-                qty= quantity
+                qty = quantity
             } else {
-                qty= quantity - ((quantity - minQty) % stepSize)
+                qty = quantity - ((quantity - minQty) % stepSize)
             }
         }
-       return qty.toFixed(8)
+        return qty.toFixed(8)
     }
 
     async #checkPriceThenSell(assetName) {
