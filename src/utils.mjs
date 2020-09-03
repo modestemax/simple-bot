@@ -14,25 +14,23 @@ export function throttle(func, timeFrame) {
 export function noop() {
 // debugger
 }
-export function log() {
 
+
+export function log(text) {
+    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
+    const stream = fs.createWriteStream(file, {flags: 'a'});
+    stream.write(text + "\n");
+    console.log(text)
 }
 
 
-
 export function logTrade({side, symbol, cryptoMap}) {
-    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
-
-    const stream = fs.createWriteStream(file, {flags: 'a'});
     const signal = cryptoMap[symbol.toLowerCase()]
-    stream.write(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%` + "\n");
+    log(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%`)
+
 
 }
 
 export function logApiError(text) {
-    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
-
-    const stream = fs.createWriteStream(file, {flags: 'a'});
-    stream.write(text + "\n");
-
+    log(text)
 }
