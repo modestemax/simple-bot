@@ -74,7 +74,7 @@ function logSignal() {
     }
 }
 
-const file = `${process.env.PWD}/${new Date().toDateString()}.txt`
+const file = `${process.env.HOME}/${new Date().toDateString()}.txt`
 export function logTrade({side, symbol}) {
 
     const stream = fs.createWriteStream(file, {flags: 'a'});
