@@ -15,12 +15,16 @@ export function noop() {
 // debugger
 }
 
+const openStream = () => {
+    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
+    return fs.createWriteStream(file, {flags: 'a'});
+}
+let stream
 
 export function log(text) {
-    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
-    const stream = fs.createWriteStream(file, {flags: 'a'});
+    stream = stream || openStream()
     stream.write(text + "\n");
-    console.log(text)
+    console.log(new Date().toLocaleTimeString() + ' ' + text)
 }
 
 
