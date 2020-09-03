@@ -74,8 +74,9 @@ function logSignal() {
     }
 }
 
+const file = `${process.env.PWD}/${new Date().toDateString()}.txt`
 export function logTrade({side, symbol}) {
-    const file = `~/${new Date().toDateString()}.txt`
+
     const stream = fs.createWriteStream(file, {flags: 'a'});
     const signal = cryptoMap[symbol.toLowerCase()]
     stream.write(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%` + "\n");
@@ -83,7 +84,7 @@ export function logTrade({side, symbol}) {
 }
 
 export function logApiError(text) {
-    const file = `~/${new Date().toDateString()}.txt`
+
     const stream = fs.createWriteStream(file, {flags: 'a'});
     stream.write(text + "\n");
 
