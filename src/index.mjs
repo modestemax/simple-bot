@@ -16,7 +16,7 @@ import consola from "consola";
     try {
         await firestore.initFireStore()
         await restAPI.init(config.auth)
-        socketAPI.init()
+        socketAPI.init(restAPI)
         await initTrader()
 
         console.log('timeframe: ', config.timeframe)

@@ -73,19 +73,3 @@ function logSignal() {
         logMaxThrottle()
     }
 }
-
-const file = `${process.env.HOME}/${new Date().toDateString()}.txt`
-export function logTrade({side, symbol}) {
-
-    const stream = fs.createWriteStream(file, {flags: 'a'});
-    const signal = cryptoMap[symbol.toLowerCase()]
-    stream.write(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%` + "\n");
-
-}
-
-export function logApiError(text) {
-
-    const stream = fs.createWriteStream(file, {flags: 'a'});
-    stream.write(text + "\n");
-
-}

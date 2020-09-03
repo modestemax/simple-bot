@@ -131,13 +131,17 @@ export class Signal {
 
 export class Trade extends Signal {
     _tradeStartedAtPercent;
+    _bidPrice;
     _stopLoss;
     _startTime;
 
-    constructor({tradeStartedAtPercent, max, min, ...signal}) {
+
+    constructor({tradeStartedAtPercent, bidPrice, max, min, ...signal}) {
         super(signal);
         Object.assign(this, signal)
-        if (tradeStartedAtPercent && max) {
+
+        if (tradeStartedAtPercent && max && bidPrice) {
+            this._bidPrice = bidPrice
             this._tradeStartedAtPercent = tradeStartedAtPercent
             this.update({min, max})
         } else if (!(this.tradeStartedAtPercent && this.max)) {
@@ -159,6 +163,10 @@ export class Trade extends Signal {
 
     get tradeStartedAtPercent() {
         return this._tradeStartedAtPercent
+    }
+
+    get bidPrice() {
+        return this._bidPrice;
     }
 
     get stopLoss() {

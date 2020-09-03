@@ -4,7 +4,8 @@ import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";
-import {logTrade, logApiError} from "../db/index.mjs";
+import {logTrade,logApiError} from "../utils.mjs";
+import {cryptoMap} from "../db/index.mjs";
 
 const BTC_ASSET_NAME = 'btc'
 
@@ -13,7 +14,7 @@ export class BinanceRest {
 
     auth;
     balances = {};
-    binanceInfo = {};
+    #binanceInfo = {};
     bnbBalance;
     btcBalance;
 
@@ -22,7 +23,7 @@ export class BinanceRest {
         consola.log('init binance rest api')
         this.auth = auth
         // await this.#cancelAllOpenOrders()
-        await this.#binanceInfo()
+        await this.#getBinanceInfo()
         await this.#getBalances()
         await this.#sellAllAssets()
 
@@ -32,9 +33,13 @@ export class BinanceRest {
         // await this.#sellSymbol('ethbtc')
     }
 
-    async #binanceInfo() {
+    get binanceInfo() {
+        return this.#binanceInfo
+    }
+
+    async #getBinanceInfo() {
         const info = await this.#publicAPI({method: 'get', uri: '/api/v3/exchangeInfo'})
-        this.binanceInfo = info.symbols.filter(s =>
+        this.#binanceInfo = info.symbols.filter(s =>
             /*s.baseAsset=='MBL' &&*/
             s.quoteAsset === 'BTC'
             && s.status === 'TRADING'
@@ -177,7 +182,7 @@ export class BinanceRest {
             }
         })
         this.#getBalances()
-        logTrade({side, symbol})
+        logTrade({side, symbol, cryptoMap})
         return res
     }
 

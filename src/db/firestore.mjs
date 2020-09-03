@@ -32,6 +32,9 @@ class Firestore2 {
         }
         config.current_trade = currentTradeData.data()
         config.first = firstData.data()
+        global.config = config
+        config.timeframe = process.env.TIME_FRAME || config.timeframe
+        Object.assign(config, config[config.timeframe])
         return config
     }
 

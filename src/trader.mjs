@@ -5,6 +5,7 @@ import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
+import {log} from "./utils.mjs";
 
 
 let currentTrade
@@ -13,16 +14,13 @@ const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= confi
 
 const setCurrentTrade = (currentValue) => currentTrade = currentValue
 const setFirstAsCurrentTrade = () =>
-    setCurrentTrade(new Trade(Object.assign({}, first, {tradeStartedAtPercent: first.percent, max: first.percent,})))
+    setCurrentTrade(new Trade(Object.assign({}, first, {
+        tradeStartedAtPercent: first.percent, max: first.percent,
+        bidPrice: first.close
+    })))
 
 const clearCurrentTrade = () => setCurrentTrade(null)
-// const resetCurrentTrade = () => {
-//     if (config.current_trade && config.current_trade.symbol) {
-//         const signal = getSignal(config.current_trade.symbol)
-//         setCurrentTrade(new Trade(Object.assign({}, signal, config.current_trade)))
-//         setEyesOnCurrentTrade()
-//     }
-// }
+
 const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
 
 
@@ -67,19 +65,19 @@ function setEyesOnCurrentTrade() {
             try {
                 if (currentTrade) {
                     currentTrade.update({open, close})
-
+                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent})\tc:${close}`
                     if (currentTrade.isBelowStopLoss()) {
-                        consola.info('Stop loss')
+                        log(`Stop loss : ${symbolResume} `)
                         await stopTrade()
                     } else if (currentTrade.isAboveTakeProfit()) {
-                        consola.info('Stop trade and take profit')
+                        log(`Take profit : ${symbolResume}`)
                         await stopTrade()
-                    } else if (currentTrade.isMaxAboveTakeProfit()) {
+                    }/* else if (currentTrade.isMaxAboveTakeProfit()) {
                         if (currentTrade.hasLossOnGain()) {
-                            consola.info('Stop trade and take profit')
+                            log('Stop trade and take profit')
                             await stopTrade()
                         }
-                    }
+                    }*/
                     if (percent !== currentTrade?.percent) {
                         consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                         percent = currentTrade?.percent

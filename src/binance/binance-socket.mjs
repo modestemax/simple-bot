@@ -14,6 +14,7 @@ class BinanceSocket extends EventEmitter {
         return 'FINAL_EVENT'
     };
 
+    #restAPI;
     candlesWebsocket = {};
 
 
@@ -22,8 +23,9 @@ class BinanceSocket extends EventEmitter {
         this.updateSignal = this.updateSignal.bind(this)
     }
 
-    init() {
+    init(restAPI) {
         // super()
+        this.#restAPI = restAPI
         const ws = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
         ws.onmessage = this.updateSignal
         ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
@@ -46,7 +48,7 @@ class BinanceSocket extends EventEmitter {
         if (percent(ask, bid) < .35) {
 
             const symbol = data.s.toLowerCase()
-            if (/btc$/.test(symbol)) {
+            if (this.canTradeSymbol(symbol)) {
                 if (!this.candlesWebsocket[symbol]) {
                     const ws = this.candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe || '1d'}`)
                     ws.onmessage = this.upsertSignal(symbol)
@@ -62,6 +64,14 @@ class BinanceSocket extends EventEmitter {
 
     getTickEvent(symbol) {
         return symbol + SYMBOL_TICK
+    }
+
+    canTradeSymbol(symbol) {
+        if (this.#restAPI.binanceInfo[symbol]) {
+            if (!(/^(bnb|trx)/.test(symbol))) {
+                return true
+            }
+        }
     }
 }
 
