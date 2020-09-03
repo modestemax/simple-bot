@@ -112,7 +112,7 @@ export class BinanceRest {
             // consola.info('api result', res)
             return res;
         } catch (e) {
-            logApiError(`\n${JSON.stringify(arguments)}\n${e?.response?.data}\n`)
+            logApiError(`\n${JSON.stringify(arguments)}\n${JSON.stringify(e?.response?.data)}\n`)
             consola.error(e)
             consola.error(e?.response?.data)
             consola.info(arguments)
@@ -166,8 +166,9 @@ export class BinanceRest {
         if (process.env.NODE_ENV !== 'production') {
             uri = '/api/v3/order/test'
             quoteOrderQty = 1
+            quantity = void 0
         }
-        if (!(quantity || quoteOrderQty)) {
+        if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
             return
         }
         const res = await this.#secureAPI({
@@ -203,7 +204,7 @@ export class BinanceRest {
         const symbol = this.getSymbol(assetName)
         let quantity = this.balances[assetName] && this.balances[assetName].free
         quantity = this.normalizeQuantity({symbol, quantity})
-        return quantity && this.sellMarketPrice({symbol, quantity})
+        return this.sellMarketPrice({symbol, quantity})
     }
 
     normalizeQuantity({symbol, quantity}) {
