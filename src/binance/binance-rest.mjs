@@ -4,6 +4,7 @@ import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";
+import {logTrade, logApiError} from "../db/index.mjs";
 
 const BTC_ASSET_NAME = 'btc'
 
@@ -111,6 +112,7 @@ export class BinanceRest {
             // consola.info('api result', res)
             return res;
         } catch (e) {
+            logApiError(`\n${JSON.stringify(arguments)}\n${e?.response?.data}\n`)
             consola.error(e)
             consola.error(e?.response?.data)
             consola.info(arguments)
@@ -145,7 +147,7 @@ export class BinanceRest {
 
     async bid(symbol) {
         consola.log(`buying ${symbol} at market price`)
-        return this.btcBalance && this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
     // ask({symbol/*, quoteOrderQty*/}) {
@@ -160,14 +162,21 @@ export class BinanceRest {
     async #postOrder({symbol, side, quantity, quoteOrderQty}) {
         symbol = symbol.toUpperCase()
         consola.log(`${side} ${symbol} at market price`)
-        // const uri= '/api/v3/order/test'
-        const uri = '/api/v3/order'
+        let uri = '/api/v3/order'
+        if (process.env.NODE_ENV !== 'production') {
+            uri = '/api/v3/order/test'
+            quoteOrderQty = 1
+        }
+        if (!(quantity || quoteOrderQty)) {
+            return
+        }
         const res = await this.#secureAPI({
             method: 'post', uri, params: {
                 symbol, side, type: "MARKET", quoteOrderQty, quantity
             }
         })
         this.#getBalances()
+        logTrade({side, symbol})
         return res
     }
 
@@ -208,7 +217,7 @@ export class BinanceRest {
                 qty = quantity - ((quantity - minQty) % stepSize)
             }
         }
-        return qty.toFixed(8)
+        return +(qty || NaN).toFixed(8)
     }
 
     async #checkPriceThenSell(assetName) {

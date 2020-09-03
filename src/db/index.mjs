@@ -3,6 +3,7 @@ import consola from 'consola'
 import EventEmitter from 'events'
 import {config} from "./firestore.mjs";
 import {throttle} from "../utils.mjs";
+import fs from 'fs'
 
 export const MAX_CHANGED = 'max-changed'
 
@@ -17,7 +18,7 @@ export const cryptoMap = {}
 export const max = new Signal()
 export const first = new Signal()
 
-const logMax = () => consola.log('max', max?.symbol, max?.max)
+const logMax = () => isFinite(max?.max) && consola.log('max', max?.symbol, max?.max)
 const logFirst = () => consola.log('first', first?.symbol, first?.max, first?.percent)
 
 const logFirstThrottle = throttle(logFirst, 30e3)
@@ -25,29 +26,23 @@ const logMaxThrottle = throttle(logMax, 30e3)
 
 
 export const findFirst = () => {
-    const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent).sort((a, b) => a.percent < b.percent ? 1 : -1)
-    const sortedByMax = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
 
-    const [newFirst] = sortedByPercent
-    const [newMax] = sortedByMax
-    const oldFirst = Object.assign(new Signal(), first)
-    const oldMax = Object.assign(new Signal(), max)
-    first.updateWith(newFirst)
-    max.updateWith(newMax)
+    findTradablesThenSendThemToTrader()
 
-    findTradablesThenSendThemToTrader(sortedByPercent)
-
-    logSignal({newFirst, oldFirst, newMax, oldMax});
+    logSignal();
 }
 const firsts = {}
 
-function findTradablesThenSendThemToTrader(sortedByPercent) {
+function findTradablesThenSendThemToTrader(/*sortedByPercent*/) {
+    const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
+        .sort((a, b) => a.percent < b.percent ? 1 : -1)
     const firstList = sortedByPercent.filter(a => a.percent >= config.enter_trade && a.percent >= a.max)
-    firstList.forEach(first => {
+    firstList.forEach(afirst => {
+        first.updateWith(afirst)
         dbEvent.emit(MAX_CHANGED)
-        if (!firsts[first.symbol] || firsts[first.symbol] !== first.percent) {
-            firsts[first.symbol] = first.percent
-            consola.info('MAX CHANGED', first.symbol, first.percent)
+        if (!firsts[afirst.symbol] || firsts[afirst.symbol] !== afirst.percent) {
+            firsts[afirst.symbol] = afirst.percent
+            consola.info('MAX CHANGED', afirst.symbol, afirst.percent)
         }
     })
 }
@@ -61,16 +56,35 @@ export function getSignal(symbol) {
 }
 
 
-function logSignal({newFirst, oldFirst, newMax, oldMax}) {
-    if (newFirst?.symbol !== oldFirst.symbol || oldFirst.percent !== oldFirst.percent) {
+function logSignal() {
+    const sortedByMax = Object.values(cryptoMap).filter(a => a.max).sort((a, b) => a.max < b.max ? 1 : -1)
+    const [newMax] = sortedByMax
+    const oldMax = Object.assign(new Signal(), max)
+    max.updateWith(newMax)
+    /*if (newFirst?.symbol !== oldFirst.symbol || oldFirst.percent !== oldFirst.percent) {
         logFirst()
     } else {
         logFirstThrottle()
-    }
+    }*/
 
     if (newMax?.symbol !== oldMax.symbol || oldMax.max !== newMax?.max) {
         logMax()
     } else {
         logMaxThrottle()
     }
+}
+
+export function logTrade({side, symbol}) {
+    const file = `~/${new Date().toDateString()}.txt`
+    const stream = fs.createWriteStream(file, {flags: 'a'});
+    const signal = cryptoMap[symbol.toLowerCase()]
+    stream.write(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%` + "\n");
+
+}
+
+export function logApiError(text) {
+    const file = `~/${new Date().toDateString()}.txt`
+    const stream = fs.createWriteStream(file, {flags: 'a'});
+    stream.write(text + "\n");
+
 }

@@ -4,6 +4,8 @@ import consola from 'consola'
 const twoDecimal = (value) => Math.trunc(value * 100) / 100
 export const percent = (close, open) => (close - open) / open * 100
 
+const ONE_MINUTE = 1e3 * 60
+
 export class Signal {
     symbol;
     _open;
@@ -144,7 +146,7 @@ export class Trade extends Signal {
             throw error
         }
         this._stopLoss = this._stopLoss ? this._stopLoss : this.max - config.stop_lost;
-        this._startTime = this._startTime ? this._startTime : new Date().toTimeString()
+        this._startTime = this._startTime ? this._startTime : Date.now()
     }
 
 
@@ -181,6 +183,14 @@ export class Trade extends Signal {
         const virtualGain = this.max - this.tradeStartedAtPercent
         const percentLoss = loss / virtualGain * 100;
         return percentLoss >= config.acceptable_loss_on_gain_percentage
+    }
+
+    IsLosing() {
+        return this.percent < (this.stopLoss + this.tradeStartedAtPercent) / 2
+    }
+
+    IsDelaying() {
+        return Date.now() - this._startTime > config.trade_max_time_minute * ONE_MINUTE
     }
 
 }

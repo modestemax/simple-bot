@@ -21,6 +21,7 @@ import consola from "consola";
 
         console.log('timeframe: ', config.timeframe)
         console.log('enter_trade: ', config.enter_trade)
+        console.log('config: ', config)
 
     } catch (ex) {
         consola.error(ex)

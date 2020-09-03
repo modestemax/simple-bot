@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 export function throttle(func, timeFrame) {
     let lastTime = 0;
     return function (...arg) {
@@ -12,3 +14,4 @@ export function throttle(func, timeFrame) {
 export function noop() {
 // debugger
 }
+

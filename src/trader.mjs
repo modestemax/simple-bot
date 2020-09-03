@@ -106,10 +106,13 @@ export function initTrader() {
                     if (await noTrade()) {
                         consola.info('Start trade')
                         await startTrade()
-                    } else if (await firstIsAboveCurrent()) {
+                    } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying()) {
                         consola.info('Switch  trade')
                         await switchFirstCurrent()
-                    }
+                    }/*else if (await firstIsAboveCurrent()) {
+                        consola.info('Switch  trade')
+                        await switchFirstCurrent()
+                    }*/
                 }
             } finally {
                 checkMax()
