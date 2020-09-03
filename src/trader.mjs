@@ -65,7 +65,7 @@ function setEyesOnCurrentTrade() {
             try {
                 if (currentTrade) {
                     currentTrade.update({open, close})
-                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent})\tc:${close}`
+                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent})\tc:${close} (${currentTrade.percent})`
                     if (currentTrade.isBelowStopLoss()) {
                         log(`Stop loss : ${symbolResume} `)
                         await stopTrade()
