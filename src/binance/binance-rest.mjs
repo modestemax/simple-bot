@@ -4,7 +4,7 @@ import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";
-import {logTrade,logApiError} from "../utils.mjs";
+import {logTrade, logApiError, addPercent} from "../utils.mjs";
 import {cryptoMap} from "../db/index.mjs";
 
 const BTC_ASSET_NAME = 'btc'
@@ -25,6 +25,7 @@ export class BinanceRest {
         // await this.#cancelAllOpenOrders()
         await this.#getBinanceInfo()
         await this.#getBalances()
+        await this.#cancelOCOOrders()
         await this.#sellAllAssets()
 
         // await this.#buyAsset('eth')
@@ -35,6 +36,11 @@ export class BinanceRest {
 
     get binanceInfo() {
         return this.#binanceInfo
+    }
+
+    async getListenKey() {
+        const info = await this.#publicAPI({method: 'get', uri: '/api/v3/userDataStream'})
+        debugger
     }
 
     async #getBinanceInfo() {
@@ -140,45 +146,52 @@ export class BinanceRest {
             consola.info(arguments)
             throw e
         }
-
     }
 
 
-    async sellMarketPrice({symbol,/* quoteOrderQty,*/ quantity}) {
-        consola.log(`selling ${symbol} at market price`)
-        return this.#postOrder({symbol, quantity, side: 'SELL'})
-        // return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
-    }
+    // async sellMarketPrice({symbol, close, quantity}) {
+    //     consola.log(`selling ${symbol} at market price`)
+    //     return this.#postOrder({symbol, close, quantity, side: 'SELL'})
+    //     // return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
+    // }
 
     async bid(symbol) {
         consola.log(`buying ${symbol} at market price`)
         return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
-    // ask({symbol/*, quoteOrderQty*/}) {
-    ask(symbol) {
-        consola.log(`selling ${symbol}`)
+    ask({symbol, close}) {
+        consola.log(`place OCO ${assetName}`)
         const assetName = this.getAssetName(symbol)
-        // const quantity = this.balances[assetName] && this.balances[assetName].free
-        // return quantity && this.sellMarketPrice({symbol, quoteOrderQty})
-        return this.#sellAsset(assetName)
+        let quantity = this.balances[assetName] && this.balances[assetName].free
+        quantity = this.normalizeQuantity({symbol, quantity})
+        return this.#postOrder({symbol, close, quantity, side: 'SELL'})
     }
 
-    async #postOrder({symbol, side, quantity, quoteOrderQty}) {
+    async #postOrder({symbol, close, price, stopPrice, side, type = "MARKET", quantity, quoteOrderQty}) {
         symbol = symbol.toUpperCase()
         consola.log(`${side} ${symbol} at market price`)
         let uri = '/api/v3/order'
-        if (process.env.NODE_ENV !== 'production') {
-            uri = '/api/v3/order/test'
-            quoteOrderQty = 1
-            quantity = void 0
-        }
+
         if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
             return
         }
+
+        if (config.oco && close) {
+            uri = '/api/v3/order/oco'
+            type = void 0
+            price = addPercent({close, percent: config.take_profit})
+            stopPrice = addPercent({close, percent: -1 * config.stop_lost})
+        }
+
+        if (config.test) {
+            uri = '/api/v3/order/test'
+            quoteOrderQty = 1
+            quantity = price = stopPrice = void 0
+        }
         const res = await this.#secureAPI({
             method: 'post', uri, params: {
-                symbol, side, type: "MARKET", quoteOrderQty, quantity
+                symbol, side, type, quoteOrderQty, quantity, price, stopPrice
             }
         })
         this.#getBalances()
@@ -209,8 +222,9 @@ export class BinanceRest {
         const symbol = this.getSymbol(assetName)
         let quantity = this.balances[assetName] && this.balances[assetName].free
         quantity = this.normalizeQuantity({symbol, quantity})
-        return this.sellMarketPrice({symbol, quantity})
+        return this.#postOrder({symbol, quantity, side: 'SELL'})
     }
+
 
     normalizeQuantity({symbol, quantity}) {
         //https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#lot_size
@@ -238,6 +252,21 @@ export class BinanceRest {
     }
 
 //************************************************
+    get lockedAssets() {
+        return Object.values(this.balances).filter(b => b.locked).map(b => b.asset)
+    }
+
+    async #cancelOCOOrders() {
+        consola.log('canceling all open oco order')
+        for (let assetName of this.lockedAssets) {
+            await this.#secureAPI({
+                method: 'delete',
+                uri: '/api/v3/orderList',
+                params{symbol: this.getSymbol(assetName)}
+            });
+        }
+    }
+
 //     async #cancelAllOpenOrders() {
 //         consola.log('canceling all open order')
 //         for (let openOrder of await this.#getOpenOrders()) {

@@ -90,6 +90,10 @@ export class Signal {
         }
     }
 
+    get grandMin() {
+        return this._grandMin
+    }
+
     $percent() {
         if (this.open && this.close) {
             this._percent = twoDecimal(percent(this.close, this.open))
@@ -113,14 +117,14 @@ export class Signal {
 
     #grandMin() {
         if (this.min !== this.max) {
-            const diff = twoDecimal(this.max - this.min)
+            const diff = twoDecimal(this.max - this.min).toFixed(0)
             // diff > 1 && consola.info('min', this.symbol, diff)
-            const oldGrandMin = this._grandMin
+            const oldGrandMin = this.grandMin
             // this._grandMin = Math.max(this._grandMin, diff)
-            this._grandMin = this._grandMin || []
-            if (isFinite(diff) && !this._grandMin.includes(diff.toFixed(0)))
-                this._grandMin = [diff.toFixed(0), ...this._grandMin]
-            if (oldGrandMin !== this._grandMin) {
+            const grandMin = this.grandMin || []
+            if (isFinite(diff) && !grandMin.includes(diff))
+                this._grandMin = [diff, ...grandMin]
+            if (oldGrandMin !== this.grandMin) {
                 //firestore.saveGrandMin(this.symbol, this._grandMin)
             }
         }
@@ -151,13 +155,14 @@ export class Trade extends Signal {
         }
         this._stopLoss = this._stopLoss ? this._stopLoss : this.max - config.stop_lost;
         this._startTime = this._startTime ? this._startTime : Date.now()
+        this._grandMin = null
     }
 
 
     $percent() {
         super.$percent()
         if (this.open && this.close) {
-            this._stopLoss = this.max - config.stop_lost
+            this._stopLoss = +(this.max - config.stop_lost).toFixed(2)
         }
     }
 

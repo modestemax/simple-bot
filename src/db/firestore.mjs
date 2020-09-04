@@ -5,6 +5,8 @@ export const config = {
     enter_trade: 25,
     timeframe: '1d',
     stop_lost: 3,
+    oco: false,
+    test: true,
     take_profit: 2,
     acceptable_loss_on_gain_percentage: 50,
     trade_max_time_minute: 30,

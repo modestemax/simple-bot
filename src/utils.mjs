@@ -39,3 +39,7 @@ export function logTrade({side, symbol, cryptoMap}) {
 export function logApiError(text) {
     log(text)
 }
+
+export function addPercent({close, percent}) {
+    return +(close * (1 + percent / 100)).toFixed(8)
+}

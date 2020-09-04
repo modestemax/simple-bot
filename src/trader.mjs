@@ -27,15 +27,15 @@ const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first
 async function startTrade() {
     if (await bid()) {
         await setFirstAsCurrentTrade()
-        await firestore.saveCurrentTrade(currentTrade)
+        // await firestore.saveCurrentTrade(currentTrade)
         await setEyesOnCurrentTrade()
     }
 }
 
 async function stopTrade() {
     if (await ask()) {
-        await firestore.savePreviousTrade(currentTrade)
-        await firestore.saveCurrentTrade({})
+        // await firestore.savePreviousTrade(currentTrade)
+        // await firestore.saveCurrentTrade({})
         await clearCurrentTrade()
     }
 }
@@ -48,7 +48,7 @@ async function bid() {
 async function ask() {
     console.log('ask', currentTrade)
     // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
-    return currentTrade && await restAPI.ask(currentTrade.symbol)
+    return currentTrade && await restAPI.ask(currentTrade)
 }
 
 async function switchFirstCurrent() {
@@ -65,7 +65,7 @@ function setEyesOnCurrentTrade() {
             try {
                 if (currentTrade) {
                     currentTrade.update({open, close})
-                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${close} (${currentTrade.percent}%)`
+                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${close} (${currentTrade.percent}%)\tm:${currentTrade.grandMin}`
                     if (currentTrade.isBelowStopLoss()) {
                         log(`Stop loss : ${symbolResume} `)
                         await stopTrade()
@@ -81,7 +81,7 @@ function setEyesOnCurrentTrade() {
                     if (percent !== currentTrade?.percent) {
                         consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                         percent = currentTrade?.percent
-                        firestore.saveCurrentTrade(currentTrade)
+                        // firestore.saveCurrentTrade(currentTrade)
                     }
                 }
             } finally {
