@@ -23,8 +23,9 @@ let stream
 
 export function log(text) {
     stream = stream || openStream()
+    text = new Date().toLocaleTimeString() + ' ' + text
     stream.write(text + "\n");
-    console.log(new Date().toLocaleTimeString() + ' ' + text)
+    console.log(text)
 }
 
 
