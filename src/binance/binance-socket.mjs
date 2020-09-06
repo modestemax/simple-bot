@@ -23,10 +23,21 @@ class BinanceSocket extends EventEmitter {
         this.updateSignal = this.updateSignal.bind(this)
     }
 
-    init(restAPI) {
-        // super()
+    async init(restAPI) {
         this.#restAPI = restAPI
+        await this.initTicker()
+        await this.initUserData()
+    }
+
+    initTicker() {
         const ws = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
+        ws.onmessage = this.updateSignal
+        ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+    }
+
+    async initUserData() {
+        const listenKey = await this.#restAPI.getListenKey()
+        const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${listenKey}`)
         ws.onmessage = this.updateSignal
         ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
     }
