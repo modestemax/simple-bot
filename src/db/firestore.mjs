@@ -4,6 +4,7 @@ import {noop} from "../utils.mjs";
 export const config = {
     enter_trade: 25,
     timeframe: '1d',
+    strategy: '_first_',
     stop_lost: 3,
     oco: false,
     test: true,
@@ -32,8 +33,8 @@ class Firestore2 {
         } else {
             Object.assign(config, configData.data());
         }
-        config.current_trade = currentTradeData.data()
-        config.first = firstData.data()
+        // config.current_trade = currentTradeData.data()
+        // config.first = firstData.data()
         global.config = config
         config.timeframe = process.env.TIME_FRAME || config.timeframe
         Object.assign(config, config[config.timeframe])

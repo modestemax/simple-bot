@@ -5,7 +5,7 @@ import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {log} from "./utils.mjs";
+import {log, endStream} from "./utils.mjs";
 
 
 let currentTrade
@@ -37,9 +37,11 @@ async function stopTrade() {
     if (config.oco || await ask()) {
         // await firestore.savePreviousTrade(currentTrade)
         // await firestore.saveCurrentTrade({})
-        {//log
-            const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${close} (${currentTrade.percent}%)\tm:${currentTrade.grandMin}`
-            if (currentTrade.percent < currentTrade.tradeStartedAtPercent) {
+        if (currentTrade) {//log
+            let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
+            symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
+            symbolResume += "\n\n"
+            if (currentTrade.percent <= currentTrade.tradeStartedAtPercent) {
                 log(`Stop loss : ${symbolResume} `)
             } else {
                 log(`Take profit : ${symbolResume}`)
@@ -107,15 +109,15 @@ export function initTrader() {
     function checkMax() {
         dbEvent.once(MAX_CHANGED, async () => {
             try {
-                if (await maxIsGoodToGo()) {
-                    if (await noTrade()) {
-                        consola.info('Start trade')
-                        await startTrade()
-                    } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying() || await firstIsAboveCurrent()) {
-                        consola.info('Switch  trade')
-                        await switchFirstCurrent()
-                    }
+                // if (await maxIsGoodToGo()) {
+                if (noTrade()) {
+                    consola.info('Start trade')
+                    await startTrade()
+                } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying() || firstIsAboveCurrent()) {
+                    consola.info('Switch  trade')
+                    await switchFirstCurrent()
                 }
+                // }
             } finally {
                 checkMax()
             }
@@ -124,12 +126,32 @@ export function initTrader() {
     }
 
     function checkFinal() {
-        dbEvent.on(socketAPI.FINAL_EVENT, async (symbol) => {
+        socketAPI.on(socketAPI.FINAL_EVENT, async (symbol) => {
             try {
-                currentTrade?.symbol === symbol && await stopTrade()
+                if (currentTrade?.symbol === symbol) {
+                    await stopTrade()
+                    restartProcess() //must restart pm2
+                }
             } finally {
                 // checkFinal()
+                currentTrade || restartProcess() //must restart pm2
             }
         })
     }
+}
+
+async function restartProcess() {
+    console.log("This is pid " + process.pid);
+    // // setTimeout(function () {
+    //     process.on("exit", function () {
+    //         require("child_process").spawn(process.argv.shift(), process.argv, {
+    //             cwd: process.cwd(),
+    //             detached: true,
+    //             stdio: "inherit"
+    //         });
+    //     });
+    await endStream()
+    process.exit();
+    // setTimeout(() => process.exit(), 3e3);
+    // }, 5000);
 }

@@ -8,6 +8,10 @@
     "start": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect=167.71.216.215 src/index.mjs ",
     "1d": "TIME_FRAME=1d npm start ",
     "4h": "TIME_FRAME=4h npm start ",
+    "1m": "TIME_FRAME=1m npm start ",
+    "3m": "TIME_FRAME=3m npm start ",
+    "1m_dev": "TIME_FRAME=1m npm run dev ",
+    "3m_dev": "TIME_FRAME=3m npm run dev ",
     "dev": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect src/index.mjs ",
     "debug": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.mjs "
   },

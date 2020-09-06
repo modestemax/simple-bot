@@ -6,12 +6,13 @@ import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";
 import {logTrade, logApiError, addPercent} from "../utils.mjs";
 import {cryptoMap} from "../db/index.mjs";
+import WebSocket from "ws";
 
 const BTC_ASSET_NAME = 'btc'
 
 export class BinanceRest {
     #baseUrl = 'https://api.binance.com';
-
+    #listenKey;
     auth;
     balances = {};
     #binanceInfo = {};
@@ -27,6 +28,7 @@ export class BinanceRest {
         await this.#getBalances()
         await this.#cancelOCOOrders()
         await this.#sellAllAssets()
+        await this.#initUserData()
 
         // await this.#buyAsset('eth')
         // await this.#sellAsset('eth')
@@ -38,10 +40,59 @@ export class BinanceRest {
         return this.#binanceInfo
     }
 
-    async getListenKey() {
-        const info = await this.#publicAPI({method: 'get', uri: '/api/v3/userDataStream'})
-        debugger
+    get listenKey() {
+        return this.#listenKey
     }
+
+    async #createListenKey() {
+        const info = await this.#secureAPI({method: 'post', uri: '/api/v3/userDataStream', sign: false})
+        this.#listenKey = info.data.listenKey
+        setTimeout(() => this.#pingListenKey(), 30 * 60 * 1e3)
+        // setTimeout(() => this.#pingListenKey(), 6 * 1e3)
+        return this.#listenKey
+    }
+
+    async #pingListenKey() {
+        this.#listenKey && await this.#secureAPI({
+            method: 'put',
+            uri: '/api/v3/userDataStream',
+            params: {listenKey: this.#listenKey},
+            sign: false
+        })
+        return this.#listenKey
+    }
+
+    async #initUserData() {
+        //https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md
+        const listenKey = await this.#createListenKey()
+        const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${listenKey}`)
+        ws.onmessage = ({data}) => {
+            data = JSON.parse(data)
+            switch (data.e) {
+                case 'listStatus':
+                    break
+                case 'executionReport':
+                    break
+                case 'balanceUpdate':
+                    break
+                case 'outboundAccountPosition':
+                    data.B.forEach(({a: assetName, f: free, l: locked}) => {
+                            if ((assetName + BTC_ASSET_NAME).toLowerCase() === 'btcbtc') {
+                                this.btcBalance = +free
+                            } else {
+                                this.balances[assetName.toLowerCase()] && this.canTradeAsset(asset.a) && Object.assign(this.balances[assetName.toLowerCase()], {
+                                    free: +free,
+                                    locked: +locked
+                                })
+                            }
+                        }
+                    )
+                    break
+            }
+            console.log(data)
+        }
+    }
+
 
     async #getBinanceInfo() {
         const info = await this.#publicAPI({method: 'get', uri: '/api/v3/exchangeInfo'})
@@ -93,13 +144,15 @@ export class BinanceRest {
         return hash;
     }
 
-    async #secureAPI({method, uri, params = {}}) {
+    async #secureAPI({method, uri, params = {}, sign = true}) {
         try {
             consola.log(`api ${method} ${uri}`)
             const url = `${this.#baseUrl}${uri}`
-            params.timestamp = Date.now()
-            params.recvWindow = 3e3// * 20
-            params.signature = this.#getHmacSignature(qs.stringify(params))
+            if (sign) {
+                params.timestamp = Date.now()
+                params.recvWindow = 3e3// * 20
+                params.signature = this.#getHmacSignature(qs.stringify(params))
+            }
             let res
             switch (method) {
                 case 'post':
@@ -161,7 +214,7 @@ export class BinanceRest {
     }
 
     ask({symbol, close}) {
-        consola.log(`place OCO ${assetName}`)
+        consola.log(`place OCO ${symbol}`)
         const assetName = this.getAssetName(symbol)
         let quantity = this.balances[assetName] && this.balances[assetName].free
         quantity = this.normalizeQuantity({symbol, quantity})
@@ -172,10 +225,6 @@ export class BinanceRest {
         symbol = symbol.toUpperCase()
         consola.log(`${side} ${symbol} at market price`)
         let uri = '/api/v3/order'
-
-        if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
-            return
-        }
 
         if (config.oco && close) {
             uri = '/api/v3/order/oco'
@@ -189,16 +238,31 @@ export class BinanceRest {
             quoteOrderQty = 1
             quantity = price = stopPrice = void 0
         }
+        if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
+            return
+        }
         const res = await this.#secureAPI({
             method: 'post', uri, params: {
                 symbol, side, type, quoteOrderQty, quantity, price, stopPrice
             }
         })
-        this.#getBalances()
+        // this.#getBalances()
         logTrade({side, symbol, cryptoMap})
         return res
     }
 
+    canTradeSymbol(symbol) {
+        if (this.#binanceInfo[symbol]) {
+            if (!(/^(bnb|trx)/.test(symbol))) {
+                return true
+            }
+        }
+    }
+
+    canTradeAsset(assetName) {
+        return this.canTradeSymbol(this.getSymbol(assetName))
+
+    }
 
     getSymbol(assetName) {
         return (assetName + BTC_ASSET_NAME).toLowerCase()
