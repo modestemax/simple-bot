@@ -26,6 +26,7 @@ const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first
 
 async function startTrade() {
     if (await bid()) {
+        config.oco && await ask()
         await setFirstAsCurrentTrade()
         // await firestore.saveCurrentTrade(currentTrade)
         await setEyesOnCurrentTrade()
@@ -33,10 +34,19 @@ async function startTrade() {
 }
 
 async function stopTrade() {
-    if (await ask()) {
+    if (config.oco || await ask()) {
         // await firestore.savePreviousTrade(currentTrade)
         // await firestore.saveCurrentTrade({})
+        {//log
+            const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${close} (${currentTrade.percent}%)\tm:${currentTrade.grandMin}`
+            if (currentTrade.percent < currentTrade.tradeStartedAtPercent) {
+                log(`Stop loss : ${symbolResume} `)
+            } else {
+                log(`Take profit : ${symbolResume}`)
+            }
+        }
         await clearCurrentTrade()
+
     }
 }
 
@@ -63,21 +73,18 @@ function setEyesOnCurrentTrade() {
     function followTrade() {
         currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
             try {
-                if (currentTrade) {
-                    currentTrade.update({open, close})
-                    const symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${close} (${currentTrade.percent}%)\tm:${currentTrade.grandMin}`
-                    if (currentTrade.isBelowStopLoss()) {
-                        log(`Stop loss : ${symbolResume} `)
-                        await stopTrade()
-                    } else if (currentTrade.isAboveTakeProfit()) {
-                        log(`Take profit : ${symbolResume}`)
-                        await stopTrade()
-                    }/* else if (currentTrade.isMaxAboveTakeProfit()) {
+                currentTrade?.update({open, close})
+                if (currentTrade?.isBelowStopLoss()) {
+                    await stopTrade()
+                } else if (currentTrade?.isAboveTakeProfit()) {
+                    await stopTrade()
+                }/* else if (currentTrade.isMaxAboveTakeProfit()) {
                         if (currentTrade.hasLossOnGain()) {
                             log('Stop trade and take profit')
                             await stopTrade()
                         }
                     }*/
+                {//log
                     if (percent !== currentTrade?.percent) {
                         consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
                         percent = currentTrade?.percent
@@ -104,13 +111,10 @@ export function initTrader() {
                     if (await noTrade()) {
                         consola.info('Start trade')
                         await startTrade()
-                    } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying()) {
+                    } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying() || await firstIsAboveCurrent()) {
                         consola.info('Switch  trade')
                         await switchFirstCurrent()
-                    }/*else if (await firstIsAboveCurrent()) {
-                        consola.info('Switch  trade')
-                        await switchFirstCurrent()
-                    }*/
+                    }
                 }
             } finally {
                 checkMax()
@@ -120,11 +124,11 @@ export function initTrader() {
     }
 
     function checkFinal() {
-        dbEvent.once(socketAPI.FINAL_EVENT, async (symbol) => {
+        dbEvent.on(socketAPI.FINAL_EVENT, async (symbol) => {
             try {
                 currentTrade?.symbol === symbol && await stopTrade()
             } finally {
-                checkFinal()
+                // checkFinal()
             }
         })
     }

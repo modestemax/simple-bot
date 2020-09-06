@@ -262,7 +262,7 @@ export class BinanceRest {
             await this.#secureAPI({
                 method: 'delete',
                 uri: '/api/v3/orderList',
-                params{symbol: this.getSymbol(assetName)}
+                params: {symbol: this.getSymbol(assetName)}
             });
         }
     }
