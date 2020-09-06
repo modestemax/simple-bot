@@ -12,7 +12,7 @@ export function _first_({cryptoMap, emit}) {
         .sort((a, b) => a.percent < b.percent ? 1 : -1)
 
     const [afirst] = sortedByPercent
-    afirst.percent >= config.enter_trade && emit(afirst)
+    afirst && afirst.percent >= config.enter_trade && emit(afirst)
     log(afirst)
 }
 
