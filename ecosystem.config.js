@@ -28,6 +28,11 @@ module.exports = {
             script: 'npm run 5m',
             ...app,
         },
+        {
+            name: '3m',
+            script: 'npm run 3m',
+            ...app,
+        },
     ],
 
     deploy: {
