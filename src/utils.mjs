@@ -21,6 +21,12 @@ const openStream = () => {
 }
 let stream
 
+export function endStream() {
+    return new Promise(resolve => {
+        stream ? stream.end(resolve) : resolve()
+    })
+}
+
 export function log(text) {
     stream = stream || openStream()
     text = new Date().toLocaleTimeString() + ' ' + text

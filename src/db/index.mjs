@@ -3,7 +3,7 @@ import consola from 'consola'
 import EventEmitter from 'events'
 import {config} from "./firestore.mjs";
 import {throttle} from "../utils.mjs";
-import fs from 'fs'
+import firstStrategies from '../strategies.mjs'
 
 export const MAX_CHANGED = 'max-changed'
 
@@ -19,9 +19,6 @@ export const max = new Signal()
 export const first = new Signal()
 
 const logMax = () => isFinite(max?.max) && consola.log('max', max?.symbol, max?.max)
-const logFirst = () => consola.log('first', first?.symbol, first?.max, first?.percent)
-
-const logFirstThrottle = throttle(logFirst, 30e3)
 const logMaxThrottle = throttle(logMax, 30e3)
 
 
@@ -31,20 +28,20 @@ export const findFirst = () => {
 
     logSignal();
 }
-const firsts = {}
 
-function findTradablesThenSendThemToTrader(/*sortedByPercent*/) {
+
+function findTradablesThenSendThemToTrader() {
     const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
         .sort((a, b) => a.percent < b.percent ? 1 : -1)
-    const firstList = sortedByPercent.filter(a => a.percent >= config.enter_trade && a.percent >= a.max)
-    firstList.forEach(afirst => {
-        first.updateWith(afirst)
-        dbEvent.emit(MAX_CHANGED)
-        if (!firsts[afirst.symbol] || firsts[afirst.symbol] !== afirst.percent) {
-            firsts[afirst.symbol] = afirst.percent
-            consola.info('MAX CHANGED', afirst.symbol, afirst.percent)
+
+    firstStrategies[config.strategy] && firstStrategies[config.strategy]({cryptoMap, emit});
+
+    function emit(afirst) {
+        if (afirst) {
+            first.updateWith(afirst)
+            dbEvent.emit(MAX_CHANGED)
         }
-    })
+    }
 }
 
 export function getSignal(symbol) {

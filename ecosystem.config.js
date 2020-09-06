@@ -12,15 +12,23 @@ const app = {
     }
 }
 module.exports = {
-    apps: [{
-        name: '1d',
-        script: 'npm run 1d',
-        ...app
-    }, {
-        name: '4h',
-        script: 'npm run 4h',
-        ...app,
-    }],
+    apps: [
+        {
+            name: '1d',
+            script: 'npm run 1d',
+            ...app
+        },
+        {
+            name: '4h',
+            script: 'npm run 4h',
+            ...app,
+        },
+        {
+            name: '5m',
+            script: 'npm run 5m',
+            ...app,
+        },
+    ],
 
     deploy: {
         production: {
