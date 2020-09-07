@@ -80,18 +80,18 @@ function setEyesOnCurrentTrade() {
                     await stopTrade()
                 } else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
-                }/* else if (currentTrade?.IsBelowEnterTrade()) {
+                } else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
                     await stopTrade()
-                } *//*else if (currentTrade?.IsDelaying()) {
+                } else if (currentTrade?.IsDelaying()) {
                     consola.info('Stop trade')
                     await stopTrade()
-                }*/ /*else if (currentTrade.isMaxAboveTakeProfit()) {
+                } else if (currentTrade.isMaxAboveTakeProfit()) {
                     if (currentTrade.hasLossOnGain()) {
                         log('Stop trade and take profit')
                         await stopTrade()
                     }
-                }*/
+                }
                 {//log
                     if (percent !== currentTrade?.percent) {
                         consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
@@ -119,10 +119,7 @@ export function initTrader() {
                 if (noTrade()) {
                     consola.info('Start trade')
                     await startTrade()
-                } /*else if (firstIsAboveCurrent()) {
-                    consola.info('Switch  trade')
-                    await switchFirstCurrent()
-                }*/ else if (currentTrade?.IsDelaying() && currentTrade?.IsLosing()) {
+                } else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
                 }
