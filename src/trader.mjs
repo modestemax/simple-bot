@@ -150,7 +150,10 @@ function restartProcess() {
     console.log("This is pid " + process.pid);
     // // setTimeout(function () {
     process.on("exit", async () => {
-        log('\nrestarting process\n')
+        log('\n\nrestarting process\n')
+        log(`\ncandle max :${max.max}\n`)
+        log(`\n\n`)
+
         await endStream()
     });
 
