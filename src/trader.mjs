@@ -146,17 +146,17 @@ export function initTrader() {
     }
 }
 
-function restartProcess() {
+async function restartProcess() {
     console.log("This is pid " + process.pid);
     // // setTimeout(function () {
     process.on("exit", async () => {
-        log('\n\nrestarting process\n')
-        log(`\ncandle max :${max.max}\n`)
-        log(`\n\n`)
 
-        await endStream()
     });
+    log('restarting process')
+    log(`candle max ${max.symbol} max:${max.max}% close:${max.close}`)
+    log(`\n\n`)
 
+    await endStream()
     process.exit();
     // setTimeout(() => process.exit(), 3e3);
     // }, 5000);
