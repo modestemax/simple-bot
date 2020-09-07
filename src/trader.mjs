@@ -153,7 +153,7 @@ async function restartProcess() {
 
     });
     log('restarting process')
-    log(`candle max ${max.symbol} max:${max.max}% close:${max.close}`)
+    log(`candle max ${max.symbol} max:${max.max}% close:${max.percent}`)
     log(`\n\n`)
 
     await endStream()
