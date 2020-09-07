@@ -80,10 +80,10 @@ function setEyesOnCurrentTrade() {
                     await stopTrade()
                 } else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
-                } else if (currentTrade?.IsBelowEnterTrade()) {
+                }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
                     await stopTrade()
-                } else if (currentTrade?.IsDelaying()) {
+                } */else if (currentTrade?.IsDelaying()) {
                     consola.info('Stop trade')
                     await stopTrade()
                 } else if (currentTrade.isMaxAboveTakeProfit()) {
