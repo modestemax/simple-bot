@@ -146,17 +146,13 @@ export function initTrader() {
     }
 }
 
-async function restartProcess() {
+function restartProcess() {
     console.log("This is pid " + process.pid);
     // // setTimeout(function () {
-    //     process.on("exit", function () {
-    //         require("child_process").spawn(process.argv.shift(), process.argv, {
-    //             cwd: process.cwd(),
-    //             detached: true,
-    //             stdio: "inherit"
-    //         });
-    //     });
-    await endStream()
+    process.on("exit", async () => {
+        await endStream()
+    });
+
     process.exit();
     // setTimeout(() => process.exit(), 3e3);
     // }, 5000);
