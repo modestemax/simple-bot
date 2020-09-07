@@ -199,7 +199,11 @@ export class Trade extends Signal {
     }
 
     IsLosing() {
-        return this.percent < (this.stopLoss + this.tradeStartedAtPercent) / 2
+        return this.percent < this.tradeStartedAtPercent
+    }
+
+    IsBelowEnterTrade() {
+        return this.percent < config.enter_trade
     }
 
     IsDelaying() {

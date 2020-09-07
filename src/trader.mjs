@@ -21,7 +21,7 @@ const setFirstAsCurrentTrade = () =>
 
 const clearCurrentTrade = () => setCurrentTrade(null)
 
-const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent > config.acceptable_gap_between_first_and_second
+const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
 
 
 async function startTrade() {
@@ -80,12 +80,18 @@ function setEyesOnCurrentTrade() {
                     await stopTrade()
                 } else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
-                }/* else if (currentTrade.isMaxAboveTakeProfit()) {
-                        if (currentTrade.hasLossOnGain()) {
-                            log('Stop trade and take profit')
-                            await stopTrade()
-                        }
-                    }*/
+                } else if (currentTrade?.IsBelowEnterTrade()) {
+                    consola.info('Stop trade')
+                    await stopTrade()
+                } else if (currentTrade?.IsDelaying()) {
+                    consola.info('Stop trade')
+                    await stopTrade()
+                } else if (currentTrade.isMaxAboveTakeProfit()) {
+                    if (currentTrade.hasLossOnGain()) {
+                        log('Stop trade and take profit')
+                        await stopTrade()
+                    }
+                }
                 {//log
                     if (percent !== currentTrade?.percent) {
                         consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
@@ -113,7 +119,7 @@ export function initTrader() {
                 if (noTrade()) {
                     consola.info('Start trade')
                     await startTrade()
-                } else if (currentTrade?.IsLosing() || currentTrade?.IsDelaying() || firstIsAboveCurrent()) {
+                } else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
                 }
