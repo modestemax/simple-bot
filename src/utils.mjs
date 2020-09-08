@@ -35,7 +35,7 @@ export function endStream() {
 
 export function log(text) {
     stream = stream || openStream()
-    text = new Date().toLocaleTimeString() + ' ' + text
+
     stream.write(text + "\n");
     console.log(text)
 }
@@ -43,19 +43,25 @@ export function log(text) {
 
 export function logTrade({side, symbol, cryptoMap}) {
     const signal = cryptoMap[symbol.toLowerCase()]
-    log(`<pre style="background-color: ${side.toUpperCase()==='BUY'?'#f0fff3':'#e91e1e1a'}">${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
+    const time = new Date().toLocaleTimeString()
+    log(`<pre style="background-color: ${side.toUpperCase() === 'BUY' ? '#f0fff3' : '#e91e1e1a'}">${time} ${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
 
 
 }
 
 export function logApiError(text) {
-    log(`<pre style="background-color: red">${text}</pre>`)
+    const time = new Date().toLocaleTimeString()
+    log(`<pre style="background-color: red">${time} ${text}</pre>`)
 }
+
 export function logLost(text) {
-    log(`<pre style="color: red">${text} </pre>`)
+    const time = new Date().toLocaleTimeString()
+    log(`<pre style="color: red">${time} ${text} </pre>`)
 }
+
 export function logProfit(text) {
-    log(`<pre style="color: green">${text} </pre>`)
+    const time = new Date().toLocaleTimeString()
+    log(`<pre style="color: green">${time} ${text} </pre>`)
 }
 
 export function addPercent({close, percent}) {
