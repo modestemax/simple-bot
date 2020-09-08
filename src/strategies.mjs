@@ -17,7 +17,7 @@ export function _first_({cryptoMap, emit}) {
 }
 
 
-export function _pump_(cryptoMap, emit) {
+export function _pump_({cryptoMap, emit}) {
     const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
         .sort((a, b) => a.percent < b.percent ? 1 : -1)
 
