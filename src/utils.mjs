@@ -44,24 +44,24 @@ export function log(text) {
 export function logTrade({side, symbol, cryptoMap}) {
     const signal = cryptoMap[symbol.toLowerCase()]
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="background-color: ${side.toUpperCase() === 'BUY' ? '#f0fff3' : '#e91e1e1a'}">${time} ${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
+    log(`<pre style="color: ${side.toUpperCase() === 'BUY' ? 'green' : 'red'}">${time} ${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
 
 
 }
 
 export function logApiError(text) {
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="background-color: red">${time} ${text}</pre>`)
+    log(`<pre style="background-color: grey">${time} ${text}</pre>`)
 }
 
 export function logLost(text) {
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="color: red">${time} ${text} </pre>`)
+    log(`<pre style="background-color:#e91e1e1a ">${time} ${text} </pre>`)
 }
 
 export function logProfit(text) {
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="color: green">${time} ${text} </pre>`)
+    log(`<pre style="background-color:#f0fff3 ">${time} ${text} </pre>`)
 }
 
 export function addPercent({close, percent}) {
