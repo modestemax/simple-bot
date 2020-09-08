@@ -154,11 +154,12 @@ async function restartProcess() {
     // // setTimeout(function () {
     process.on("exit", async () => {
 
-    });
-    log('restarting process')
-    log(`candle max ${max.symbol} max:${max.max}% close:${max.percent}%`)
-    log(`\n\n`)
-
+    })
+    if (max.max >= config.enter_trade) {
+        log('restarting process')
+        log(`candle max ${max.symbol} max:${max.max}% close:${max.percent}%`)
+        log(`\n\n`)
+    }
     await endStream()
     // process.exit();
     setTimeout(() => process.exit(), 10e3);
