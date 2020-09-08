@@ -7,6 +7,7 @@ import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
 import {log, endStream, throttleWithCondition} from "./utils.mjs";
 
+const FEE = 0.075
 
 let currentTrade
 const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade //&& first.percent >= max.max
@@ -41,7 +42,7 @@ async function stopTrade() {
         symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
         symbolResume += "\n\n"
         const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
-        if (gain < 0) {
+        if (gain <= FEE) {
             log(`Stop loss ${gain}% : ${symbolResume} `)
         } else {
             log(`Take profit  ${gain}% : ${symbolResume}`)
