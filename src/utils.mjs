@@ -1,10 +1,16 @@
 import fs from 'fs'
 
-export function throttle(func, timeFrame) {
+export const ONE_MINUTE = 1e3 * 60 * 10
+
+export function throttle(func, timeFrame = ONE_MINUTE) {
+    return throttleWithCondition(() => false, func, timeFrame)
+}
+
+export function throttleWithCondition(cond, func, timeFrame = ONE_MINUTE) {
     let lastTime = 0;
     return function (...arg) {
         const now = new Date();
-        if (now - lastTime >= timeFrame) {
+        if (cond() || now - lastTime >= timeFrame) {
             func(...arg);
             lastTime = now;
         }

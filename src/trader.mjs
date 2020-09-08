@@ -5,11 +5,10 @@ import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {log, endStream} from "./utils.mjs";
+import {log, endStream, throttleWithCondition} from "./utils.mjs";
 
 
 let currentTrade
-const noTrade = () => !currentTrade
 const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade //&& first.percent >= max.max
 
 const setCurrentTrade = (currentValue) => currentTrade = currentValue
@@ -79,7 +78,7 @@ function setEyesOnCurrentTrade() {
                 if (currentTrade?.isBelowStopLoss()) {
                     await stopTrade()
                 } else if (currentTrade?.isPumping()) {
-                    return
+                    //return
                 } else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
                 }/* else if (currentTrade?.IsBelowEnterTrade()) {
@@ -94,19 +93,17 @@ function setEyesOnCurrentTrade() {
                         await stopTrade()
                     }
                 }*/
-                {//log
-                    if (percent !== currentTrade?.percent) {
-                        consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
-                        percent = currentTrade?.percent
-                        // firestore.saveCurrentTrade(currentTrade)
-                    }
-                }
+                logTrade()
             } finally {
                 followTrade()
             }
         })
     }
 
+    const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
+        consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
+        percent = currentTrade?.percent
+    })
 }
 
 export function initTrader() {
@@ -115,19 +112,25 @@ export function initTrader() {
     checkFinal()
 
     function checkMax() {
-        dbEvent.once(MAX_CHANGED, async () => {
+        dbEvent.once(MAX_CHANGED, async (signals) => {
             try {
-                // if (await maxIsGoodToGo()) {
-                if (noTrade()) {
-                    consola.info('Start trade')
-                    await startTrade()
-                } /*else if (firstIsAboveCurrent()) {
+                let signal = signals?.shift()
+                if (signal) {
+                    first.updateWith(signal)
+                    if (!currentTrade) {
+                        consola.info('Start trade')
+                        await startTrade()
+                    } /*else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
                 }*/ else if (currentTrade?.IsDelaying() && currentTrade?.IsLosing()) {
-                    consola.info('Switch  trade')
-                    await switchFirstCurrent()
+                        consola.info('Switch  trade')
+                        await switchFirstCurrent()
+                    }
                 }
+
+                // if (await maxIsGoodToGo()) {
+
                 // }
             } finally {
                 checkMax()

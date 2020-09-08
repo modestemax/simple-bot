@@ -19,7 +19,7 @@ export const max = new Signal()
 export const first = new Signal()
 
 const logMax = () => isFinite(max?.max) && consola.log('max', max?.symbol, max?.max)
-const logMaxThrottle = throttle(logMax, 30e3)
+const logMaxThrottle = throttle(logMax)
 
 
 export const findFirst = () => {
@@ -31,15 +31,14 @@ export const findFirst = () => {
 
 
 function findTradablesThenSendThemToTrader() {
-    const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
-        .sort((a, b) => a.percent < b.percent ? 1 : -1)
 
     firstStrategies[config.strategy] && firstStrategies[config.strategy]({cryptoMap, emit});
 
-    function emit(afirst) {
-        if (afirst) {
-            first.updateWith(afirst)
-            dbEvent.emit(MAX_CHANGED)
+    function emit(signals) {
+        if (signals?.length) {
+            // consola.info('emit',JSON.stringify( signals?.map(s => s.symbol)))
+            // first.updateWith(afirst)
+            dbEvent.emit(MAX_CHANGED, signals)
         }
     }
 }
