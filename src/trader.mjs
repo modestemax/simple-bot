@@ -160,7 +160,7 @@ async function restartProcess() {
     log(`\n\n`)
 
     await endStream()
-    process.exit();
-    // setTimeout(() => process.exit(), 3e3);
+    // process.exit();
+    setTimeout(() => process.exit(), 10e3);
     // }, 5000);
 }
