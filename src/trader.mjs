@@ -135,16 +135,15 @@ export function initTrader() {
     }
 
     function checkFinal() {
-        socketAPI.on(socketAPI.FINAL_EVENT, async (symbol) => {
-            try {
-                if (currentTrade?.symbol === symbol) {
-                    await stopTrade()
-                    restartProcess() //must restart pm2
-                }
-            } finally {
-                // checkFinal()
-                currentTrade || restartProcess() //must restart pm2
-            }
+        socketAPI.once(socketAPI.FINAL_EVENT, async (symbol) => {
+            // try {
+            //     if (currentTrade?.symbol === symbol) {
+            currentTrade && await stopTrade()
+            await restartProcess() //must restart pm2
+            // }
+            // } finally {
+            //     currentTrade ? checkFinal() : restartProcess() //must restart pm2
+            // }
         })
     }
 }
