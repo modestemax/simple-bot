@@ -22,7 +22,7 @@ export function noop() {
 }
 
 const openStream = () => {
-    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.txt`
+    const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.html`
     return fs.createWriteStream(file, {flags: 'a'});
 }
 let stream
@@ -49,7 +49,13 @@ export function logTrade({side, symbol, cryptoMap}) {
 }
 
 export function logApiError(text) {
-    log(text)
+    log(`<pre style="background-color: red">${text}</pre>`)
+}
+export function logLost(text) {
+    log(`<pre style="color: red">${text} </pre>`)
+}
+export function logProfit(text) {
+    log(`<pre style="color: green">${text} </pre>`)
 }
 
 export function addPercent({close, percent}) {

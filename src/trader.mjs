@@ -5,7 +5,7 @@ import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {log, endStream, throttleWithCondition} from "./utils.mjs";
+import {log, logLost, logProfit, endStream, throttleWithCondition} from "./utils.mjs";
 
 const FEE = 0.075
 
@@ -43,9 +43,9 @@ async function stopTrade() {
         symbolResume += "\n\n"
         const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
         if (gain <= FEE) {
-            log(`Stop loss ${gain}% : ${symbolResume} `)
+            logLost(`Stop loss ${gain}% : ${symbolResume}`)
         } else {
-            log(`Take profit  ${gain}% : ${symbolResume}`)
+            logProfit(`Take profit  ${gain}% : ${symbolResume}`)
         }
     }
     await clearCurrentTrade()
