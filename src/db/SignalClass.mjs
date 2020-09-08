@@ -202,6 +202,10 @@ export class Trade extends Signal {
         return this.percent < this.tradeStartedAtPercent
     }
 
+    isPumping() {
+        return this.percent >= this.max
+    }
+
     IsBelowEnterTrade() {
         return this.percent < config.enter_trade
     }

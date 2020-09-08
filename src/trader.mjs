@@ -78,7 +78,9 @@ function setEyesOnCurrentTrade() {
                 currentTrade?.update({open, close})
                 if (currentTrade?.isBelowStopLoss()) {
                     await stopTrade()
-                } else if (currentTrade?.isAboveTakeProfit()) {
+                } else if ( currentTrade?.isPumping()) {
+                    return
+                }else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
                 }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
