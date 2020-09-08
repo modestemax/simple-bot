@@ -34,22 +34,22 @@ async function startTrade() {
 }
 
 async function stopTrade() {
-    if (config.oco || await ask()) {
-        // await firestore.savePreviousTrade(currentTrade)
-        // await firestore.saveCurrentTrade({})
-        if (currentTrade) {//log
-            let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
-            symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
-            symbolResume += "\n\n"
-            if (currentTrade.percent <= currentTrade.tradeStartedAtPercent) {
-                log(`Stop loss : ${symbolResume} `)
-            } else {
-                log(`Take profit : ${symbolResume}`)
-            }
+    config.oco || await ask()
+    // await firestore.savePreviousTrade(currentTrade)
+    // await firestore.saveCurrentTrade({})
+    if (currentTrade) {//log
+        let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
+        symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
+        symbolResume += "\n\n"
+        const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
+        if (gain < 0) {
+            log(`Stop loss ${gain}% : ${symbolResume} `)
+        } else {
+            log(`Take profit  ${gain}% : ${symbolResume}`)
         }
-        await clearCurrentTrade()
-
     }
+    await clearCurrentTrade()
+
 }
 
 async function bid() {
@@ -78,9 +78,9 @@ function setEyesOnCurrentTrade() {
                 currentTrade?.update({open, close})
                 if (currentTrade?.isBelowStopLoss()) {
                     await stopTrade()
-                } else if ( currentTrade?.isPumping()) {
+                } else if (currentTrade?.isPumping()) {
                     return
-                }else if (currentTrade?.isAboveTakeProfit()) {
+                } else if (currentTrade?.isAboveTakeProfit()) {
                     await stopTrade()
                 }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
