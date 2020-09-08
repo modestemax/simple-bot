@@ -35,7 +35,7 @@ export function endStream() {
 
 export function log(text) {
     stream = stream || openStream()
-if(!/^<pre/i.test(text){
+if(!/^<pre/i.test(text)){
 text=`<pre>${text}</pre>`
 }
     stream.write(text + "\n");
