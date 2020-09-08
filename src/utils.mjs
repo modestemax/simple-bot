@@ -43,7 +43,7 @@ export function log(text) {
 
 export function logTrade({side, symbol, cryptoMap}) {
     const signal = cryptoMap[symbol.toLowerCase()]
-    log(`${side}\t${symbol}\t${signal.close}\t${signal.percent}%`)
+    log(`<pre style="background-color: ${side.toUpperCase()==='BUY'?'#f0fff3':'#e91e1e1a'}">${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
 
 
 }
