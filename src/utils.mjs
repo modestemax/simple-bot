@@ -19,6 +19,7 @@ export function throttleWithCondition(cond, func, timeFrame = ONE_MINUTE) {
 
 export function noop() {
 // debugger
+console.log('beat')
 }
 
 const openStream = () => {
