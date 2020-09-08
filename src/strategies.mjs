@@ -20,7 +20,7 @@ export function _first_({cryptoMap, emit}) {
 export function _pump_({cryptoMap, emit}) {
     const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
         .sort((a, b) => a.percent < b.percent ? 1 : -1)
-
+    log(sortedByPercent[0])
     const firstList = sortedByPercent.filter(a => a.percent >= config.enter_trade && a.percent >= a.max)
     firstList.forEach(afirst => {
         emit(afirst)
