@@ -1,4 +1,5 @@
 export const ONE_MINUTE = 1e3 * 60
+export const SATOSHI = 1e-8
 
 
 export function throttle(func, timeFrame = ONE_MINUTE) {

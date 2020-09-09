@@ -65,7 +65,7 @@ function setEyesOnCurrentTrade() {
     followTrade()
 
     function followTrade() {
-        currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
+        currentTrade && socketAPI.once(`${currentTrade.symbol}@bookTicker`, async ({open, close}) => {
             try {
                 currentTrade?.update({open, close})
                 if (currentTrade?.isBelowStopLoss()) {

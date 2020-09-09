@@ -22,24 +22,16 @@ const logMax = () => isFinite(max?.max) && consola.log('max', max?.symbol, max?.
 const logMaxThrottle = throttle(logMax)
 
 
-export const findFirst = () => {
-
-    findTradablesThenSendThemToTrader()
-
+export const checkSymbolReadyToTrade = () => {
+    firstStrategies[config.strategy] && firstStrategies[config.strategy]({cryptoMap, emit});
     logSignal();
 }
 
-
-function findTradablesThenSendThemToTrader() {
-
-    firstStrategies[config.strategy] && firstStrategies[config.strategy]({cryptoMap, emit});
-
-    function emit(signals) {
-        if (signals?.length) {
-            // consola.info('emit',JSON.stringify( signals?.map(s => s.symbol)))
-            // first.updateWith(afirst)
-            dbEvent.emit(MAX_CHANGED, signals)
-        }
+function emit(signals) {
+    if (signals?.length) {
+        // consola.info('emit',JSON.stringify( signals?.map(s => s.symbol)))
+        // first.updateWith(afirst)
+        dbEvent.emit(MAX_CHANGED, signals)
     }
 }
 

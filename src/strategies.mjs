@@ -1,6 +1,5 @@
 import consola from 'consola'
 import {throttle} from "./utils.mjs";
-import {first} from "./db/index.mjs";
 
 const logFirst = (first) => consola.log('first', first?.symbol, first?.max, first?.percent)
 

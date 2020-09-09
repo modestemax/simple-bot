@@ -260,6 +260,10 @@ export class BinanceRest {
         }
     }
 
+    getSymbols() {
+        return Object.keys(this.#binanceInfo).filter(symbol => this.canTradeSymbol(symbol))
+    }
+
     canTradeAsset(assetName) {
         return this.canTradeSymbol(this.getSymbol(assetName))
 
