@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import {getSignal, findFirst} from '../db/index.mjs' ;
 import {config} from "../db/firestore.mjs";
 import {percent} from "../db/SignalClass.mjs";
-import {noop} from "../utils.mjs";
+import {noop, ONE_MINUTE} from "../utils.mjs";
 import EventEmitter from 'events'
 
 
@@ -26,13 +26,13 @@ class BinanceSocket extends EventEmitter {
     async init(restAPI) {
         this.#restAPI = restAPI
         await this.initTicker()
-      //  await this.initUserData()
+        //  await this.initUserData()
     }
 
     initTicker() {
         const ws = new WebSocket('wss://stream.binance.com:9443/ws/!bookTicker')
         ws.onmessage = this.updateSignal
-        ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+        ws.onopen = () => setTimeout(() => ws.pong(noop), ONE_MINUTE * 5)
     }
 
     upsertSignal = (symbol) => ({data}) => {
@@ -55,7 +55,7 @@ class BinanceSocket extends EventEmitter {
                 if (!this.candlesWebsocket[symbol]) {
                     const ws = this.candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe || '1d'}`)
                     ws.onmessage = this.upsertSignal(symbol)
-                    ws.onopen = () => setTimeout(() => ws.pong(noop), 3e3)
+                    ws.onopen = () => setTimeout(() => ws.pong(noop), ONE_MINUTE * 5)
                 } else {
                     this.upsertSignal(symbol)({data: {close: ask}})
                     const signal = getSignal(symbol)

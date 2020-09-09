@@ -1,10 +1,10 @@
 import {config, firestore} from './firestore.mjs';
 import consola from 'consola'
+import {ONE_MINUTE} from "../utils.mjs";
 
 const twoDecimal = (value) => Math.trunc(value * 100) / 100
 export const percent = (close, open) => (close - open) / open * 100
 
-const ONE_MINUTE = 1e3 * 60
 
 export class Signal {
     symbol;

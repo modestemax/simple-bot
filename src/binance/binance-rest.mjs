@@ -4,7 +4,8 @@ import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import {socketAPI} from "./binance-socket.mjs";
-import {logTrade, logApiError, addPercent} from "../utils.mjs";
+import {addPercent} from "../utils.mjs";
+import {logTrade, logApiError} from "../log.mjs";
 import {cryptoMap} from "../db/index.mjs";
 import WebSocket from "ws";
 

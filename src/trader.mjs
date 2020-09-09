@@ -5,7 +5,8 @@ import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {log, logLost, logProfit, endStream, throttleWithCondition} from "./utils.mjs";
+import {throttleWithCondition} from "./utils.mjs";
+import {log, logTradeStatus, endStream} from "./log.mjs";
 
 const FEE = 0.075
 
@@ -37,17 +38,8 @@ async function stopTrade() {
     config.oco || await ask()
     // await firestore.savePreviousTrade(currentTrade)
     // await firestore.saveCurrentTrade({})
-    if (currentTrade) {//log
-        let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
-        symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
-        symbolResume += "\n\n"
-        const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
-        if (gain <= FEE) {
-            logLost(`Stop loss ${gain}% : ${symbolResume}`)
-        } else {
-            logProfit(`Take profit  ${gain}% : ${symbolResume}`)
-        }
-    }
+
+    logTradeStatus(currentTrade)
     await clearCurrentTrade()
 
 }
