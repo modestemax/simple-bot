@@ -198,7 +198,7 @@ export class Trade extends Signal {
         return percentLoss >= config.acceptable_loss_on_gain_percentage
     }
 
-    IsLosing() {
+    isLosing() {
         return this.percent < this.tradeStartedAtPercent
     }
 

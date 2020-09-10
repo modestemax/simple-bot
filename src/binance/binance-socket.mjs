@@ -1,32 +1,30 @@
 import WebSocket from 'ws';
-import {getSignal, checkSymbolReadyToTrade} from '../db/index.mjs' ;
+import {getSignal} from '../db/index.mjs' ;
 import {config} from "../db/firestore.mjs";
 import {percent} from "../db/SignalClass.mjs";
 import {noop, ONE_MINUTE, SATOSHI} from "../utils.mjs";
 import EventEmitter from 'events'
+import firstStrategies from "../strategies.mjs";
 
-
-export const SYMBOL_TICK = 'SYMBOL_TICK'
 
 class BinanceSocket extends EventEmitter {
 
     get FINAL_EVENT() {
         return 'FINAL_EVENT'
-    };
+    }
 
-    #restAPI;
-    candlesWebsocket = {};
+    get TRADE_EVENT() {
+        return 'TRADE'
+    }
 
+    #max
+    #first
+    #restAPI
+    #timeout = {max: null, first: null}
 
-    // constructor() {
-    //     super()
-    //     // this.updateSignal = this.updateSignal.bind(this)
-    // }
-
-    async init(restAPI) {
+    init(restAPI) {
         this.#restAPI = restAPI
-        await this.initTicker()
-        //  await this.initUserData()
+        this.initTicker()
     }
 
     initTicker() {
@@ -45,8 +43,10 @@ class BinanceSocket extends EventEmitter {
             const {a: ask, b: bid} = sData
             if (hasGoodPrice) {
                 // if (percent(ask, bid) < .35) {
-                signal.update({close: ask})
-                this.emit(stream, signal)
+                signal.update({close: ask}) //set close to ask because we will buy to the best seller
+                this.max = signal
+                this.first = signal
+                this.emit(stream, {...signal, bid, ask})
             }
         } else {//@kline
             const {o: open, c: close, h: high, x: isFinal} = sData.k
@@ -55,44 +55,53 @@ class BinanceSocket extends EventEmitter {
                 this.emit(this.FINAL_EVENT, symbol)
             }
         }
-        hasGoodPrice && checkSymbolReadyToTrade()
+        hasGoodPrice && this.checkIfReadyToTrade(signal)
     }
 
     hasGoodPrice(signal) {
         return signal?.open >= 200 * SATOSHI
     }
 
-    // upsertSignal = (symbol) => ({data}) => {
-    //     const {o: open, c: close, h: high, x: isFinal} = data.close ? {c: data.close} : JSON.parse(data).k
-    //     const signal = getSignal(symbol)
-    //     signal.update({close, open, high})
-    //     findFirst()
-    //     if (isFinal) {
-    //         this.emit(this.FINAL_EVENT, symbol)
-    //     }
-    // };
-    //
-    // updateSignal({data}) {
-    //     data = JSON.parse(data)
-    //     const {a: ask, b: bid} = data
-    //     if (percent(ask, bid) < .35) {
-    //
-    //         const symbol = data.s.toLowerCase()
-    //         if (this.#restAPI.canTradeSymbol(symbol)) {
-    //             if (!this.candlesWebsocket[symbol]) {
-    //                 const ws = this.candlesWebsocket[symbol] = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@kline_${config.timeframe || '1d'}`)
-    //                 ws.onmessage = this.upsertSignal(symbol)
-    //                 ws.onopen = () => setTimeout(() => ws.pong(noop), ONE_MINUTE * 5)
-    //             } else {
-    //                 this.upsertSignal(symbol)({data: {close: ask}})
-    //                 const signal = getSignal(symbol)
-    //                 signal.close && this.emit(this.getTickEvent(symbol), signal)
-    //             }
-    //         }
-    //     }
-    // }
+    checkIfReadyToTrade(signal) {
+        if (firstStrategies[config.strategy] && firstStrategies[config.strategy](signal)) {
+            this.emit(this.TRADE_EVENT, signal)
+        }
+    }
 
 
+    set max(signal) {
+        if (!this.max?.max || this.max?.max < signal.max) {
+            this.#max = signal
+            this.logMax()
+            clearTimeout(this.#timeout.max)
+            this.#timeout.max = setTimeout(() => this.logMax(), ONE_MINUTE)
+        }
+    }
+
+    get max() {
+        return this.#max
+    }
+
+    set first(signal) {
+        if (!this.first?.percent || this.first?.percent < signal.percent) {
+            this.#first = signal
+            this.logFirst()
+            clearTimeout(this.#timeout.first)
+            this.#timeout.first = setTimeout(() => this.logFirst(), ONE_MINUTE)
+        }
+    }
+
+    get first() {
+        return this.#first
+    }
+
+    logMax() {
+        console.log('max', this.max?.symbol, this.max?.max)
+    }
+
+    logFirst() {
+        console.log('first', this.first?.symbol, this.first?.max, this.first?.percent)
+    }
 }
 
 export const socketAPI = new BinanceSocket()

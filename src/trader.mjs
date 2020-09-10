@@ -1,5 +1,4 @@
-import {dbEvent, MAX_CHANGED, first, max, getSignal} from "./db/index.mjs";
-import {config, firestore} from "./db/firestore.mjs";
+import {config} from "./db/firestore.mjs";
 import {socketAPI} from "./binance/binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
@@ -8,36 +7,30 @@ import {restAPI} from "./binance/binance-rest.mjs";
 import {throttleWithCondition} from "./utils.mjs";
 import {log, logTradeStatus, endStream} from "./log.mjs";
 
-const FEE = 0.075
 
 let currentTrade
-const maxIsGoodToGo = () => first.percent >= first.max && first.percent >= config.enter_trade //&& first.percent >= max.max
+let signalQueue
 
-const setCurrentTrade = (currentValue) => currentTrade = currentValue
-const setFirstAsCurrentTrade = () =>
-    setCurrentTrade(new Trade(Object.assign({}, first, {
-        tradeStartedAtPercent: first.percent, max: first.percent,
-        bidPrice: first.close
-    })))
+const setQueueAsCurrentTrade = () => currentTrade = signalQueue ? new Trade(Object.assign({}, signalQueue, {
+    tradeStartedAtPercent: signalQueue.percent, max: signalQueue.percent,
+    bidPrice: signalQueue.close
+})) : null
 
-const clearCurrentTrade = () => setCurrentTrade(null)
+const clearCurrentTrade = () => currentTrade = null
 
-const firstIsAboveCurrent = () => currentTrade?.symbol !== first.symbol && first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
-
+const firstIsAboveCurrent = () => currentTrade?.symbol !== restAPI.first.symbol && restAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
+const addQueue = (signal) => signalQueue = signal
 
 async function startTrade() {
     if (await bid()) {
         config.oco && await ask()
-        await setFirstAsCurrentTrade()
-        // await firestore.saveCurrentTrade(currentTrade)
+        await setQueueAsCurrentTrade()
         await setEyesOnCurrentTrade()
     }
 }
 
 async function stopTrade() {
     config.oco || await ask()
-    // await firestore.savePreviousTrade(currentTrade)
-    // await firestore.saveCurrentTrade({})
 
     logTradeStatus(currentTrade)
     await clearCurrentTrade()
@@ -45,8 +38,8 @@ async function stopTrade() {
 }
 
 async function bid() {
-    console.log('bid', first)
-    return await restAPI.bid(first.symbol)
+    console.log('bid', signalQueue)
+    return signalQueue && await restAPI.bid(signalQueue.symbol)
 }
 
 async function ask() {
@@ -55,7 +48,7 @@ async function ask() {
     return currentTrade && await restAPI.ask(currentTrade)
 }
 
-async function switchFirstCurrent() {
+async function setQueueAsCurrent() {
     await stopTrade()
     await startTrade()
 }
@@ -65,9 +58,9 @@ function setEyesOnCurrentTrade() {
     followTrade()
 
     function followTrade() {
-        currentTrade && socketAPI.once(`${currentTrade.symbol}@bookTicker`, async ({open, close}) => {
+        currentTrade && socketAPI.once(`${currentTrade.symbol}@bookTicker`, async ({open, close, bid, ask}) => {
             try {
-                currentTrade?.update({open, close})
+                currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
                 if (currentTrade?.isBelowStopLoss()) {
                     await stopTrade()
                 } else if (currentTrade?.isPumping()) {
@@ -100,25 +93,25 @@ function setEyesOnCurrentTrade() {
 }
 
 export function initTrader() {
-    // resetCurrentTrade()
-    checkMax()
-    checkFinal()
+    listenTradeEvent()
+    listenFinalEvent()
 
-    function checkMax() {
-        dbEvent.once(MAX_CHANGED, async (signals) => {
+    function listenTradeEvent() {
+        socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
             try {
-                let signal = signals?.shift()
                 if (signal) {
-                    first.updateWith(signal)
+                    addQueue(signal)
                     if (!currentTrade) {
                         consola.info('Start trade')
                         await startTrade()
                     } /*else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
-                }*/ else if (currentTrade?.IsDelaying() && currentTrade?.IsLosing()) {
-                        consola.info('Switch  trade')
-                        await switchFirstCurrent()
+                }*/ else if (currentTrade?.IsDelaying()) {
+                        if (currentTrade?.isLosing() || !currentTrade?.isPumping()) {
+                            consola.info('Switch  trade')
+                            await setQueueAsCurrent()
+                        }
                     }
                 }
 
@@ -126,13 +119,13 @@ export function initTrader() {
 
                 // }
             } finally {
-                checkMax()
+                listenTradeEvent()
             }
 
         })
     }
 
-    function checkFinal() {
+    function listenFinalEvent() {
         socketAPI.once(socketAPI.FINAL_EVENT, async (symbol) => {
             // try {
             //     if (currentTrade?.symbol === symbol) {
@@ -152,10 +145,8 @@ async function restartProcess() {
     process.on("exit", async () => {
 
     })
-    if (max.max >= config.enter_trade) {
-        log('restarting process')
-        log(`candle max ${max.symbol} max:${max.max}% close:${max.percent}%`)
-        log(`\n\n`)
+    if (restAPI.max.max >= config.enter_trade) {
+        log(`restarting process with candle max ${restAPI.max.symbol} max:${restAPI.max.max}% close:${restAPI.max.percent}%\n\n`)
     }
     await endStream()
     // process.exit();

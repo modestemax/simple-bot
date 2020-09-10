@@ -1,16 +1,7 @@
 import {Signal,} from "./SignalClass.mjs";
 import consola from 'consola'
-import EventEmitter from 'events'
-import {config} from "./firestore.mjs";
 import {throttle} from "../utils.mjs";
-import firstStrategies from '../strategies.mjs'
 
-export const MAX_CHANGED = 'max-changed'
-
-class MyEmitter extends EventEmitter {
-}
-
-export const dbEvent = new MyEmitter();
 
 export const cryptoMap = {}
 
@@ -20,20 +11,6 @@ export const first = new Signal()
 
 const logMax = () => isFinite(max?.max) && consola.log('max', max?.symbol, max?.max)
 const logMaxThrottle = throttle(logMax)
-
-
-export const checkSymbolReadyToTrade = () => {
-    firstStrategies[config.strategy] && firstStrategies[config.strategy]({cryptoMap, emit});
-    logSignal();
-}
-
-function emit(signals) {
-    if (signals?.length) {
-        // consola.info('emit',JSON.stringify( signals?.map(s => s.symbol)))
-        // first.updateWith(afirst)
-        dbEvent.emit(MAX_CHANGED, signals)
-    }
-}
 
 export function getSignal(symbol) {
     if (!cryptoMap[symbol]) {
