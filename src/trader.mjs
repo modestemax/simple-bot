@@ -18,7 +18,7 @@ const setQueueAsCurrentTrade = () => currentTrade = signalQueue ? new Trade(Obje
 
 const clearCurrentTrade = () => currentTrade = null
 
-const firstIsAboveCurrent = () => currentTrade?.symbol !== restAPI.first.symbol && restAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
+const firstIsAboveCurrent = () => currentTrade?.symbol !== socketAPI.first.symbol && socketAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
 const addQueue = (signal) => signalQueue = signal
 
 async function startTrade() {
@@ -145,8 +145,8 @@ async function restartProcess() {
     process.on("exit", async () => {
 
     })
-    if (restAPI.max.max >= config.enter_trade) {
-        log(`restarting process with candle max ${restAPI.max.symbol} max:${restAPI.max.max}% close:${restAPI.max.percent}%\n\n`)
+    if (socketAPI.max.max >= config.enter_trade) {
+        log(`restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}%\n\n`)
     }
     await endStream()
     // process.exit();
