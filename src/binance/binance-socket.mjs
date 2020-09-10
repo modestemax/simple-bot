@@ -63,7 +63,7 @@ class BinanceSocket extends EventEmitter {
     }
 
     hasGoodPrice(signal) {
-        return signal?.open >= 200 * SATOSHI
+        return signal?.open >= 350 * SATOSHI
     }
 
     checkIfReadyToTrade(signal) {
