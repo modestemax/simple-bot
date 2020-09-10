@@ -27,32 +27,36 @@ class BinanceSocket extends EventEmitter {
         this.initTicker()
     }
 
+    getTickEvent(symbol) {
+        return `${symbol}@trade`
+    }
+
     initTicker() {
-        const streams = [].concat(this.#restAPI.getSymbols().map(symbol => `${symbol}@kline_${config.timeframe || '1d'}/${symbol}@bookTicker`)).join('/')
+        const streams = [].concat(this.#restAPI.getSymbols().map(symbol => `${symbol}@kline_${config.timeframe || '1d'}/${this.getTickEvent(symbol)}`)).join('/')
         const ws = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + streams)
         ws.onmessage = this.onStream
         ws.onopen = () => setTimeout(() => ws.pong(noop), ONE_MINUTE * 5)
     }
 
     onStream = ({data}) => {
-        const {stream, data: sData} = JSON.parse(data)
-        const symbol = stream.split('@')[0]
+        const {stream: tickEvent, data: sData} = JSON.parse(data)
+        const symbol = tickEvent.split('@')[0]
         const signal = getSignal(symbol)
         const hasGoodPrice = this.hasGoodPrice(signal)
-        if (/@bookTicker$/.test(stream)) {
-            const {a: ask, b: bid} = sData
+        if (this.getTickEvent(symbol) === tickEvent) {
+            const {p: close} = sData
             if (hasGoodPrice) {
                 // if (percent(ask, bid) < .35) {
-                signal.update({close: ask}) //set close to ask because we will buy to the best seller
+                signal.update({close}) //set close to ask because we will buy to the best seller
                 this.max = signal
                 this.first = signal
-                this.emit(stream, {...signal, bid, ask})
+                this.emit(tickEvent, signal)
             }
         } else {//@kline
             const {o: open, c: close, h: high, x: isFinal} = sData.k
             signal.update({close, open, high})
             if (isFinal) {
-                this.emit(this.FINAL_EVENT, symbol)
+                this.emit(this.FINAL_EVENT)
             }
         }
         hasGoodPrice && this.checkIfReadyToTrade(signal)
@@ -102,6 +106,7 @@ class BinanceSocket extends EventEmitter {
     logFirst() {
         console.log('first', this.first?.symbol, this.first?.max, this.first?.percent)
     }
+
 }
 
 export const socketAPI = new BinanceSocket()

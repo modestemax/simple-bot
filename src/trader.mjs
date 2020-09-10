@@ -58,9 +58,10 @@ function setEyesOnCurrentTrade() {
     followTrade()
 
     function followTrade() {
-        currentTrade && socketAPI.once(`${currentTrade.symbol}@bookTicker`, async ({open, close, bid, ask}) => {
+        currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
             try {
-                currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
+                // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
+                currentTrade?.update({open, close})
                 if (currentTrade?.isBelowStopLoss()) {
                     await stopTrade()
                 } else if (currentTrade?.isPumping()) {
@@ -126,15 +127,9 @@ export function initTrader() {
     }
 
     function listenFinalEvent() {
-        socketAPI.once(socketAPI.FINAL_EVENT, async (symbol) => {
-            // try {
-            //     if (currentTrade?.symbol === symbol) {
+        socketAPI.once(socketAPI.FINAL_EVENT, async () => {
             currentTrade && await stopTrade()
             await restartProcess() //must restart pm2
-            // }
-            // } finally {
-            //     currentTrade ? checkFinal() : restartProcess() //must restart pm2
-            // }
         })
     }
 }
@@ -143,7 +138,7 @@ async function restartProcess() {
     console.log("This is pid " + process.pid);
     // // setTimeout(function () {
     process.on("exit", async () => {
-
+        debugger
     })
     if (socketAPI.max.max >= config.enter_trade) {
         log(`restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}%\n\n`)

@@ -59,24 +59,21 @@ export function logApiError(text) {
     log(`<pre style="background-color: grey">${time} ${text}</pre>`)
 }
 
-export function logLost(text) {
-    const time = new Date().toLocaleTimeString()
-    log(`<pre style="background-color:#e91e1e1a ">${time} ${text} </pre>`)
-}
-
 export function logTradeStatus(currentTrade) {
     if (currentTrade) {
         let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
         symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
         const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
-        if (gain <= FEE) {
-            symbolResume = `Stop loss ${gain}% : ${symbolResume}`
-        } else {
+        const status = +(gain > FEE)
+        if (status) {
             symbolResume = `Take profit  ${gain}% : ${symbolResume}`
+        } else {
+            symbolResume = `Stop loss ${gain}% : ${symbolResume}`
         }
         const time = new Date().toLocaleTimeString()
-        log(`<pre style="background-color:#f0fff3 ">${time} ${symbolResume} </pre>`)
-        logTradeStatusCSV({status: +(gain > FEE), symbol: currentTrade.symbol, percent: gain})
+
+        log(`<pre style="background-color:${status ? '#f0fff3' : '#e91e1e1a'}">${time} ${symbolResume} </pre>`)
+        logTradeStatusCSV({status, symbol: currentTrade.symbol, percent: gain})
     }
 }
 
