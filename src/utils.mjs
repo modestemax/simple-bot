@@ -1,4 +1,5 @@
-export const ONE_MINUTE = 1e3 * 60
+export const ONE_SECOND = 1e3
+export const ONE_MINUTE = ONE_SECOND * 60
 export const SATOSHI = 1e-8
 
 
@@ -26,3 +27,4 @@ export function noop() {
 export function addPercent({close, percent}) {
     return +(close * (1 + percent / 100)).toFixed(8)
 }
+

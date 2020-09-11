@@ -1,117 +1,40 @@
-import {config} from "./db/firestore.mjs";
-import {socketAPI} from "./binance/binance-socket.mjs";
+import socketAPI from "./binance/binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {throttleWithCondition} from "./utils.mjs";
+import {throttleWithCondition, ONE_SECOND} from "./utils.mjs";
 import {log, logTradeStatus, endStream} from "./log.mjs";
 
+export default new class {
+    #currentTrade
+    #signalQueue
 
-let currentTrade
-let signalQueue
-
-const setQueueAsCurrentTrade = () => currentTrade = signalQueue ? new Trade(Object.assign({}, signalQueue, {
-    tradeStartedAtPercent: signalQueue.percent, max: signalQueue.percent,
-    bidPrice: signalQueue.close
-})) : null
-
-const clearCurrentTrade = () => currentTrade = null
-
-const firstIsAboveCurrent = () => currentTrade?.symbol !== socketAPI.first.symbol && socketAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
-const addQueue = (signal) => signalQueue = signal
-
-async function startTrade() {
-    if (await bid()) {
-        config.oco && await ask()
-        await setQueueAsCurrentTrade()
-        await setEyesOnCurrentTrade()
-    }
-}
-
-async function stopTrade() {
-    config.oco || await ask()
-
-    logTradeStatus(currentTrade)
-    await clearCurrentTrade()
-
-}
-
-async function bid() {
-    console.log('bid', signalQueue)
-    return signalQueue && await restAPI.bid(signalQueue.symbol)
-}
-
-async function ask() {
-    console.log('ask', currentTrade)
-    // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
-    return currentTrade && await restAPI.ask(currentTrade)
-}
-
-async function setQueueAsCurrent() {
-    await stopTrade()
-    await startTrade()
-}
-
-function setEyesOnCurrentTrade() {
-    let percent;
-    followTrade()
-
-    function followTrade() {
-        currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
-            try {
-                // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
-                currentTrade?.update({open, close})
-                if (currentTrade?.isBelowStopLoss()) {
-                    await stopTrade()
-                } else if (currentTrade?.isPumping()) {
-                    //return
-                } else if (currentTrade?.isAboveTakeProfit()) {
-                    await stopTrade()
-                }/* else if (currentTrade?.IsBelowEnterTrade()) {
-                    consola.info('Stop trade')
-                    await stopTrade()
-                } *//*else if (currentTrade?.IsDelaying()) {
-                    consola.info('Stop trade')
-                    await stopTrade()
-                }*/ /*else if (currentTrade.isMaxAboveTakeProfit()) {
-                    if (currentTrade.hasLossOnGain()) {
-                        log('Stop trade and take profit')
-                        await stopTrade()
-                    }
-                }*/
-                logTrade()
-            } finally {
-                followTrade()
-            }
-        })
+    get currentTrade() {
+        return this.#currentTrade
     }
 
-    const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
-        consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
-        percent = currentTrade?.percent
-    })
-}
+    init() {
+        this.listenTradeEvent()
+        this.listenFinalEvent()
+    }
 
-export function initTrader() {
-    listenTradeEvent()
-    listenFinalEvent()
 
-    function listenTradeEvent() {
+    listenTradeEvent() {
         socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
             try {
                 if (signal) {
-                    addQueue(signal)
-                    if (!currentTrade) {
+                    this.addQueue(signal)
+                    if (!this.currentTrade) {
                         consola.info('Start trade')
-                        await startTrade()
+                        await this.startTrade()
                     } /*else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
-                }*/ else if (currentTrade?.IsDelaying()) {
-                        if (currentTrade?.isLosing() || !currentTrade?.isPumping()) {
+                }*/ else if (this.currentTrade?.IsDelaying()) {
+                        if (this.currentTrade?.isLosing() || !this.currentTrade?.isPumping()) {
                             consola.info('Switch  trade')
-                            await setQueueAsCurrent()
+                            await this.setQueueAsCurrent()
                         }
                     }
                 }
@@ -120,31 +43,116 @@ export function initTrader() {
 
                 // }
             } finally {
-                listenTradeEvent()
+                this.listenTradeEvent()
             }
 
         })
     }
 
-    function listenFinalEvent() {
+
+    listenFinalEvent() {
         socketAPI.once(socketAPI.FINAL_EVENT, async () => {
-            currentTrade && await stopTrade()
-            await restartProcess() //must restart pm2
+            this.currentTrade && await this.stopTrade()
+            await this.restartProcess() //must restart pm2
         })
     }
+
+    async startTrade() {
+        if (await this.bid()) {
+            config.oco && await this.ask()
+            await this.setQueueAsCurrentTrade()
+            await this.setEyesOnCurrentTrade()
+        }
+    }
+
+    async stopTrade() {
+        config.oco || await this.ask()
+
+        logTradeStatus(this.currentTrade)
+        await this.clearCurrentTrade()
+
+    }
+
+    clearCurrentTrade() {
+        this.#currentTrade = null
+    }
+
+
+    setQueueAsCurrentTrade() {
+        const signalQueue = this.#signalQueue
+        this.#currentTrade = signalQueue ? new Trade(Object.assign({}, signalQueue, {
+            tradeStartedAtPercent: signalQueue.percent, max: signalQueue.percent,
+            bidPrice: signalQueue.close
+        })) : null
+    }
+
+    addQueue(signal) {
+        this.#signalQueue = signal
+    }
+
+    async bid() {
+        const signalQueue = this.#signalQueue
+        console.log('bid', signalQueue)
+        return signalQueue && await restAPI.bid(signalQueue.symbol)
+    }
+
+    async ask() {
+        const currentTrade = this.currentTrade
+        console.log('ask', currentTrade)
+        // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
+        return currentTrade && await restAPI.ask(currentTrade)
+    }
+
+    async setQueueAsCurrent() {
+        await this.stopTrade()
+        await this.startTrade()
+    }
+
+    setEyesOnCurrentTrade() {
+        const trader = this
+        let percent
+        followTrade()
+
+        function followTrade() {
+            const currentTrade = trader.currentTrade
+            currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
+                try {
+                    // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
+                    currentTrade?.update({open, close})
+                    await config.strategyExit(trader)
+                    logTrade()
+                } finally {
+                    followTrade()
+                }
+            })
+
+
+            const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
+                consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
+                percent = currentTrade?.percent
+            })
+        }
+    }
+
+    async restartProcess() {
+        console.log("This is pid " + process.pid);
+        // // setTimeout(function () {
+        process.on("exit", async () => {
+            debugger
+        })
+        if (socketAPI.max.max >= config.enter_trade) {
+            log(`restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}%\n\n`)
+        }
+        await endStream()
+        // process.exit();
+        setTimeout(() => process.exit(), 10 * ONE_SECOND);
+        // }, 5000);
+    }
+
+    firstIsAboveCurrent() {
+        const currentTrade = this.currentTrade
+        return currentTrade?.symbol !== socketAPI.first.symbol && socketAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
+    }
+
 }
 
-async function restartProcess() {
-    console.log("This is pid " + process.pid);
-    // // setTimeout(function () {
-    process.on("exit", async () => {
-        debugger
-    })
-    if (socketAPI.max.max >= config.enter_trade) {
-        log(`restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}%\n\n`)
-    }
-    await endStream()
-    // process.exit();
-    setTimeout(() => process.exit(), 10e3);
-    // }, 5000);
-}

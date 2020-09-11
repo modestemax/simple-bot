@@ -3,7 +3,7 @@ import qs from 'qs'
 import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
-import {socketAPI} from "./binance-socket.mjs";
+import socketAPI from "./binance-socket.mjs";
 import {addPercent} from "../utils.mjs";
 import {logTrade, logApiError} from "../log.mjs";
 import {cryptoMap} from "../db/index.mjs";

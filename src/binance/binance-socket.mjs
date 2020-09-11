@@ -4,10 +4,9 @@ import {config} from "../db/firestore.mjs";
 import {percent} from "../db/SignalClass.mjs";
 import {noop, ONE_MINUTE, SATOSHI} from "../utils.mjs";
 import EventEmitter from 'events'
-import firstStrategies from "../strategies.mjs";
 
 
-class BinanceSocket extends EventEmitter {
+export default new class   extends EventEmitter {
 
     get FINAL_EVENT() {
         return 'FINAL_EVENT'
@@ -67,7 +66,7 @@ class BinanceSocket extends EventEmitter {
     }
 
     checkIfReadyToTrade(signal) {
-        if (firstStrategies[config.strategy] && firstStrategies[config.strategy](signal)) {
+        if (config.strategyEnter(signal)) {
             this.emit(this.TRADE_EVENT, signal)
         }
     }
@@ -108,7 +107,5 @@ class BinanceSocket extends EventEmitter {
     }
 
 }
-
-export const socketAPI = new BinanceSocket()
 
 

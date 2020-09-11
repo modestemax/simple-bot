@@ -40,8 +40,8 @@ module.exports = {
             user: 'root',
             host: '167.71.216.215',
             ref: 'origin/master',
-            repo: 'git@github.com:repo.git',
-            path: '/var/www/production',
+            repo: 'https://github.com/modestemax/simple-bot.git',
+            path: '/root/projects',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
         }
     }

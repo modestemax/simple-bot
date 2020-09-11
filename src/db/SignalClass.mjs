@@ -1,4 +1,3 @@
-import {config, firestore} from './firestore.mjs';
 import consola from 'consola'
 import {ONE_MINUTE} from "../utils.mjs";
 
