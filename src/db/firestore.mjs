@@ -39,7 +39,7 @@ export default new class {
 
         const [timeframe, name] = (config.instance_name).split('_')
         const instanceConfig = Object.assign({}, config[timeframe], config[name], config[process.env.TIME_FRAME])
-        Object.assign(config, instanceConfig)
+        Object.assign(config, instanceConfig, {timeframe: config[timeframe] && timeframe})
         strategies[config.strategy] && (config.strategy = {name: config.strategy, ...strategies[config.strategy]})
 
         if (!config.strategy?.enter) {
