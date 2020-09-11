@@ -1,5 +1,6 @@
 const app = {
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
+    script: 'npm run start',
     instances: 1,
     autorestart: true,
     watch: true,
@@ -14,25 +15,35 @@ const app = {
 module.exports = {
     apps: [
         {
-            name: '1d',
-            script: 'npm run 1d',
-            ...app
+            ...app,
+            name: '1d_first',
+            script: 'TIME_FRAME=1d_first  ' + app.script,
         },
         {
-            name: '4h',
-            script: 'npm run 4h',
             ...app,
+            name: '1d_pump',
+            script: 'TIME_FRAME=1d_pump  ' + app.script,
         },
         {
-            name: '5m',
-            script: 'npm run 5m',
             ...app,
+            name: '4h_pump',
+            script: 'TIME_FRAME=4h_pump  ' + app.script,
         },
         {
-            name: '3m',
-            script: 'npm run 3m',
             ...app,
+            name: '4h_first',
+            script: 'TIME_FRAME=4h_first  ' + app.script,
         },
+        // {
+        //     name: '5m',
+        //     script: 'npm run 5m',
+        //     ...app,
+        // },
+        // {
+        //     name: '3m',
+        //     script: 'npm run 3m',
+        //     ...app,
+        // },
     ],
 
     deploy: {

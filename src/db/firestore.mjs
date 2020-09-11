@@ -34,12 +34,14 @@ export default new class {
         }
         // config.current_trade = currentTradeData.data()
         // config.first = firstData.data()
+        config.instance_name = process.env.TIME_FRAME || config.timeframe
 
-        config.timeframe = (process.env.TIME_FRAME || config.timeframe).split('_')[0]
-        Object.assign(config, config[config.timeframe])
-        config.strategyEnter = strategies[config.strategy]?.enter
-        config.strategyExit = strategies[config.strategy]?.exit
-        if (!config.strategyEnter) {
+        const [timeframe, name] = (config.instance_name).split('_')
+        const instanceConfig = Object.assign({}, config[timeframe], config[name], config[process.env.TIME_FRAME])
+        Object.assign(config, instanceConfig)
+        strategies[config.strategy] && (config.strategy = {name: config.strategy, ...strategies[config.strategy]})
+
+        if (!config.strategy?.enter) {
             console.error('no strategy, exit')
             process.exit(5)
         }

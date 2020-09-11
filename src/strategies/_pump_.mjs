@@ -1,3 +1,5 @@
+import consola from "consola";
+
 export default {
     enter(signal) {
         return signal.percent >= config.enter_trade && signal.percent >= signal.max
@@ -22,5 +24,12 @@ export default {
                         await stopTrade()
                     }
                 }*/
+    }, async switch(trader) {
+        if (trader.currentTrade?.IsDelaying()) {
+            if (trader.currentTrade?.isLosing() || !trader.currentTrade?.isPumping()) {
+                consola.info('Switch  trade')
+                await trader.setQueueAsCurrent()
+            }
+        }
     }
 }

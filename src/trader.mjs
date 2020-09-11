@@ -14,6 +14,10 @@ export default new class {
         return this.#currentTrade
     }
 
+    get signalQueue() {
+        return this.#signalQueue
+    }
+
     init() {
         this.listenTradeEvent()
         this.listenFinalEvent()
@@ -31,11 +35,8 @@ export default new class {
                     } /*else if (firstIsAboveCurrent()) {
                     consola.info('Switch  trade')
                     await switchFirstCurrent()
-                }*/ else if (this.currentTrade?.IsDelaying()) {
-                        if (this.currentTrade?.isLosing() || !this.currentTrade?.isPumping()) {
-                            consola.info('Switch  trade')
-                            await this.setQueueAsCurrent()
-                        }
+                }*/ else {
+                        signal.symbol !== this.currentTrade.symbol && await config.strategy?.switch(this)
                     }
                 }
 
@@ -52,7 +53,7 @@ export default new class {
 
     listenFinalEvent() {
         socketAPI.once(socketAPI.FINAL_EVENT, async () => {
-            this.currentTrade && await this.stopTrade()
+            await this.stopTrade()
             await this.restartProcess() //must restart pm2
         })
     }
@@ -66,11 +67,11 @@ export default new class {
     }
 
     async stopTrade() {
-        config.oco || await this.ask()
-
-        logTradeStatus(this.currentTrade)
-        await this.clearCurrentTrade()
-
+        if (this.currentTrade) {
+            config.oco || await this.ask()
+            logTradeStatus(this.currentTrade)
+            await this.clearCurrentTrade()
+        }
     }
 
     clearCurrentTrade() {
@@ -119,7 +120,7 @@ export default new class {
                 try {
                     // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
                     currentTrade?.update({open, close})
-                    await config.strategyExit(trader)
+                    await config.strategy?.exit(trader)
                     logTrade()
                 } finally {
                     followTrade()

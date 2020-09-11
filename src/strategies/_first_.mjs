@@ -1,4 +1,5 @@
 import {cryptoMap} from "../db/index.mjs";
+import consola from "consola";
 
 
 export default {
@@ -28,5 +29,10 @@ export default {
                         await stopTrade()
                     }
                 }*/
+    },
+
+    async switch(trader) {
+        consola.info('Switch  trade')
+        await trader.setQueueAsCurrent()
     }
 }

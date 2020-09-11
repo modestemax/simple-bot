@@ -66,7 +66,7 @@ export default new class   extends EventEmitter {
     }
 
     checkIfReadyToTrade(signal) {
-        if (config.strategyEnter(signal)) {
+        if (config.strategy?.enter(signal)) {
             this.emit(this.TRADE_EVENT, signal)
         }
     }

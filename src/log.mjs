@@ -6,7 +6,7 @@ let stream, csvStream
 
 const openStream = () => {
     if (!stream) {
-        const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.html`
+        const file = `${process.env.HOME}/${global.config.instance_name}_${new Date().toDateString()}.html`
         stream = fs.createWriteStream(file, {flags: 'a'});
     }
     return stream
@@ -14,7 +14,7 @@ const openStream = () => {
 
 const openCsvStream = () => {
     if (!csvStream) {
-        const file = `${process.env.HOME}/${global.config.timeframe}_${new Date().toDateString()}.csv`
+        const file = `${process.env.HOME}/${global.config.instance_name}_${new Date().toDateString()}.csv`
         if (!fs.existsSync(file)) {
             csvStream = fs.createWriteStream(file, {flags: 'a'});
             csvStream.write(`status,symbol,percent\n`)
