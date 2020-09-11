@@ -41,7 +41,7 @@ module.exports = {
             host: '167.71.216.215',
             ref: 'origin/master',
             repo: 'https://github.com/modestemax/simple-bot.git',
-            path: '/root/projects',
+            path: '/root/projects/simple-bot',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
         }
     }
