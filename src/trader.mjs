@@ -81,10 +81,14 @@ export default new class {
 
     setQueueAsCurrentTrade() {
         const signalQueue = this.#signalQueue
-        this.#currentTrade = signalQueue ? new Trade(Object.assign({}, signalQueue, {
-            tradeStartedAtPercent: signalQueue.percent, max: signalQueue.percent,
-            bidPrice: signalQueue.close
-        })) : null
+        this.#currentTrade = signalQueue ?
+            new Trade(Object.assign({}, signalQueue,
+                {
+                    tradeStartedAtPercent: signalQueue.percent,
+                    max: signalQueue.percent,
+                    bidPrice: signalQueue.close
+                }
+            )) : null
     }
 
     addQueue(signal) {

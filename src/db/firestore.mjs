@@ -9,6 +9,7 @@ export const config = {
     stop_lost: 3,
     oco: false,
     test: true,
+    trailing_stop_loss: true,
     take_profit: 2,
     acceptable_loss_on_gain_percentage: 50,
     trade_max_time_minute: 30,

@@ -152,7 +152,7 @@ export class Trade extends Signal {
             consola.error(error)
             throw error
         }
-        this._stopLoss = this._stopLoss ? this._stopLoss : this.max - config.stop_lost;
+        this._stopLoss = this._stopLoss ? this._stopLoss : this.tradeStartedAtPercent - config.stop_lost;
         this._startTime = this._startTime ? this._startTime : Date.now()
         this._grandMin = null
     }
@@ -161,7 +161,7 @@ export class Trade extends Signal {
     $percent() {
         super.$percent()
         if (this.open && this.close) {
-            this._stopLoss = +(this.max - config.stop_lost).toFixed(2)
+            config.trailing_stop_loss && (this._stopLoss = +(this.max - config.stop_lost).toFixed(2))
         }
     }
 
