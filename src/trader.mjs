@@ -114,6 +114,7 @@ export default new class {
     }
 
     setEyesOnCurrentTrade() {
+        const currentTrade = this.currentTrade
         const trader = this
         let percent
         followTrade()
@@ -130,13 +131,12 @@ export default new class {
                     followTrade()
                 }
             })
-
-
-            const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
-                consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
-                percent = currentTrade?.percent
-            })
         }
+
+        const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
+            consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
+            percent = currentTrade?.percent
+        })
     }
 
     async restartProcess() {
