@@ -4,9 +4,20 @@ const FEE = 0.075
 
 let stream, csvStream
 
+const getFile = (ext) => {
+    const date = new Date().toDateString()
+    const file = `${process.env.HOME}/${date}/${global.config.instance_name}.` + ext
+    let dir = file.split('/')
+    dir.pop()
+    dir = dir.join('/')
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+    return file
+}
 const openStream = () => {
     if (!stream) {
-        const file = `${process.env.HOME}/${global.config.instance_name}_${new Date().toDateString()}.html`
+        const file = getFile(`html`)
         stream = fs.createWriteStream(file, {flags: 'a'});
     }
     return stream
@@ -14,7 +25,7 @@ const openStream = () => {
 
 const openCsvStream = () => {
     if (!csvStream) {
-        const file = `${process.env.HOME}/${global.config.instance_name}_${new Date().toDateString()}.csv`
+        const file = getFile(`csv`)
         if (!fs.existsSync(file)) {
             csvStream = fs.createWriteStream(file, {flags: 'a'});
             csvStream.write(`status,symbol,percent\n`)
@@ -60,7 +71,7 @@ export function logApiError(text) {
 }
 
 export function logTradeStatus(currentTrade) {
-     if (currentTrade) {
+    if (currentTrade) {
         let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
         symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
         const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
