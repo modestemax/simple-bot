@@ -15,7 +15,8 @@
     "3m_dev": "TIME_FRAME=3m npm run dev ",
     "dev": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect src/index.mjs ",
     "debug": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect-brk src/index.mjs ",
-    "serve": "http-server ~ -p 8080 --no-dotfiles"
+    "serve": "http-server ~ -p 8080 --no-dotfiles",
+    "update": "pm2 deploy production update"
   },
   "repository": {
     "type": "git",
