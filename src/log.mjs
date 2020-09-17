@@ -72,7 +72,7 @@ export function logApiError(text) {
 
 export function logTradeStatus(currentTrade) {
     if (currentTrade) {
-        let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%)`
+        let symbolResume = `${currentTrade.symbol}\tb:${currentTrade.bidPrice} (${currentTrade.tradeStartedAtPercent}%)\tc:${currentTrade.close} (${currentTrade.percent}%) \tpick:${currentTrade.pick} `
         symbolResume += currentTrade.grandMin ? `\tm:${currentTrade.grandMin}` : ""
         const gain = (currentTrade.percent - currentTrade.tradeStartedAtPercent).toFixed(2)
         const status = +(gain > FEE)

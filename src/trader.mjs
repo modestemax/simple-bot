@@ -86,7 +86,8 @@ export default new class {
                 {
                     tradeStartedAtPercent: signalQueue.percent,
                     max: signalQueue.percent,
-                    bidPrice: signalQueue.close
+                    bidPrice: signalQueue.close,
+                    grandMin: signalQueue.grandMin,
                 }
             )) : null
     }
@@ -146,7 +147,7 @@ export default new class {
             debugger
         })
         if (socketAPI.max.max >= config.enter_trade) {
-            log(`restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}%\n\n`)
+            log(`end candle restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}% m:${socketAPI.max.grandMin}  pick:${socketAPI.max.pick}\n\n`)
         }
         await endStream()
         // process.exit();

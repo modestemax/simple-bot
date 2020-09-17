@@ -14,12 +14,14 @@ export class Signal {
     _min = Infinity;
     _time;
     _grandMin = 0;
+    #prevSignal
+    #pick = 0
 
     constructor({symbol, open, close, max, ...other} = {}) {
         Object.assign(this, other)
         this.symbol = symbol;
         this.update({open, close, max})
-
+        delete this.#prevSignal
     }
 
     updateWith(signal) {
@@ -27,19 +29,37 @@ export class Signal {
     }
 
     update({open, close, high, max, min, ...other}) {
+        this.#prevSignal = new Signal(this)
         Object.assign(this, other);
         this.open = open;
         this.close = close
         this.max = max
         this.min = min
         this.high = high
+        this.#pick += +this.isPick()
         this._time = new Date().toTimeString()
+    }
+
+    isPick() {
+        return Math.abs(this.prevSignal?.percent - this.percent) >= config.min_pick
+    }
+
+    isNotPick() {
+        return !this.isPick()
     }
 
     set high(value) {
         if (value) {
             this.max = twoDecimal(percent(value, this.open))
         }
+    }
+
+    get prevSignal() {
+        return this.#prevSignal
+    }
+
+    get pick() {
+        return this.#pick
     }
 
     get open() {
@@ -139,7 +159,7 @@ export class Trade extends Signal {
     _startTime;
 
 
-    constructor({tradeStartedAtPercent, bidPrice, max, min, ...signal}) {
+    constructor({tradeStartedAtPercent, bidPrice, max, min, grandMin, ...signal}) {
         super(signal);
         Object.assign(this, signal)
 
@@ -154,7 +174,7 @@ export class Trade extends Signal {
         }
         this._stopLoss = this._stopLoss ? this._stopLoss : this.tradeStartedAtPercent - config.stop_lost;
         this._startTime = this._startTime ? this._startTime : Date.now()
-        this._grandMin = null
+        this._grandMin = grandMin?.length ? ['/', ...grandMin] : null
     }
 
 
@@ -205,8 +225,12 @@ export class Trade extends Signal {
         return this.percent >= this.max
     }
 
-    IsBelowEnterTrade() {
-        return this.percent < config.enter_trade
+    isBelowEnterTrade() {
+        return !this.isUnderEnterTrade()
+    }
+
+    isUnderEnterTrade() {
+        return this.percent >= config.enter_trade
     }
 
     IsDelaying() {

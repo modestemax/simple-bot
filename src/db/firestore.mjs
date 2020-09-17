@@ -7,6 +7,7 @@ export const config = {
     timeframe: '1d',
     strategy: '_first_',
     stop_lost: 3,
+    min_pick: 2,
     oco: false,
     test: true,
     trailing_stop_loss: true,
