@@ -21,7 +21,7 @@ export class Signal {
         Object.assign(this, other)
         this.symbol = symbol;
         this.update({open, close, max})
-        delete this.#prevSignal
+        this.#prevSignal = null
     }
 
     updateWith(signal) {
