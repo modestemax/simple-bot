@@ -8,7 +8,7 @@ export default {
     enter(signal) {
         const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
-        return !gotProfit && (signal.symbol === sortedByPercent[0]?.symbol && signal.isUnderEnterTrade() && signal.isNotPick())
+        return !gotProfit && (signal.symbol === sortedByPercent[0]?.symbol && signal.isAboveEnterTrade() && signal.isNotPick())
 
     },
 

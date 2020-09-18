@@ -149,6 +149,18 @@ export class Signal {
         }
     }
 
+    isPumping() {
+        return this.percent >= this.max
+    }
+
+    isBelowEnterTrade() {
+        return !this.isAboveEnterTrade()
+    }
+
+    isAboveEnterTrade() {
+        return this.percent >= config.enter_trade
+    }
+
 }
 
 
@@ -219,18 +231,6 @@ export class Trade extends Signal {
 
     isLosing() {
         return this.percent < this.tradeStartedAtPercent
-    }
-
-    isPumping() {
-        return this.percent >= this.max
-    }
-
-    isBelowEnterTrade() {
-        return !this.isUnderEnterTrade()
-    }
-
-    isUnderEnterTrade() {
-        return this.percent >= config.enter_trade
     }
 
     IsDelaying() {
