@@ -20,7 +20,9 @@ export class Signal {
     constructor({symbol, open, close, max, ...other} = {}) {
         Object.assign(this, other)
         this.symbol = symbol;
-        this.update({open, close, max})
+        this.open = open;
+        this.close = close
+        this.max = max
         this.#prevSignal = null
     }
 
@@ -29,7 +31,7 @@ export class Signal {
     }
 
     update({open, close, high, max, min, ...other}) {
-        this.#prevSignal = Object.assign({}, this)
+        this.#prevSignal =new Signal(this)// Object.assign({}, this)
         Object.assign(this, other);
         this.open = open;
         this.close = close

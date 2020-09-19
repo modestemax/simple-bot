@@ -38,6 +38,6 @@ process.on('uncaughtException', function (err) {
 })
 
 process.on('unhandledRejection', (reason, promise) => {
-    logError('Unhandled Rejection at:', promise, 'reason:', reason);
+    logError('Unhandled Rejection '+ reason.message+'\n'+reason.stack);
     // Application specific logging, throwing an error, or other logic here
 });
