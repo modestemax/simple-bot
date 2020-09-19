@@ -29,7 +29,7 @@ export class Signal {
     }
 
     update({open, close, high, max, min, ...other}) {
-        this.#prevSignal = Object.create(this)
+        this.#prevSignal = Object.assign({}, this)
         Object.assign(this, other);
         this.open = open;
         this.close = close
