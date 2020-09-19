@@ -28,12 +28,12 @@ module.exports = {
         {
             ...app,
             name: '4h_pump',
-            script: 'TIME_FRAME=4h_pump  ' + app.script2,
+            script: 'TIME_FRAME=4h_pump  ' + app.script,
         },
         {
             ...app,
             name: '4h_first',
-            script: 'TIME_FRAME=4h_first  ' + app.script,
+            script: 'TIME_FRAME=4h_first  ' + app.script2,
         },
         // {
         //     name: '5m',
