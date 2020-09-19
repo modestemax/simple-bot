@@ -2,7 +2,7 @@ import fs from 'fs'
 
 const FEE = 0.075
 
-let stream, csvStream
+let stream, csvStream, errStream
 
 const getFile = (ext) => {
     const date = new Date().toDateString()
@@ -21,6 +21,13 @@ const openStream = () => {
         stream = fs.createWriteStream(file, {flags: 'a'});
     }
     return stream
+}
+const openErrorStream = () => {
+    if (!errStream) {
+        const file = getFile(`error.txt`)
+        errStream = fs.createWriteStream(file, {flags: 'a'});
+    }
+    return errStream
 }
 
 const openCsvStream = () => {
@@ -65,9 +72,12 @@ export function logTrade({side, symbol, cryptoMap}) {
 
 }
 
-export function logApiError(text) {
+export function logError(text) {
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="background-color: grey">${time} ${text}</pre>`)
+    const stream = openErrorStream()
+
+    stream.write(time + '\n' + text + "\n");
+    console.error(text)
 }
 
 export function logTradeStatus(currentTrade) {

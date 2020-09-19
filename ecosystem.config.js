@@ -1,6 +1,7 @@
 const app = {
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
     script: 'npm run start',
+    script2: 'npm run start2',
     instances: 1,
     autorestart: true,
     watch: true,
@@ -27,7 +28,7 @@ module.exports = {
         {
             ...app,
             name: '4h_pump',
-            script: 'TIME_FRAME=4h_pump  ' + app.script,
+            script: 'TIME_FRAME=4h_pump  ' + app.script2,
         },
         {
             ...app,

@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import consola from 'consola'
 import socketAPI from "./binance-socket.mjs";
 import {addPercent} from "../utils.mjs";
-import {logTrade, logApiError} from "../log.mjs";
+import {logTrade, logError} from "../log.mjs";
 import {cryptoMap} from "../db/index.mjs";
 import WebSocket from "ws";
 
@@ -177,7 +177,7 @@ export class BinanceRest {
             // consola.info('api result', res)
             return res;
         } catch (e) {
-            logApiError(`\n${JSON.stringify(arguments)}\n${JSON.stringify(e?.response?.data)}\n`)
+            logError(`\n${JSON.stringify(arguments)}\n${JSON.stringify(e?.response?.data)}\n`)
             consola.error(e)
             consola.error(e?.response?.data)
             consola.info(arguments)

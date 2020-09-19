@@ -11,6 +11,7 @@ import trader from "./trader.mjs";
 import {config} from "./db/firestore.mjs";
 import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
+import {logError} from "./log.mjs";
 
 (async () => {
     try {
@@ -30,3 +31,8 @@ import consola from "consola";
 })()
 
 
+process.on('uncaughtException', function (err) {
+    logError((new Date).toUTCString() + ' uncaughtException:', err.message)
+    logError(err.stack)
+    process.exit(1)
+})

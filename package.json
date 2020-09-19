@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect=167.71.216.215 src/index.mjs ",
+    "start2": "GOOGLE_APPLICATION_CREDENTIALS='./simple trading bot-6faa02758c7f.json' node --inspect=0.0.0.0:9339 src/index.mjs ",
     "1d": "TIME_FRAME=1d npm start ",
     "4h": "TIME_FRAME=4h npm start ",
     "1m": "TIME_FRAME=1m npm start ",
