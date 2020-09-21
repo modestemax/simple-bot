@@ -134,7 +134,7 @@ export default new class {
             })
         }
 
-        const logTrade = throttleWithCondition(() => percent !== currentTrade?.percent, function () {
+        const logTrade = throttleWithCondition(() => percent?.toFixed(1) !== currentTrade?.percent?.toFixed(1), function () {
             consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
             percent = currentTrade?.percent
         })

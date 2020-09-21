@@ -20,16 +20,16 @@ module.exports = {
             name: '1d_first',
             script: 'TIME_FRAME=1d_first  ' + app.script,
         },
-        {
-            ...app,
-            name: '1d_pump',
-            script: 'TIME_FRAME=1d_pump  ' + app.script,
-        },
-        {
-            ...app,
-            name: '4h_pump',
-            script: 'TIME_FRAME=4h_pump  ' + app.script,
-        },
+        // {
+        //     ...app,
+        //     name: '1d_pump',
+        //     script: 'TIME_FRAME=1d_pump  ' + app.script,
+        // },
+        // {
+        //     ...app,
+        //     name: '4h_pump',
+        //     script: 'TIME_FRAME=4h_pump  ' + app.script,
+        // },
         {
             ...app,
             name: '4h_first',
