@@ -76,8 +76,8 @@ export default new class   extends EventEmitter {
         if (!this.max?.max || this.max?.max < signal.max) {
             this.#max = signal
             this.logMax()
-            clearTimeout(this.#timeout.max)
-            this.#timeout.max = setTimeout(() => this.logMax(), ONE_MINUTE)
+            clearInterval(this.#timeout.max)
+            this.#timeout.max = setInterval(() => this.logMax(), ONE_MINUTE)
         }
     }
 
@@ -89,8 +89,8 @@ export default new class   extends EventEmitter {
         if (!this.first?.percent || this.first?.percent < signal.percent) {
             this.#first = signal
             this.logFirst()
-            clearTimeout(this.#timeout.first)
-            this.#timeout.first = setTimeout(() => this.logFirst(), ONE_MINUTE)
+            clearInterval(this.#timeout.first)
+            this.#timeout.first = setInterval(() => this.logFirst(), ONE_MINUTE)
         }
     }
 
