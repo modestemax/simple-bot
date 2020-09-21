@@ -27,6 +27,7 @@ const configRef = db.collection('bot').doc('config');
 // const firstRef = db.collection('bot').doc(FIRST_ID);
 
 export default new class {
+
     async initFireStore() {
         const [configData/*, currentTradeData, firstData*/] = await Promise.all([configRef.get()/*, currentTradeRef.get(), firstRef.get()*/])
         if (!configData.data().enter_trade) {
@@ -41,12 +42,13 @@ export default new class {
         const [timeframe, name] = (config.instance_name).split('_')
         const instanceConfig = Object.assign({}, config[timeframe], config[name], config[process.env.TIME_FRAME])
         Object.assign(config, instanceConfig, {timeframe: config[timeframe] && timeframe})
-        strategies[config.strategy] && (config.strategy = {name: config.strategy, ...strategies[config.strategy]})
+        strategies[config.strategy] && (config.strategy = Object.assign(strategies[config.strategy], {name: config.strategy}))
 
         if (!config.strategy?.enter) {
             console.error('no strategy, exit')
             process.exit(5)
         }
+        config.strategy.gotProfit = await this.#getProfitTag()
         global.config = config
         return config
     }
@@ -67,10 +69,17 @@ export default new class {
 //     }
 //
 // //
-// // export function saveFirst(first) {
-// //     config.first = first
-// //     firstRef.set(Object.assign({}, first)).catch(noop);
-// // }
+    setProfitTag(first) {
+        const tagRef = db.collection('bot').doc(config.instance_name + (new Date).toDateString());
+        tagRef.set(Object.assign({}, first)).catch(noop);
+    }
+
+
+    async #getProfitTag() {
+        const tagRef = db.collection('bot').doc(config.instance_name + (new Date).toDateString());
+        return (await tagRef.get()).data();
+    }
+
 //
 //     async savePreviousTrade(trade) {
 //

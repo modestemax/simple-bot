@@ -1,10 +1,14 @@
 import {cryptoMap} from "../db/index.mjs";
+import firestore from "../db/firestore.mjs";
 import consola from "consola";
 
 let gotProfit
 let lossCount = 0
 
 export default {
+    set gotProfit(value) {
+        gotProfit = value
+    },
     enter(signal) {
         const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
@@ -20,7 +24,9 @@ export default {
             //return
         } else if (trader.currentTrade?.isAboveTakeProfit()) {
             gotProfit = true
+            const currentTrade = {...trader.currentTrade}
             await trader.stopTrade()
+            await firestore.setProfitTag(currentTrade)
         }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
                     await stopTrade()
