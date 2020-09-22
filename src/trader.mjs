@@ -144,7 +144,7 @@ export default new class {
         console.log("This is pid " + process.pid);
         // // setTimeout(function () {
         process.on("exit", async () => {
-            debugger
+         //   debugger
         })
         if (socketAPI.max.max >= config.enter_trade) {
             log(`end candle restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}% m:${socketAPI.max.grandMin}  pick:${socketAPI.max.pick}\n\n`)
