@@ -17,7 +17,7 @@ export default {
     },
 
     async exit(trader) {
-        if (trader.currentTrade?.isBelowStopLoss() && !trader.currentTrade?.isNotPick()) {
+        if (trader.currentTrade?.isBelowStopLoss() && trader.currentTrade?.isNotPick()) {
             lossCount++
             await trader.stopTrade()
         } else if (trader.currentTrade?.isPumping()) {
