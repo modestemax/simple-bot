@@ -25,8 +25,8 @@ const db = new Firestore({ignoreUndefinedProperties: true});
 const configRef = db.collection('bot').doc('config');
 // const currentTradeRef = db.collection('bot').doc(CURRENT_TRADE_ID);
 // const firstRef = db.collection('bot').doc(FIRST_ID);
-const pt = 'z_profit_tag'
-const ts = 'z_trade_started'
+const pt = 'z_t_t_'
+const ts = 'z_t_sd_'
 
 export default new class {
 
