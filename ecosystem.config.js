@@ -32,8 +32,8 @@ module.exports = {
         // },
         {
             ...app,
-            name: '4h_first',
-            script: 'TIME_FRAME=4h_first  ' + app.script2,
+            name: '1d_scale',
+            script: 'TIME_FRAME=1d_scale  ' + app.script2,
         },
         // {
         //     name: '5m',

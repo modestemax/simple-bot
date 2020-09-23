@@ -25,6 +25,8 @@ const db = new Firestore({ignoreUndefinedProperties: true});
 const configRef = db.collection('bot').doc('config');
 // const currentTradeRef = db.collection('bot').doc(CURRENT_TRADE_ID);
 // const firstRef = db.collection('bot').doc(FIRST_ID);
+const pt = 'z_profit_tag'
+const ts = 'z_trade_started'
 
 export default new class {
 
@@ -49,6 +51,7 @@ export default new class {
             process.exit(5)
         }
         config.strategy.gotProfit = await this.#getProfitTag()
+        config.strategy.tradeStarted = await this.#getTradeStarted()
         global.config = config
         return config
     }
@@ -70,13 +73,23 @@ export default new class {
 //
 // //
     setProfitTag(first) {
-        const tagRef = db.collection('bot').doc(config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(pt + config.instance_name + (new Date).toDateString());
+        tagRef.set(Object.assign({}, first)).catch(noop);
+    }
+
+    setTradeStarted(first) {
+        const tagRef = db.collection('bot').doc(ts + config.instance_name + (new Date).toDateString());
         tagRef.set(Object.assign({}, first)).catch(noop);
     }
 
 
     async #getProfitTag() {
-        const tagRef = db.collection('bot').doc(config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(pt + config.instance_name + (new Date).toDateString());
+        return (await tagRef.get()).data();
+    }
+
+    async #getTradeStarted() {
+        const tagRef = db.collection('bot').doc(ts + config.instance_name + (new Date).toDateString());
         return (await tagRef.get()).data();
     }
 
