@@ -29,7 +29,8 @@ const configRef = db.collection('bot').doc('config');
 const pt = 'z_t_t_'
 const ts = 'z_t_sd_'
 const lc = 'z_t_lc_'
-const dateString = (new Date).toDateString()
+
+const dateString = new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
 
 export default new class {
 
