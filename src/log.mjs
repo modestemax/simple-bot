@@ -5,7 +5,8 @@ const FEE = 0.075
 let stream, csvStream, errStream
 
 const getFile = (ext) => {
-    const date = new Date().toDateString()
+
+    const date = new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
     const file = `${process.env.HOME}/${date}/${global.config.instance_name}.` + ext
     let dir = file.split('/')
     dir.pop()

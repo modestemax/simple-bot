@@ -21,7 +21,7 @@ import sendgrid from './email.mjs'
         await restAPI.init(config.auth)
         socketAPI.init(restAPI)
         trader.init()
-        sendgrid.send({body: "Bot Started"})
+        sendgrid.send({body: "Bot Started :" + config.instance_name})
 
         console.log('timeframe: ', config.timeframe)
         console.log('enter_trade: ', config.enter_trade)
