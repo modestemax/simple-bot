@@ -29,6 +29,7 @@ const configRef = db.collection('bot').doc('config');
 const pt = 'z_t_t_'
 const ts = 'z_t_sd_'
 const lc = 'z_t_lc_'
+const dateString = (new Date).toDateString()
 
 export default new class {
 
@@ -76,33 +77,33 @@ export default new class {
 //
 // //
     setProfitTag(first) {
-        const tagRef = db.collection('bot').doc(pt + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(pt + config.instance_name + dateString);
         tagRef.set(Object.assign({}, first)).catch(noop);
     }
 
     saveLossCount(lostCount) {
-        const tagRef = db.collection('bot').doc(lc + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(lc + config.instance_name + dateString);
         tagRef.set(Object.assign({}, lostCount)).catch(noop);
     }
 
     setTradeStarted(first) {
-        const tagRef = db.collection('bot').doc(ts + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(ts + config.instance_name + dateString);
         tagRef.set(Object.assign({}, first)).catch(noop);
     }
 
 
     async #getProfitTag() {
-        const tagRef = db.collection('bot').doc(pt + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(pt + config.instance_name + dateString);
         return (await tagRef.get()).data();
     }
 
     async #getLossCount() {
-        const tagRef = db.collection('bot').doc(lc + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(lc + config.instance_name + dateString);
         return (await tagRef.get()).data() || {};
     }
 
     async #getTradeStarted() {
-        const tagRef = db.collection('bot').doc(ts + config.instance_name + (new Date).toDateString());
+        const tagRef = db.collection('bot').doc(ts + config.instance_name + dateString);
         return (await tagRef.get()).data();
     }
 
