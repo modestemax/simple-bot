@@ -160,7 +160,7 @@ export class Signal {
     }
 
     isAboveEnterTrade(enter_trade) {
-        return this.percent >= enter_trade || config.enter_trade
+        return this.percent >= (enter_trade || config.enter_trade)
     }
 
 }
