@@ -8,6 +8,7 @@ export const config = {
     strategy: '_first_',
     stop_lost: 3,
     min_pick: 2,
+    symbol_max_loss: 2,
     oco: false,
     test: true,
     trailing_stop_loss: true,
@@ -27,6 +28,7 @@ const configRef = db.collection('bot').doc('config');
 // const firstRef = db.collection('bot').doc(FIRST_ID);
 const pt = 'z_t_t_'
 const ts = 'z_t_sd_'
+const lc = 'z_t_lc_'
 
 export default new class {
 
@@ -52,6 +54,7 @@ export default new class {
         }
         config.strategy.gotProfit = await this.#getProfitTag()
         config.strategy.tradeStarted = await this.#getTradeStarted()
+        config.strategy.lostCount = await this.#getLossCount()
         global.config = config
         return config
     }
@@ -77,6 +80,11 @@ export default new class {
         tagRef.set(Object.assign({}, first)).catch(noop);
     }
 
+    saveLossCount(lostCount) {
+        const tagRef = db.collection('bot').doc(lc + config.instance_name + (new Date).toDateString());
+        tagRef.set(Object.assign({}, lostCount)).catch(noop);
+    }
+
     setTradeStarted(first) {
         const tagRef = db.collection('bot').doc(ts + config.instance_name + (new Date).toDateString());
         tagRef.set(Object.assign({}, first)).catch(noop);
@@ -86,6 +94,11 @@ export default new class {
     async #getProfitTag() {
         const tagRef = db.collection('bot').doc(pt + config.instance_name + (new Date).toDateString());
         return (await tagRef.get()).data();
+    }
+
+    async #getLossCount() {
+        const tagRef = db.collection('bot').doc(lc + config.instance_name + (new Date).toDateString());
+        return (await tagRef.get()).data() || {};
     }
 
     async #getTradeStarted() {
