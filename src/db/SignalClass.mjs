@@ -31,7 +31,7 @@ export class Signal {
     }
 
     update({open, close, high, max, min, ...other}) {
-        this.#prevSignal =new Signal(this)// Object.assign({}, this)
+        this.#prevSignal = new Signal(this)// Object.assign({}, this)
         Object.assign(this, other);
         this.open = open;
         this.close = close
@@ -159,8 +159,8 @@ export class Signal {
         return !this.isAboveEnterTrade()
     }
 
-    isAboveEnterTrade() {
-        return this.percent >= config.enter_trade
+    isAboveEnterTrade(enter_trade) {
+        return this.percent >= enter_trade || config.enter_trade
     }
 
 }

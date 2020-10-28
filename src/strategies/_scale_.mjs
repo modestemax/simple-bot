@@ -3,14 +3,15 @@ import firestore from "../db/firestore.mjs";
 import consola from "consola";
 
 let gotProfit
-let lossCount = 0
+let lastExitPercent
 let tradeStarted
 export default {
     set gotProfit(value) {
         gotProfit = value
     },
     set tradeStarted(value) {
-        tradeStarted = value
+        tradeStarted = value?.tradeStarted
+        lastExitPercent = value?.lastExitPercent || 0
     },
     enter(signal) {
         const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
@@ -19,9 +20,9 @@ export default {
             if (signal.symbol === sortedByPercent[0]?.symbol) {
                 if (signal.isNotPick()) {
                     if (!tradeStarted) {
-                        if (signal.isAboveEnterTrade()) {
+                        if (signal.isAboveEnterTrade(lastExitPercent)) {
                             tradeStarted = true
-                            firestore.setTradeStarted(signal)
+                            firestore.setTradeStarted({tradeStarted, lastExitPercent})
                             return true
                         }
                     } else {
@@ -41,6 +42,10 @@ export default {
             const currentTrade = {...trader.currentTrade}
             await trader.stopTrade()
             await firestore.setProfitTag(currentTrade)
+        } else if (trader.currentTrade?.percent < (config.enter_trade - 2 * config.stop_lost)) {
+            lastExitPercent = trader.currentTrade?.percent
+            tradeStarted = false
+            firestore.setTradeStarted({tradeStarted, lastExitPercent})
         }
     },
 
