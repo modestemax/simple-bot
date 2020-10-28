@@ -12,6 +12,8 @@ import {config} from "./db/firestore.mjs";
 import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
 import {logError} from "./log.mjs";
+import sendgrid from './email.mjs'
+
 
 (async () => {
     try {
@@ -19,6 +21,7 @@ import {logError} from "./log.mjs";
         await restAPI.init(config.auth)
         socketAPI.init(restAPI)
         trader.init()
+        sendgrid.send({body: "Bot Started"})
 
         console.log('timeframe: ', config.timeframe)
         console.log('enter_trade: ', config.enter_trade)
@@ -38,6 +41,7 @@ process.on('uncaughtException', function (err) {
 })
 
 process.on('unhandledRejection', (reason, promise) => {
-    logError('Unhandled Rejection '+ reason.message+'\n'+reason.stack);
+    logError('Unhandled Rejection ' + reason.message + '\n' + reason.stack);
     // Application specific logging, throwing an error, or other logic here
 });
+

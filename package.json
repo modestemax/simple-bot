@@ -32,6 +32,7 @@
   "homepage": "https://github.com/modestemax/simple-bot#readme",
   "dependencies": {
     "@google-cloud/firestore": "^4.2.0",
+    "@sendgrid/mail": "^7.3.0",
     "axios": "^0.20.0",
     "binance-api-node": "^0.10.4",
     "consola": "^2.15.0",

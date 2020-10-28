@@ -1,9 +1,11 @@
 import {cryptoMap} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
 import consola from "consola";
+import sendgrid from './email.mjs'
 
 let gotProfit
 let lossCount = {}
+const subject = 'Bot First'
 
 export default {
     set gotProfit(value) {
@@ -26,15 +28,20 @@ export default {
             } finally {
                 lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
                 await firestore.saveLossCount(lossCount)
+                sendgrid.send({subject, body: `Bad trade for ${trader.currentTrade.symbol}`})
             }
 
         } else if (trader.currentTrade?.isPumping()) {
             //return
         } else if (trader.currentTrade?.isAboveTakeProfit()) {
-            gotProfit = true
-            const currentTrade = {...trader.currentTrade}
-            await trader.stopTrade()
-            await firestore.setProfitTag(currentTrade)
+            try {
+                gotProfit = true
+                await trader.stopTrade()
+            } finally {
+                const currentTrade = {...trader.currentTrade}
+                await firestore.setProfitTag(currentTrade)
+                sendgrid.send({subject, body: `End trade for ${trader.currentTrade.symbol}`})
+            }
         }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
                     await stopTrade()
