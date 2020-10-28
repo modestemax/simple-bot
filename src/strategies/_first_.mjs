@@ -1,7 +1,6 @@
 import {cryptoMap} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
 import consola from "consola";
-import sendgrid from './email.mjs'
 
 let gotProfit
 let lossCount = {}
