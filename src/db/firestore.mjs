@@ -30,7 +30,7 @@ const pt = 'z_t_t_'
 const ts = 'z_t_sd_'
 const lc = 'z_t_lc_'
 const logsCollection='logs'
-const dateString = new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
+const dateString =' '+ new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
 
 export default new class {
 

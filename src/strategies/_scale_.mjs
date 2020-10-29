@@ -45,6 +45,7 @@ export default {
         } else if (trader.currentTrade?.percent < (config.enter_trade - 2 * config.stop_lost)) {
             lastExitPercent = trader.currentTrade?.percent
             tradeStarted = false
+            await trader.stopTrade()
             firestore.setTradeStarted({tradeStarted, lastExitPercent})
         }
     },
@@ -52,5 +53,7 @@ export default {
     async switch(trader) {
         consola.info('Switch  trade')
         await trader.setQueueAsCurrent()
+        lastExitPercent = trader.currentTrade?.percent
+        firestore.setTradeStarted({tradeStarted, lastExitPercent})
     }
 }

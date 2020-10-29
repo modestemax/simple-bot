@@ -57,6 +57,10 @@ export default {
 
     async switch(trader) {
         consola.info('Switch  trade')
-        await trader.setQueueAsCurrent()
+        try {
+            await trader.setQueueAsCurrent()
+        } finally {
+            lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
+        }
     }
 }
