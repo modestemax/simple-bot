@@ -20,7 +20,7 @@ export default {
             if (signal.symbol === sortedByPercent[0]?.symbol) {
                 if (signal.isNotPick()) {
                     if (!tradeStarted) {
-                        if (signal.isAboveEnterTrade(lastExitPercent)) {
+                        if (signal.isAboveEnterTrade(lastExitPercent + 1)) {
                             tradeStarted = true
                             firestore.setTradeStarted({tradeStarted, lastExitPercent})
                             return true
@@ -42,7 +42,7 @@ export default {
             const currentTrade = {...trader.currentTrade}
             await trader.stopTrade()
             await firestore.setProfitTag(currentTrade)
-        } else if (trader.currentTrade?.percent < (config.enter_trade - 2 * config.stop_lost)) {
+        } else if (trader.currentTrade?.percent < (config.enter_trade - config.stop_lost)) {
             lastExitPercent = trader.currentTrade?.percent
             tradeStarted = false
             await trader.stopTrade()
