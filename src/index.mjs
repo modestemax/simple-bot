@@ -13,6 +13,7 @@ import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
 import {logError} from "./log.mjs";
 import sendgrid from './email.mjs'
+import {ONE_SECOND} from "./utils";
 
 
 (async () => {
@@ -45,3 +46,4 @@ process.on('unhandledRejection', (reason, promise) => {
     // Application specific logging, throwing an error, or other logic here
 });
 
+setTimeout(() => process.exit(), 15 * 60 * ONE_SECOND);
