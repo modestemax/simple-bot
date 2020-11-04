@@ -13,7 +13,7 @@ import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
 import {logError} from "./log.mjs";
 import sendgrid from './email.mjs'
-import {ONE_SECOND} from "./utils";
+import {ONE_SECOND} from "./utils.mjs";
 
 
 (async () => {
