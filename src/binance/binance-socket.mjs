@@ -6,7 +6,7 @@ import {noop, ONE_MINUTE, SATOSHI} from "../utils.mjs";
 import EventEmitter from 'events'
 
 
-export default new class   extends EventEmitter {
+export default new class extends EventEmitter {
 
     get FINAL_EVENT() {
         return 'FINAL_EVENT'
@@ -54,7 +54,7 @@ export default new class   extends EventEmitter {
         } else {//@kline
             const {o: open, c: close, h: high, x: isFinal} = sData.k
             signal.update({close, open, high})
-            if (isFinal) {
+            if (isFinal && /ethbtc/i.test(symbol)) {
                 this.emit(this.FINAL_EVENT)
             }
         }

@@ -46,4 +46,4 @@ process.on('unhandledRejection', (reason, promise) => {
     // Application specific logging, throwing an error, or other logic here
 });
 
-setTimeout(() => process.exit(), 15 * 60 * ONE_SECOND);
+setInterval(() => process.exit(), 15 * 60 * ONE_SECOND);
