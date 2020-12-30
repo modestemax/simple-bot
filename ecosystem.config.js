@@ -30,11 +30,11 @@ module.exports = {
         //     name: '4h_pump',
         //     script: 'TIME_FRAME=4h_pump  ' + app.script,
         // },
-        {
+       /* {
             ...app,
             name: '1d_scale',
             script: 'TIME_FRAME=1d_scale  ' + app.script2,
-        },
+        },*/
         // {
         //     name: '5m',
         //     script: 'npm run 5m',
