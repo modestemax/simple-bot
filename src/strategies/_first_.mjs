@@ -1,7 +1,7 @@
 import {cryptoMap} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
 import consola from "consola";
-import sendgrid from "../email";
+import sendgrid from "../email.mjs";
 import {config} from "../db/firestore";
 
 let gotProfit
