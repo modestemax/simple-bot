@@ -2,7 +2,7 @@ import {cryptoMap} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
 import consola from "consola";
 import sendgrid from "../email.mjs";
-import {config} from "../db/firestore";
+import {config} from "../db/firestore.mjs";
 
 let gotProfit
 let lossCount = {}
@@ -33,7 +33,10 @@ export default {
             } finally {
                 lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
                 await firestore.saveLossCount(lossCount)
-                sendgrid.send({subject, body: `Bad trade for ${trader.currentTrade.symbol}\nlossCount=${JSON.stringify(lossCount)}`})
+                sendgrid.send({
+                    subject,
+                    body: `Bad trade for ${trader.currentTrade.symbol}\nlossCount=${JSON.stringify(lossCount)}`
+                })
             }
 
         } else if (trader.currentTrade?.isPumping()) {
