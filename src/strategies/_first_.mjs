@@ -20,35 +20,35 @@ export default {
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
         const enter = !gotProfit && (lossCount[signal.symbol] || 0) < config.symbol_max_loss && (signal.symbol === sortedByPercent[0]?.symbol && signal.isAboveEnterTrade() && signal.isNotPick())
         if (enter) {
-            sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal)}\nconfig=${JSON.stringify(config)}`})
+            sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}`})
         }
         return enter
     },
 
     async exit(trader) {
-        if (trader.currentTrade?.isBelowStopLoss() && trader.currentTrade?.isNotPick()) {
+        const {currentTrade}=trader
+        if (currentTrade?.isBelowStopLoss() /*&& currentTrade?.isNotPick()*/) {
             try {
                 await trader.stopTrade()
-                sendgrid.send({body: `out trade:\ntrade=${JSON.stringify(trader)}\nconfig=${JSON.stringify(config)}`})
+                sendgrid.send({body: `out trade:\ntrade=${JSON.stringify(currentTrade?.symbol)}\npercent=${JSON.stringify(currentTrade?.percent)}`})
             } finally {
-                lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
+                lossCount[trader.currentTrade.symbol] = (lossCount[currentTrade.symbol] || 0) + 1
                 await firestore.saveLossCount(lossCount)
                 sendgrid.send({
                     subject,
-                    body: `Bad trade for ${trader.currentTrade.symbol}\nlossCount=${JSON.stringify(lossCount)}`
+                    body: `Bad trade for ${currentTrade.symbol}\nlossCount=${JSON.stringify(lossCount)}`
                 })
             }
 
-        } else if (trader.currentTrade?.isPumping()) {
+        }/* else if (currentTrade?.isPumping()) {
             //return
-        } else if (trader.currentTrade?.isAboveTakeProfit()) {
+        }*/ else if (currentTrade?.isAboveTakeProfit()) {
             try {
                 gotProfit = true
                 await trader.stopTrade()
             } finally {
-                const currentTrade = {...trader.currentTrade}
-                await firestore.setProfitTag(currentTrade)
-                sendgrid.send({subject, body: `End trade for ${trader.currentTrade.symbol}`})
+                await firestore.setProfitTag({...currentTrade})
+                sendgrid.send({subject, body: `End trade for ${currentTrade.symbol}`})
             }
         }/* else if (currentTrade?.IsBelowEnterTrade()) {
                     consola.info('Stop trade')
