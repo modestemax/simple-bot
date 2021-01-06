@@ -32,7 +32,7 @@ export default {
                 await trader.stopTrade()
                 sendgrid.send({body: `out trade:\ntrade=${JSON.stringify(currentTrade?.symbol)}\npercent=${JSON.stringify(currentTrade?.percent)}`})
             } finally {
-                lossCount[trader.currentTrade.symbol] = (lossCount[currentTrade.symbol] || 0) + 1
+                lossCount[currentTrade.symbol] = (lossCount[currentTrade.symbol] || 0) + 1
                 await firestore.saveLossCount(lossCount)
                 sendgrid.send({
                     subject,

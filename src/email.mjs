@@ -19,7 +19,7 @@ export default new class {
                 console.log('Email sent')
             })
             .catch((error) => {
-                console.error(error)
+                console.error(error,msg)
             })
     }
 }
