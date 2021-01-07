@@ -1,4 +1,5 @@
 import fs from 'fs'
+import sendMessage from './telegram.mjs'
 
 const FEE = 0.075
 
@@ -58,6 +59,7 @@ export function log(text) {
     }
     stream.write(text + "\n");
     console.log(text)
+    sendMessage(text)
 }
 
 function logTradeStatusCSV({status, symbol, percent}) {
@@ -79,6 +81,7 @@ export function logError(text) {
 
     stream.write(time + '\n' + text + "\n");
     console.error(text)
+    sendMessage(text)
 }
 
 export function logTradeStatus(currentTrade) {

@@ -13,6 +13,7 @@ import {restAPI} from "./binance/binance-rest.mjs";
 import consola from "consola";
 import {logError} from "./log.mjs";
 import sendgrid from './email.mjs'
+import sendMessage from './telegram.mjs'
 import {ONE_SECOND} from "./utils.mjs";
 
 
@@ -23,6 +24,7 @@ import {ONE_SECOND} from "./utils.mjs";
         socketAPI.init(restAPI)
         trader.init()
         sendgrid.send({body: "Bot Started :" + config.instance_name})
+        sendMessage("Bot Started :" + config.instance_name)
 
         console.log('timeframe: ', config.timeframe)
         console.log('enter_trade: ', config.enter_trade)
