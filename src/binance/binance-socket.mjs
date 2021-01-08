@@ -52,10 +52,12 @@ export default new class extends EventEmitter {
                 this.emit(tickEvent, signal)
             }
         } else {//@kline
-            const {o: open, c: close, h: high, x: isFinal} = sData.k
-            signal.update({close, open, high})
-            if (isFinal && /ethbtc/i.test(symbol)) {
+            const {o: open, c: close, h: high, x: isFinal, t: startTime, T: endTime,} = sData.k
+
+            if (isFinal && /ethbtc/i.test(symbol) || !(startTime < Date.now() < endTime)) {
                 this.emit(this.FINAL_EVENT)
+            } else {
+                signal.update({close, open, high})
             }
         }
         hasGoodPrice && this.checkIfReadyToTrade(signal)
