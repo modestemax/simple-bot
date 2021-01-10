@@ -37,7 +37,15 @@ export default new class extends EventEmitter {
         ws.onopen = () => setTimeout(() => ws.pong(noop), ONE_MINUTE * 5)
     }
 
+    #restartHandle
+
+    restartProcess() {
+        clearTimeout(this.#restartHandle)
+        this.#restartHandle = setTimeout(() => process.exit(), ONE_MINUTE)
+    }
+
     onStream = ({data}) => {
+        this.restartProcess()
         const {stream: tickEvent, data: sData} = JSON.parse(data)
         const symbol = tickEvent.split('@')[0]
         const signal = getSignal(symbol)
@@ -55,7 +63,7 @@ export default new class extends EventEmitter {
             const {o: open, c: close, h: high, x: isFinal, t: startTime, T: endTime,} = sData.k
 
             if (isFinal && /ethbtc/i.test(symbol) || !(startTime < Date.now() < endTime)) {
-                this.emit(this.FINAL_EVENT)
+                return this.emit(this.FINAL_EVENT)
             } else {
                 signal.update({close, open, high})
             }

@@ -18,7 +18,12 @@ export default {
     enter(signal) {
         const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
-        const enter = !gotProfit && (lossCount[signal.symbol] || 0) < config.symbol_max_loss && (signal.symbol === sortedByPercent[0]?.symbol && signal.isAboveEnterTrade() && signal.isNotPick())
+        const enter = !gotProfit &&
+            (lossCount[signal.symbol] || 0) < config.symbol_max_loss &&
+            (signal.symbol === sortedByPercent[0]?.symbol
+                && signal.isAboveEnterTrade()
+                && signal.isNotPick())
+
         if (enter) {
             sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}`})
         }
@@ -26,7 +31,7 @@ export default {
     },
 
     async exit(trader) {
-        const {currentTrade}=trader
+        const {currentTrade} = trader
         if (currentTrade?.isBelowStopLoss() /*&& currentTrade?.isNotPick()*/) {
             try {
                 await trader.stopTrade()
@@ -69,7 +74,7 @@ export default {
         try {
             await trader.setQueueAsCurrent()
         } finally {
-            lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
+          //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
         }
     }
 }
