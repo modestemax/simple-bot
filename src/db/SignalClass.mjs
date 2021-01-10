@@ -163,6 +163,10 @@ export class Signal {
         return this.percent >= (enter_trade || config.enter_trade)
     }
 
+    isAboveTakeProfit() {
+        return this.percent >= config.enter_trade + config.take_profit
+    }
+
 }
 
 

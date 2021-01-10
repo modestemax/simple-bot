@@ -3,6 +3,7 @@ import firestore from "../db/firestore.mjs";
 import consola from "consola";
 import sendgrid from "../email.mjs";
 import {config} from "../db/firestore.mjs";
+import {log} from "../log.mjs";
 
 let gotProfit
 let lossCount = {}
@@ -87,11 +88,11 @@ function logEnter(enter, signal) {
         }
         if (signal.isAboveEnterTrade() && !_above[signal.symbol]) {
             _above[signal.symbol] = true
-            consola.info(`${signal.symbol} is ${Object.keys(_above).length}nth above enter trade ${config.enter_trade}`)
+            log(`${signal.symbol} is ${Object.keys(_above).length}nth above enter trade ${config.enter_trade}`)
         }
         if (signal.isAboveTakeProfit() && !_above[signal.symbol]?.take_profit) {
             _above[signal.symbol] = {take_profit: true}
-            consola.info(`${signal.symbol} is ${Object.values(_above).filter(v => v.take_profit).length} above take profit ${config.enter_trade}`)
+            log(`${signal.symbol} is ${Object.values(_above).filter(v => v.take_profit).length} above take profit ${config.enter_trade}`)
         }
     })
 }
