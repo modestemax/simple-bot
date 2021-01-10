@@ -6,6 +6,7 @@ import {config} from "../db/firestore.mjs";
 
 let gotProfit
 let lossCount = {}
+const _above = {}
 const subject = 'Bot First'
 
 export default {
@@ -23,9 +24,8 @@ export default {
             (signal.symbol === sortedByPercent[0]?.symbol
                 && signal.isAboveEnterTrade()
                 && signal.isNotPick())
-
-        if (enter) {
-            sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}`})
+        {//async
+            logEnter(enter, signal)
         }
         return enter
     },
@@ -74,7 +74,24 @@ export default {
         try {
             await trader.setQueueAsCurrent()
         } finally {
-          //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
+            //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
         }
     }
+}
+
+
+function logEnter(enter, signal) {
+    process.nextTick(() => {
+        if (enter) {
+            sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}`})
+        }
+        if (signal.isAboveEnterTrade() && !_above[signal.symbol]) {
+            _above[signal.symbol] = true
+            consola.info(`${signal.symbol} is ${Object.keys(_above).length}nth above enter trade ${config.enter_trade}`)
+        }
+        if (signal.isAboveTakeProfit() && !_above[signal.symbol]?.take_profit) {
+            _above[signal.symbol] = {take_profit: true}
+            consola.info(`${signal.symbol} is ${Object.values(_above).filter(v => v.take_profit).length} above take profit ${config.enter_trade}`)
+        }
+    })
 }
