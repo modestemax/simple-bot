@@ -93,7 +93,7 @@ function logEnter(enter, signal) {
         }
         if (signal.isAboveTakeProfit() && !_above[signal.symbol]?.take_profit) {
             _above[signal.symbol] = {take_profit: true}
-            log(`${signal.symbol} (${signal.percent.toFixed(0)}) is ${Object.values(_above).filter(v => v.take_profit).length}nth above take profit ${config.enter_trade}`)
+            log(`${signal.symbol} (${signal.percent.toFixed(0)}) is ${Object.values(_above).filter(v => v.take_profit).length}nth above take profit ${config.take_profit}`)
         }
     })
 }
