@@ -24,6 +24,7 @@ export default {
             (lossCount[signal.symbol] || 0) < config.symbol_max_loss &&
             (signal.symbol === sortedByPercent[0]?.symbol
                 && signal.isAboveEnterTrade()
+                && signal.isPumping()
                 && signal.isNotPick())
         {//async
             logEnter(enter, signal)
