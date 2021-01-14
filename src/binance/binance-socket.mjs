@@ -65,7 +65,7 @@ export default new class extends EventEmitter {
             if (isFinal && /ethbtc/i.test(symbol) || !(startTime < Date.now() < endTime)) {
                 return this.emit(this.FINAL_EVENT)
             } else {
-                signal.update({close, open, high})
+                signal.update({close, open, high,startTime})
             }
         }
         hasGoodPrice && this.checkIfReadyToTrade(signal)

@@ -14,6 +14,7 @@ const redisGetAsync = promisify(redisClient.get).bind(redisClient);
 let gotProfit
 let lossCount = {}
 const _above = Object.assign({}, JSON.parse(await redisGetAsync('above')))
+let _first = Object.assign({}, JSON.parse(await redisGetAsync('first')))
 const subject = 'Bot First'
 
 export default {
@@ -23,7 +24,12 @@ export default {
     set lostCount(value) {
         lossCount = value || {}
     },
+    set first(value) {
+        _first = value || {}
+        process.nextTick(() => redisClient.set('first', JSON.stringify(_first)))
+    },
     enter(signal) {
+
         const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
         const enter =
@@ -34,8 +40,16 @@ export default {
                 && signal.isPumping()
                 && signal.isNotPick())
         {//async
-            logEnter(enter, signal)
+            if (enter) {
+                logEnter(enter, signal)
+                if (signal.startTime !== _first?.startTime || signal.percent > _first?._max) {
+                    this.first = signal
+                } else if (signal.percent < _first?._max) {
+                    return
+                }
+            }
         }
+
         return enter
     },
 
