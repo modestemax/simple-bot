@@ -9,6 +9,7 @@ export const config = {
     stop_lost: 3,
     min_pick: 2,
     symbol_max_loss: 2,
+    stop_on_profit: true,
     oco: false,
     test: true,
     trailing_stop_loss: true,
