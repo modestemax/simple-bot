@@ -4,10 +4,16 @@ import consola from "consola";
 import sendgrid from "../email.mjs";
 import {config} from "../db/firestore.mjs";
 import {log} from "../log.mjs";
+import {promisify} from "util"
+import redis from "redis"
+
+const redisClient = redis.createClient()
+const redisGetAsync = promisify(redisClient.get).bind(redisClient);
+
 
 let gotProfit
 let lossCount = {}
-const _above = {}
+const _above = Object.assign({}, JSON.parse(await redisGetAsync('above')))
 const subject = 'Bot First'
 
 export default {
@@ -96,5 +102,6 @@ function logEnter(enter, signal) {
             _above[signal.symbol] = {take_profit: true}
             log(`${signal.symbol} (${signal.percent.toFixed(0)}) is ${Object.values(_above).filter(v => v.take_profit).length}nth above take profit ${config.take_profit}`)
         }
+        redisClient.set('above', JSON.stringify(_above))
     })
 }
