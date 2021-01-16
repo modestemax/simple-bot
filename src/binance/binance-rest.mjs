@@ -139,7 +139,7 @@ export class BinanceRest {
 
     #getHmacSignature(queryString) {
         const secret = this.auth.secret;
-        const hash = crypto.createHmac('sha256', secret)
+        const hash = crypto.createHmac('sha256', secret)               
             .update(queryString)
             .digest('hex');
         return hash;
@@ -151,7 +151,7 @@ export class BinanceRest {
             const url = `${this.#baseUrl}${uri}`
             if (sign) {
                 params.timestamp = Date.now()
-                params.recvWindow = 3e3// * 20
+                params.recvWindow = config.recvWindow//3e3// * 20
                 params.signature = this.#getHmacSignature(qs.stringify(params))
             }
             let res
