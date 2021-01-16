@@ -3,7 +3,7 @@ import firestore from "../db/firestore.mjs";
 import consola from "consola";
 import sendgrid from "../email.mjs";
 import {config} from "../db/firestore.mjs";
-import {log} from "../log.mjs";
+import {log, logTradeProgress} from "../log.mjs";
 import {promisify} from "util"
 import redis from "redis"
 
@@ -55,6 +55,7 @@ export default {
 
     async exit(trader) {
         const {currentTrade} = trader
+        logTradeProgress(currentTrade)
         if (currentTrade?.isBelowStopLoss() /*&& currentTrade?.isNotPick()*/) {
             try {
                 await trader.stopTrade()
@@ -70,7 +71,7 @@ export default {
 
         }/* else if (currentTrade?.isPumping()) {
             //return
-        }*/ else if (currentTrade?.isAboveTakeProfit()) {
+        }*/ else if (config.stop_on_profit && currentTrade?.isAboveTakeProfit()) {
             try {
                 gotProfit = true
                 await trader.stopTrade()

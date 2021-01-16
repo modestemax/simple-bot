@@ -219,12 +219,16 @@ export class Trade extends Signal {
         return this.percent < this.stopLoss
     }
 
-    isAboveTakeProfit() {
-        return this.percent - this.tradeStartedAtPercent >= config.take_profit
+    get change() {
+        return this.percent - this.tradeStartedAtPercent
     }
 
     isMaxAboveTakeProfit() {
         return this.max - this.tradeStartedAtPercent >= config.take_profit
+    }
+
+    isAboveTakeProfit() {
+        return this.change >= config.take_profit
     }
 
     hasLossOnGain() {

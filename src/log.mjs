@@ -1,5 +1,6 @@
 import fs from 'fs'
-import sendMessage from './telegram.mjs'
+import sendMessage, {editMessageText} from './telegram.mjs'
+
 
 const FEE = 0.075
 
@@ -100,4 +101,17 @@ export function logTradeStatus(currentTrade) {
         log(`<pre style="background-color:${status ? '#f0fff3' : '#e91e1e1a'}">${time} ${symbolResume} </pre>`)
         logTradeStatusCSV({status, symbol: currentTrade.symbol, percent: gain})
     }
+}
+
+let t = Date.now()
+
+export function logTradeProgress(trade) {
+    if (Date.now() - t > 60e3)
+        process.nextTick(async () => {
+            t = Date.now()
+            const message_id = trade.message_id
+            const transmitMessage = message_id ? editMessageText : sendMessage
+            let message = await transmitMessage({text: `Trade #${trade.symbol} ${trade.change?.toFixed(2)}%`, message_id})
+            trade.message_id ||  (trade.message_id = message?.message_id)
+        })
 }

@@ -1,13 +1,28 @@
 import TG from "telegram-bot-api"
+
 const api = new TG({token: "545101798:AAGM1TodXYaS0MreKKimt23KZlXTmmEH_pU"})
+const MAX_ID = '475514014'
 
-
-const sendMessage = (text) =>
-    api.sendMessage({chat_id: '475514014', text, parse_mode:'HTML'}).then(e => console.log(e)).catch((e) => {
+export default async function sendMessage(text, chat_id = MAX_ID) {
+    try {
+        if (typeof text === 'object') ({text,} = text)
+        const message = await api.sendMessage({chat_id, text, parse_mode: 'HTML'})
+        console.log(message)
+        return message
+    } catch (e) {
         console.error(e)
-    })
+    }
+}
 
-export default sendMessage
+export async function editMessageText({text, chat_id = MAX_ID, message_id}) {
+    try {
+        const message = await api.editMessageText({chat_id, message_id, text, parse_mode: 'HTML'})
+        console.log(message)
+        return message
+    } catch (e) {
+        console.error(e)
+    }
+}
 
 
 /*
