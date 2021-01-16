@@ -242,6 +242,10 @@ export class BinanceRest {
         if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
             return
         }
+        if (quoteOrderQty) quoteOrderQty = quoteOrderQty.toFixed(8)
+        if (price) price = price.toFixed(8)
+        if (stopPrice) stopPrice = stopPrice.toFixed(8)
+
         const res = await this.#secureAPI({
             method: 'post', uri, params: {
                 symbol, side, type, quoteOrderQty, quantity, price, stopPrice
