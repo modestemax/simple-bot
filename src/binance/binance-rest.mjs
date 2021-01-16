@@ -129,7 +129,7 @@ export class BinanceRest {
             .filter(hasValue)
             .map(format)
 
-        this.balances = balances.filter(b => !/bnb|trx|btc/i.test(b.asset))
+        this.balances = balances.filter(b => !/bnb|btc/i.test(b.asset))
             .filter(b => b.free > this.binanceInfo[this.getSymbol(b.asset)].minQty)
             .reduce((balance, asset) => ({...balance, [asset.asset]: asset}), {})
         this.btcBalance = balances.filter(b => /btc/i.test(b.asset))[0]?.free
@@ -258,7 +258,7 @@ export class BinanceRest {
 
     canTradeSymbol(symbol) {
         if (this.#binanceInfo[symbol]) {
-            if (!(/^(bnb|trx)/.test(symbol))) {
+            if (!(/^(bnb)/.test(symbol))) {
                 return true
             }
         }
