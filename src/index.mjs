@@ -2,7 +2,7 @@ import cstamp from 'console-stamp'
 
 // cstamp(consola, 'HH:MM:ss.l');
 // cstamp(consola );
-
+import "./global.mjs"
 import socketAPI from './binance/binance-socket.mjs'
 import firestore from './db/firestore.mjs'
 import trader from "./trader.mjs";
@@ -15,12 +15,6 @@ import {logError} from "./log.mjs";
 import sendgrid from './email.mjs'
 import sendMessage from './telegram.mjs'
 import {ONE_SECOND} from "./utils.mjs";
-
-import {promisify} from "util"
-import redis from "redis"
-
-const redisClient = global.redisClient = redis.createClient()
-const redisGetAsync = global.redisGetAsync = promisify(redisClient.get).bind(redisClient);
 
 
 (async () => {

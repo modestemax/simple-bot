@@ -6,7 +6,7 @@ import {ONE_SECOND} from "./utils.mjs";
 import {log, logTradeProgress, logSendMessage, logTradeStatus, endStream} from "./log.mjs";
 
 
-export default new class {
+export default global.trader = new class {
     #currentTrade
     #signalQueue
 
