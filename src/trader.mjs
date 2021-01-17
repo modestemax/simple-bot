@@ -52,18 +52,32 @@ export default new class {
     }
 
     async startTrade() {
+        logSendMessage('Starting trade')
         if (await this.bid()) {
-            config.oco && await this.ask()
-            await this.setQueueAsCurrentTrade()
-            await this.setEyesOnCurrentTrade()
+            try {
+                config.oco && await this.ask()
+                await this.setQueueAsCurrentTrade()
+                await this.setEyesOnCurrentTrade()
+            } catch {
+                logSendMessage('Starting trade fail')
+                process.exit()
+            }
+
         }
     }
 
     async stopTrade() {
+        logSendMessage('Stopping trade')
         if (this.currentTrade) {
-            config.oco || await this.ask()
-            logTradeStatus(this.currentTrade)
-            await this.clearCurrentTrade()
+            try {
+                config.oco || await this.ask()
+                logTradeStatus(this.currentTrade)
+                await this.clearCurrentTrade()
+            } catch {
+                logSendMessage('Stopping trade fail')
+                process.exit()
+            }
+
         }
     }
 
