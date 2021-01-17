@@ -139,7 +139,7 @@ export class BinanceRest {
 
     #getHmacSignature(queryString) {
         const secret = this.auth.secret;
-        const hash = crypto.createHmac('sha256', secret)               
+        const hash = crypto.createHmac('sha256', secret)
             .update(queryString)
             .digest('hex');
         return hash;
@@ -211,7 +211,8 @@ export class BinanceRest {
 
     async bid(symbol) {
         consola.log(`buying ${symbol} at market price`)
-        return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        if (this.btcBalance > this.binanceInfo[symbol.toLowerCase()]?.minNotional)
+            return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
     ask({symbol, close}) {
@@ -304,11 +305,7 @@ export class BinanceRest {
         const {minQty, maxQty, stepSize} = this.binanceInfo[symbol]
         let qty
         if (quantity >= minQty && quantity <= maxQty) {
-            if ((quantity - minQty) % stepSize === 0) {
-                qty = quantity
-            } else {
-                qty = quantity - ((quantity - minQty) % stepSize)
-            }
+            qty = quantity - ((quantity - minQty) % stepSize)
         }
         return +(qty || NaN).toFixed(8)
     }

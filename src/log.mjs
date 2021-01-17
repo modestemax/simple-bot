@@ -71,7 +71,7 @@ function logTradeStatusCSV({status, symbol, percent}) {
 export function logTrade({side, symbol, cryptoMap}) {
     const signal = cryptoMap[symbol.toLowerCase()]
     const time = new Date().toLocaleTimeString()
-    log(`<pre style="color: ${side.toUpperCase() === 'BUY' ? 'green' : 'red'}">${time} ${side}\t${symbol}\t${signal.close}\t${signal.percent}%</pre>`)
+    log(`<pre style="color: ${side.toUpperCase() === 'BUY' ? 'green' : 'red'}">${time} ${side}\t${symbol}\t${signal?.close}\t${signal?.percent}%</pre>`)
 
 
 }
