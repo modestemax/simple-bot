@@ -4,7 +4,8 @@ import {Trade} from "./db/SignalClass.mjs";
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
 import {throttleWithCondition, ONE_SECOND} from "./utils.mjs";
-import {log, logTradeStatus, endStream} from "./log.mjs";
+import {log,logTradeProgress, logTradeStatus, endStream} from "./log.mjs";
+
 
 export default new class {
     #currentTrade
@@ -127,17 +128,13 @@ export default new class {
                     // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
                     currentTrade?.update({open, close})
                     await config.strategy?.exit(trader)
-                    logTrade()
+
+                    logTradeProgress(currentTrade)
                 } finally {
                     followTrade()
                 }
             })
         }
-
-        const logTrade = throttleWithCondition(() => percent?.toFixed(1) !== currentTrade?.percent?.toFixed(1), function () {
-            consola.info('trade', currentTrade?.symbol, 'start:', currentTrade?.tradeStartedAtPercent, 'percent:', currentTrade?.percent, 'stop:', currentTrade?.stopLoss)
-            percent = currentTrade?.percent
-        })
     }
 
     async restartProcess() {

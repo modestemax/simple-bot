@@ -7,6 +7,9 @@ export default new class {
     }
 
     send({body, to = config.admin_emails, from = 'nana@neema.co.za', subject = 'Bot Notification'}) {
+    }
+
+    send1({body, to = config.admin_emails, from = 'nana@neema.co.za', subject = 'Bot Notification'}) {
         const msg = {
             to, from, subject,
             text: body,
@@ -19,7 +22,7 @@ export default new class {
                 console.log('Email sent')
             })
             .catch((error) => {
-                console.error(error,msg)
+                console.error(error, msg)
             })
     }
 }

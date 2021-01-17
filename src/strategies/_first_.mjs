@@ -55,7 +55,7 @@ export default {
 
     async exit(trader) {
         const {currentTrade} = trader
-        logTradeProgress(currentTrade)
+
         if (currentTrade?.isBelowStopLoss() /*&& currentTrade?.isNotPick()*/) {
             try {
                 await trader.stopTrade()

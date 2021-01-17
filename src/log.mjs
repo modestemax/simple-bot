@@ -1,5 +1,6 @@
 import fs from 'fs'
 import sendMessage, {editMessageText} from './telegram.mjs'
+import consola from "consola";
 
 
 const FEE = 0.075
@@ -111,7 +112,13 @@ export function logTradeProgress(trade) {
             t = Date.now()
             const message_id = trade.message_id
             const transmitMessage = message_id ? editMessageText : sendMessage
-            let message = await transmitMessage({text: `Trade #${trade.symbol} ${trade.change?.toFixed(2)}%`, message_id})
-            trade.message_id ||  (trade.message_id = message?.message_id)
+            let message = await transmitMessage({
+                text: `Trade #${trade.symbol} ${trade.change?.toFixed(2)}%`,
+                message_id
+            })
+            trade.message_id || (trade.message_id = message?.message_id)
+
+            consola.info('trade', trade?.symbol, 'start:', trade?.tradeStartedAtPercent?.toFixed(2),
+                'percent:', trade?.percent?.toFixed(2), 'stop:', trade?.stopLoss?.toFixed(2))
         })
 }
