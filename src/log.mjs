@@ -122,3 +122,10 @@ export function logTradeProgress(trade) {
                 'percent:', trade?.percent?.toFixed(2), 'stop:', trade?.stopLoss?.toFixed(2))
         })
 }
+
+export function logSendMessage(text) {
+    process.nextTick(async () => {
+        await sendMessage(text)
+        consola.info(text)
+    })
+}

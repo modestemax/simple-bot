@@ -4,7 +4,8 @@ import {Trade} from "./db/SignalClass.mjs";
 import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
 import {throttleWithCondition, ONE_SECOND} from "./utils.mjs";
-import {log,logTradeProgress, logTradeStatus, endStream} from "./log.mjs";
+import {log, logTradeProgress, logSendMessage, logTradeStatus, endStream} from "./log.mjs";
+import sendMessage from "./telegram";
 
 
 export default new class {
@@ -26,29 +27,22 @@ export default new class {
 
 
     listenTradeEvent() {
-        socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
+        process.nextTick(() => socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
             try {
                 if (signal) {
                     this.addQueue(signal)
                     if (!this.currentTrade) {
-                        consola.info('Start trade')
+                        logSendMessage(`Starting trade #${signal.symbol}`)
                         await this.startTrade()
-                    } /*else if (firstIsAboveCurrent()) {
-                    consola.info('Switch  trade')
-                    await switchFirstCurrent()
-                }*/ else {
+                        logSendMessage(`Started trade #${signal.symbol}`)
+                    } else {
                         signal.symbol !== this.currentTrade.symbol && await config.strategy?.switch(this)
                     }
                 }
-
-                // if (await maxIsGoodToGo()) {
-
-                // }
             } finally {
                 this.listenTradeEvent()
             }
-
-        })
+        }))
     }
 
 
@@ -139,7 +133,7 @@ export default new class {
         console.log("This is pid " + process.pid);
         // // setTimeout(function () {
         process.on("exit", async () => {
-         //   debugger
+            //   debugger
         })
         if (socketAPI.max.max >= config.enter_trade) {
             log(`end candle restarting process with candle max ${socketAPI.max.symbol} max:${socketAPI.max.max}% close:${socketAPI.max.percent}% m:${socketAPI.max.grandMin}  pick:${socketAPI.max.pick}\n\n`)
