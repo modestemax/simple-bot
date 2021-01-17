@@ -54,7 +54,7 @@ export default new class {
 
         if (!config.strategy?.enter) {
             console.error('no strategy, exit')
-            process.exit(5)
+            processExit(5)
         }
         config.strategy.gotProfit = await this.#getProfitTag()
         config.strategy.tradeStarted = await this.#getTradeStarted()

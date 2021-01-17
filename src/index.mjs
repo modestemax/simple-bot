@@ -40,7 +40,7 @@ import {ONE_SECOND} from "./utils.mjs";
 process.on('uncaughtException', function (err) {
     logError((new Date).toUTCString() + ' uncaughtException:', err.message)
     logError(err.stack)
-    process.exit(1)
+    processExit(1)
 })
 
 process.on('unhandledRejection', (reason, promise) => {

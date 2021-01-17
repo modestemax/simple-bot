@@ -28,16 +28,18 @@ export default global.trader = new class {
     listenErrorEvent() {
         socketAPI.on('error', (err) => {
             logSendMessage('whoops! there was an error in trader module :' + err?.message)
-            process.exit()
+            processExit()
         });
     }
 
     listenTradeEvent() {
         socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
+          //  console.log('AA')
             try {
                 if (signal) {
                     this.addQueue(signal)
                     if (!this.currentTrade) {
+                      //  console.log('ZZ')
                         logSendMessage(`Starting trade #${signal.symbol}`)
                         await this.startTrade()
                         logSendMessage(`Started trade #${signal.symbol}`)
@@ -68,7 +70,7 @@ export default global.trader = new class {
                 await this.setEyesOnCurrentTrade()
             } catch {
                 logSendMessage('Starting trade fail')
-                process.exit()
+                processExit()
             }
 
         }
@@ -83,7 +85,7 @@ export default global.trader = new class {
                 await this.clearCurrentTrade()
             } catch {
                 logSendMessage('Stopping trade fail')
-                process.exit()
+                processExit()
             }
 
         }
@@ -161,7 +163,7 @@ export default global.trader = new class {
         }
         await endStream()
         // process.exit();
-        setTimeout(() => process.exit(), 10 * ONE_SECOND);
+        setTimeout(() => processExit(), 10 * ONE_SECOND);
         // }, 5000);
     }
 
@@ -176,7 +178,7 @@ export default global.trader = new class {
         clearTimeout(this.#tickEventTimeOutHandle)
         this.#tickEventTimeOutHandle = setTimeout(async function checkTrade() {
             logSendMessage('trade is running but there is no tick event restarting bot ')
-            process.exit()
+            processExit()
         }.bind(this), ONE_SECOND * 60)
     }
 

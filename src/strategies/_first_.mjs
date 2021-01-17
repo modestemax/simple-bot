@@ -89,9 +89,12 @@ export default {
     },
 
     async switch(trader) {
-        consola.info('Switch  trade')
+
         try {
-            await trader.setQueueAsCurrent()
+            if (trader.signalQueue?.percent - trader.currentTrade?.percent >= config.acceptable_gap_between_first_and_second) {
+                await trader.setQueueAsCurrent()
+                consola.info('Switch  trade')
+            }
         } finally {
             //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1
         }

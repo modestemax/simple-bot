@@ -41,7 +41,7 @@ export default new class extends EventEmitter {
 
     restartProcess() {
         clearTimeout(this.#restartHandle)
-        this.#restartHandle = setTimeout(() => process.exit(), ONE_MINUTE)
+        this.#restartHandle = setTimeout(() => processExit(), ONE_MINUTE)
     }
 
     onStream = ({data}) => {
@@ -76,7 +76,9 @@ export default new class extends EventEmitter {
     }
 
     checkIfReadyToTrade(signal) {
-        if (config.strategy?.enter(signal)) {
+        if (config.strategy?.enter(signal)
+            //||/btc/.test(signal.symbol)
+        ) {
             this.emit(this.TRADE_EVENT, signal)
         }
     }
