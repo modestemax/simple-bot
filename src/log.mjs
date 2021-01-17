@@ -129,3 +129,17 @@ export function logSendMessage(text) {
         consola.info(text)
     })
 }
+
+
+export function logConfig(config) {
+    process.nextTick(async () => {
+        const msg=`Config 
+test mode <i>${config.test}</i>
+enter trade <i>${config.enter_trade}%</i>
+timeframe <i>${config.timeframe}%</i>
+ `
+        await sendMessage(msg)
+        consola.info(msg)
+    })
+}
+

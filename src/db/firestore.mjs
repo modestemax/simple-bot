@@ -1,6 +1,7 @@
 import Firestore from '@google-cloud/firestore'
 import {noop} from "../utils.mjs";
 import strategies from "../strategies/index.mjs";
+import {logConfig} from "../log.mjs";
 
 export const config = {
     enter_trade: 25,
@@ -59,6 +60,7 @@ export default new class {
         config.strategy.tradeStarted = await this.#getTradeStarted()
         config.strategy.lostCount = await this.#getLossCount()
         global.config = config
+        logConfig(config)
         return config
     }
 
