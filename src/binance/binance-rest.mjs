@@ -240,12 +240,12 @@ export class BinanceRest {
             quoteOrderQty = 1
             quantity = price = stopPrice = void 0
         }
-        if (!(quantity || quoteOrderQty) || (quantity && quoteOrderQty)) {
+        if (!(+quantity || +quoteOrderQty) || (+quantity && +quoteOrderQty)) {
             return
         }
-        if (quoteOrderQty) quoteOrderQty = quoteOrderQty.toFixed(8)
-        if (price) price = price.toFixed(8)
-        if (stopPrice) stopPrice = stopPrice.toFixed(8)
+        if (+quoteOrderQty) quoteOrderQty = (+quoteOrderQty).toFixed(8)
+        if (+price) price = (+price).toFixed(8)
+        if (+stopPrice) stopPrice = (+stopPrice).toFixed(8)
 
         const res = await this.#secureAPI({
             method: 'post', uri, params: {
