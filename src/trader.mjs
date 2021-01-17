@@ -116,9 +116,7 @@ export default new class {
     }
 
     setEyesOnCurrentTrade() {
-        const currentTrade = this.currentTrade
         const trader = this
-        let percent
         followTrade()
 
         function followTrade() {
