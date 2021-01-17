@@ -1,11 +1,9 @@
 import socketAPI from "./binance/binance-socket.mjs";
 import {Trade} from "./db/SignalClass.mjs";
 
-import consola from 'consola'
 import {restAPI} from "./binance/binance-rest.mjs";
-import {throttleWithCondition, ONE_SECOND} from "./utils.mjs";
+import {ONE_SECOND} from "./utils.mjs";
 import {log, logTradeProgress, logSendMessage, logTradeStatus, endStream} from "./log.mjs";
-import sendMessage from "./telegram";
 
 
 export default new class {
