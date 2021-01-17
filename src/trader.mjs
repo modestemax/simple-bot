@@ -115,6 +115,7 @@ export default new class {
             const currentTrade = trader.currentTrade
             currentTrade && socketAPI.once(socketAPI.getTickEvent(currentTrade.symbol), async ({open, close}) => {
                 try {
+                    trader.restartIfNoTickEvent()
                     // currentTrade?.update({open, close: bid})//set close with bid because we will sell to the best buyer
                     currentTrade?.update({open, close})
                     await config.strategy?.exit(trader)
@@ -145,6 +146,16 @@ export default new class {
     firstIsAboveCurrent() {
         const currentTrade = this.currentTrade
         return currentTrade?.symbol !== socketAPI.first.symbol && socketAPI.first.percent - currentTrade.percent >= config.acceptable_gap_between_first_and_second
+    }
+
+    #tickEventTimeOutHandle
+
+    restartIfNoTickEvent() {
+        clearTimeout(this.#tickEventTimeOutHandle)
+        this.#tickEventTimeOutHandle = setTimeout(async function checkTrade() {
+            logSendMessage('trade is running but there is no tick event restarting bot ')
+            process.exit()
+        }.bind(this), ONE_SECOND * 60)
     }
 
 }
