@@ -19,13 +19,21 @@ export default global.trader = new class {
     }
 
     init() {
+        this.listenErrorEvent()
         this.listenTradeEvent()
         this.listenFinalEvent()
     }
 
 
+    listenErrorEvent() {
+        socketAPI.on('error', (err) => {
+            logSendMessage('whoops! there was an error in trader module :' + err?.message)
+            process.exit()
+        });
+    }
+
     listenTradeEvent() {
-        process.nextTick(() => socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
+        socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
             try {
                 if (signal) {
                     this.addQueue(signal)
@@ -40,7 +48,7 @@ export default global.trader = new class {
             } finally {
                 this.listenTradeEvent()
             }
-        }))
+        })
     }
 
 
