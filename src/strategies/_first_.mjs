@@ -3,12 +3,7 @@ import firestore from "../db/firestore.mjs";
 import consola from "consola";
 import sendgrid from "../email.mjs";
 import {config} from "../db/firestore.mjs";
-import {log, logTradeProgress} from "../log.mjs";
-import {promisify} from "util"
-import redis from "redis"
-
-const redisClient = redis.createClient()
-const redisGetAsync = promisify(redisClient.get).bind(redisClient);
+import {log} from "../log.mjs";
 
 
 let gotProfit

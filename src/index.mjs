@@ -16,6 +16,12 @@ import sendgrid from './email.mjs'
 import sendMessage from './telegram.mjs'
 import {ONE_SECOND} from "./utils.mjs";
 
+import {promisify} from "util"
+import redis from "redis"
+
+const redisClient = global.redisClient = redis.createClient()
+const redisGetAsync = global.redisGetAsync = promisify(redisClient.get).bind(redisClient);
+
 
 (async () => {
     try {
