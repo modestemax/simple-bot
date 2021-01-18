@@ -10,7 +10,7 @@ export default async function sendMessage(text, chat_id = MAX_ID) {
         console.log(message)
         return message
     } catch (e) {
-        console.error(e)
+        // console.error(e)
     }
 }
 
@@ -20,7 +20,7 @@ export async function editMessageText({text, chat_id = MAX_ID, message_id}) {
         console.log(message)
         return message
     } catch (e) {
-        console.error(e)
+        // console.error(e)
     }
 }
 
