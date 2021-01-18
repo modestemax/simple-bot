@@ -34,12 +34,13 @@ export default global.trader = new class {
 
     listenTradeEvent() {
         socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
-          //  console.log('AA')
+            //  console.log('AA')
+            let error
             try {
                 if (signal) {
                     this.addQueue(signal)
                     if (!this.currentTrade) {
-                      //  console.log('ZZ')
+                        //  console.log('ZZ')
                         logSendMessage(`Starting trade #${signal.symbol}`)
                         await this.startTrade()
                         logSendMessage(`Started trade #${signal.symbol}`)
@@ -47,9 +48,13 @@ export default global.trader = new class {
                         signal.symbol !== this.currentTrade.symbol && await config.strategy?.switch(this)
                     }
                 }
+            } catch (e) {
+                error = true
+                setTimeout(this.listenTradeEvent.bind(this), ONE_SECOND * 10)
             } finally {
-                this.listenTradeEvent()
+                error || this.listenTradeEvent()
             }
+
         })
     }
 
@@ -62,32 +67,32 @@ export default global.trader = new class {
     }
 
     async startTrade() {
-        logSendMessage('Starting trade')
-        if (await this.bid()) {
-            try {
+        try {
+            logSendMessage('Starting trade')
+            if (await this.bid()) {
+
                 config.oco && await this.ask()
                 await this.setQueueAsCurrentTrade()
                 await this.setEyesOnCurrentTrade()
-            } catch {
-                logSendMessage('Starting trade fail')
-                processExit()
             }
-
+        } catch (e) {
+            logSendMessage(`Starting trade fail #${this.signalQueue?.symbol} \n${new Error(e).message}`)
+            //  processExit()
         }
     }
 
     async stopTrade() {
-        logSendMessage('Stopping trade')
-        if (this.currentTrade) {
-            try {
+        try {
+            logSendMessage('Stopping trade')
+            if (this.currentTrade) {
+
                 config.oco || await this.ask()
                 logTradeStatus(this.currentTrade)
                 await this.clearCurrentTrade()
-            } catch {
-                logSendMessage('Stopping trade fail')
-                processExit()
             }
-
+        } catch {
+            logSendMessage('Stopping trade fail')
+            processExit()
         }
     }
 

@@ -4,7 +4,7 @@ import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
 import consola from 'consola'
 import socketAPI from "./binance-socket.mjs";
-import {addPercent} from "../utils.mjs";
+import {addPercent, ONE_SECOND} from "../utils.mjs";
 import {logTrade, logError} from "../log.mjs";
 import {cryptoMap} from "../db/index.mjs";
 import WebSocket from "ws";
@@ -146,6 +146,7 @@ export class BinanceRest {
     }
 
     async #secureAPI({method, uri, params = {}, sign = true}) {
+
         try {
             consola.log(`api ${method} ${uri}`)
             const url = `${this.#baseUrl}${uri}`
@@ -224,6 +225,7 @@ export class BinanceRest {
     }
 
     async #postOrder({symbol, close, price, stopPrice, side, type = "MARKET", quantity, quoteOrderQty}) {
+        // throw "fake post error"
         symbol = symbol.toUpperCase()
         consola.log(`${side} ${symbol} at market price`)
         let uri = '/api/v3/order'

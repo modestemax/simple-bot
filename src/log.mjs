@@ -125,8 +125,8 @@ export function logTradeProgress(trade) {
 
 export function logSendMessage(text) {
     process.nextTick(async () => {
-        await sendMessage(text)
         consola.info(text)
+        await sendMessage(text)
     })
 }
 
@@ -138,8 +138,9 @@ test mode <i>${config.test}</i>
 enter trade <i>${config.enter_trade}%</i>
 timeframe <i>${config.timeframe}%</i>
  `
-        await sendMessage(msg)
         consola.info(msg)
+        await sendMessage(msg)
+
     })
 }
 

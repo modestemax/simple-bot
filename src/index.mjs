@@ -38,12 +38,14 @@ import {ONE_SECOND} from "./utils.mjs";
 
 
 process.on('uncaughtException', function (err) {
+    err = new Error(err)
     logError((new Date).toUTCString() + ' uncaughtException:', err.message)
     logError(err.stack)
     processExit(1)
 })
 
 process.on('unhandledRejection', (reason, promise) => {
+    reason = new Error(reason)
     logError('Unhandled Rejection ' + reason.message + '\n' + reason.stack);
     // Application specific logging, throwing an error, or other logic here
 });
