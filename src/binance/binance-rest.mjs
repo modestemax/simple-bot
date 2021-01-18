@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import consola from 'consola'
 import socketAPI from "./binance-socket.mjs";
 import {addPercent, ONE_SECOND} from "../utils.mjs";
-import {logTrade, logError} from "../log.mjs";
+import {logTrade, logError, logSendMessage} from "../log.mjs";
 import {cryptoMap} from "../db/index.mjs";
 import WebSocket from "ws";
 
@@ -119,22 +119,28 @@ export class BinanceRest {
     }
 
     async #getBalances() {
-        consola.log('loading balances')
-        const hasValue = b => +b.free + +b.locked
-        const format = b => ({asset: b.asset.toLowerCase(), free: +b.free, locked: +b.locked})
+        try {
 
-        const res = await this.#secureAPI({method: 'get', uri: '/api/v3/account'})
+            consola.log('loading balances')
+            const hasValue = b => +b.free + +b.locked
+            const format = b => ({asset: b.asset.toLowerCase(), free: +b.free, locked: +b.locked})
 
-        const balances = res.data.balances
-            .filter(hasValue)
-            .map(format)
+            const res = await this.#secureAPI({method: 'get', uri: '/api/v3/account'})
 
-        this.balances = balances.filter(b => !/bnb|btc/i.test(b.asset))
-            .filter(b => b.free > this.binanceInfo[this.getSymbol(b.asset)].minQty)
-            .reduce((balance, asset) => ({...balance, [asset.asset]: asset}), {})
-        this.btcBalance = balances.filter(b => /btc/i.test(b.asset))[0]?.free
-        this.bnbBalance = balances.filter(b => /bnb/i.test(b.asset))[0]?.free
+            const balances = res.data.balances
+                .filter(hasValue)
+                .map(format)
 
+            this.balances = balances.filter(b => !/bnb|btc/i.test(b.asset))
+                .filter(b => b.free > this.binanceInfo[this.getSymbol(b.asset)].minQty)
+                .reduce((balance, asset) => ({...balance, [asset.asset]: asset}), {})
+            this.btcBalance = balances.filter(b => /btc/i.test(b.asset))[0]?.free
+            this.bnbBalance = balances.filter(b => /bnb/i.test(b.asset))[0]?.free
+
+        } catch (e) {
+            logSendMessage('Error loading balance ' + new Error(e).message)
+            processExit()
+        }
     }
 
     #getHmacSignature(queryString) {

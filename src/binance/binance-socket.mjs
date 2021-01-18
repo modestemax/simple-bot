@@ -20,6 +20,7 @@ export default new class extends EventEmitter {
     #first
     #restAPI
     #timeout = {max: null, first: null}
+    #signalSent
 
     init(restAPI) {
         this.#restAPI = restAPI
@@ -65,7 +66,7 @@ export default new class extends EventEmitter {
             if (isFinal && /ethbtc/i.test(symbol) || !(startTime < Date.now() < endTime)) {
                 return this.emit(this.FINAL_EVENT)
             } else {
-                signal.update({close, open, high,startTime})
+                signal.update({close, open, high, startTime})
             }
         }
         hasGoodPrice && this.checkIfReadyToTrade(signal)
@@ -77,9 +78,12 @@ export default new class extends EventEmitter {
 
     checkIfReadyToTrade(signal) {
         if (config.strategy?.enter(signal)
-            //||/btc/.test(signal.symbol)
+        //||/btc/.test(signal.symbol)
         ) {
-            this.emit(this.TRADE_EVENT, signal)
+            if (this.#signalSent?.symbol !== signal.symbol) {
+                this.#signalSent = signal
+                this.emit(this.TRADE_EVENT, signal)
+            }
         }
     }
 
