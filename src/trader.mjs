@@ -159,6 +159,7 @@ export default global.trader = new class {
 
     async restartProcess() {
         console.log("This is pid " + process.pid);
+        redisClient.set('above', JSON.stringify({}))
         // // setTimeout(function () {
         process.on("exit", async () => {
             //   debugger
