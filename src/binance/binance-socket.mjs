@@ -77,14 +77,16 @@ export default new class extends EventEmitter {
     }
 
     checkIfReadyToTrade(signal) {
-        if (config.strategy?.enter(signal)/*||/btc/.test(signal.symbol)*/) {
-            if (this.#signalSent?.symbol !== signal.symbol) {
-                this.#signalSent = signal
-                this.emit(this.TRADE_EVENT, signal)
-            }
-        } else {
-            if (this.#signalSent?.symbol === signal.symbol) {
-                this.#signalSent = void 0
+        if (!global.yesterdaySymbols || global.yesterdaySymbols[signal.symbol]) {
+            if (config.strategy?.enter(signal)/*||/btc/.test(signal.symbol)*/) {
+                if (this.#signalSent?.symbol !== signal.symbol) {
+                    this.#signalSent = signal
+                    this.emit(this.TRADE_EVENT, signal)
+                }
+            } else {
+                if (this.#signalSent?.symbol === signal.symbol) {
+                    this.#signalSent = void 0
+                }
             }
         }
     }

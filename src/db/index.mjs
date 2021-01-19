@@ -1,6 +1,6 @@
 import {Signal,} from "./SignalClass.mjs";
 
-export const cryptoMap = {}
+export const cryptoMap =global.cryptoMap= {}
 
 export function getSignal(symbol) {
     if (!cryptoMap[symbol]) {

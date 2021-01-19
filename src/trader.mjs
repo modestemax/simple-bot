@@ -70,29 +70,31 @@ export default global.trader = new class {
                 config.oco && await this.ask()
                 await this.setQueueAsCurrentTrade()
                 await this.setEyesOnCurrentTrade()
+                logSendMessage(`Trade started #${this.signalQueue?.symbol}`)
             }
+            logSendMessage(`Trade start returned false: no trade started #${this.signalQueue?.symbol}`)
         } catch (e) {
             logSendMessage(`Starting trade fail #${this.signalQueue?.symbol} \n${new Error(e).message}`)
             //  processExit()
         } finally {
-            logSendMessage(`Trade started #${this.signalQueue?.symbol}`)
+
         }
     }
 
     async stopTrade() {
         try {
-            logSendMessage(`Stopping trade #${this.currentTrade?.symbol}`)
             if (this.currentTrade) {
-
+                logSendMessage(`Stopping trade #${this.currentTrade?.symbol}`)
                 config.oco || await this.ask()
                 logTradeStatus(this.currentTrade)
                 await this.clearCurrentTrade()
+                logSendMessage(`Trade stopped #${this.currentTrade?.symbol}`)
             }
         } catch (e) {
             logSendMessage(`stopping trade fail #${this.currentTrade?.symbol} \n${new Error(e).message}`)
             processExit()
         } finally {
-            logSendMessage(`Trade stopped #${this.currentTrade?.symbol}`)
+
         }
     }
 
@@ -160,6 +162,7 @@ export default global.trader = new class {
     async restartProcess() {
         console.log("This is pid " + process.pid);
         redisClient.set('above', JSON.stringify({}))
+        redisClient.set('symbols', JSON.stringify(Object.keys(global.cryptoMap)))
         // // setTimeout(function () {
         process.on("exit", async () => {
             //   debugger
