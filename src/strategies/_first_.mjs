@@ -46,6 +46,9 @@ export default {
         }
 
         return enter
+        // return false ||
+        //     /ethbtc|avabtc/.test(signal.symbol) ||
+        //     enter
     },
 
     async exit(trader) {
