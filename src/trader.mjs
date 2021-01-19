@@ -40,10 +40,7 @@ export default global.trader = new class {
                 if (signal) {
                     this.addQueue(signal)
                     if (!this.currentTrade) {
-                        //  console.log('ZZ')
-                        logSendMessage(`Starting trade #${signal.symbol}`)
                         await this.startTrade()
-                        logSendMessage(`Started trade #${signal.symbol}`)
                     } else {
                         signal.symbol !== this.currentTrade.symbol && await config.strategy?.switch(this)
                     }
@@ -68,9 +65,8 @@ export default global.trader = new class {
 
     async startTrade() {
         try {
-            logSendMessage('Starting trade')
+            logSendMessage(`Starting trade #${this.signalQueue?.symbol}`)
             if (await this.bid()) {
-
                 config.oco && await this.ask()
                 await this.setQueueAsCurrentTrade()
                 await this.setEyesOnCurrentTrade()
@@ -78,21 +74,25 @@ export default global.trader = new class {
         } catch (e) {
             logSendMessage(`Starting trade fail #${this.signalQueue?.symbol} \n${new Error(e).message}`)
             //  processExit()
+        } finally {
+            logSendMessage(`Trade started #${this.signalQueue?.symbol}`)
         }
     }
 
     async stopTrade() {
         try {
-            logSendMessage('Stopping trade')
+            logSendMessage(`Stopping trade #${this.currentTrade?.symbol}`)
             if (this.currentTrade) {
 
                 config.oco || await this.ask()
                 logTradeStatus(this.currentTrade)
                 await this.clearCurrentTrade()
             }
-        } catch {
-            logSendMessage('Stopping trade fail')
+        } catch (e) {
+            logSendMessage(`stopping trade fail #${this.currentTrade?.symbol} \n${new Error(e).message}`)
             processExit()
+        } finally {
+            logSendMessage(`Trade stopped #${this.currentTrade?.symbol}`)
         }
     }
 
