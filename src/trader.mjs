@@ -70,7 +70,7 @@ export default global.trader = new class {
                 config.oco && await this.ask()
                 await this.setQueueAsCurrentTrade()
                 await this.setEyesOnCurrentTrade()
-                logSendMessage(`Trade started #${this.signalQueue?.symbol}`)
+                return logSendMessage(`Trade started #${this.signalQueue?.symbol}`)
             }
             logSendMessage(`Trade start returned false: no trade started #${this.signalQueue?.symbol}`)
         } catch (e) {
@@ -123,6 +123,7 @@ export default global.trader = new class {
     async bid() {
         const signalQueue = this.#signalQueue
         console.log('bid', signalQueue)
+            //  redisSetAsync()
         return signalQueue && await restAPI.bid(signalQueue.symbol)
     }
 
