@@ -124,16 +124,19 @@ export function logTradeProgress(trade) {
 }
 
 export function logSendMessage(text) {
-    process.nextTick(async () => {
-        consola.info(text)
-        await sendMessage(text)
+    return new Promise(resolve => {
+        process.nextTick(async () => {
+            consola.info(text)
+            resolve(await sendMessage(text))
+        })
     })
+
 }
 
 
 export function logConfig(config) {
     process.nextTick(async () => {
-        const msg=`Config 
+        const msg = `Config 
 test mode <i>${config.test}</i>
 enter trade <i>${config.enter_trade}%</i>
 timeframe <i>${config.timeframe}%</i>

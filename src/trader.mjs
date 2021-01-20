@@ -92,7 +92,7 @@ export default global.trader = new class {
                 logSendMessage(`Trade stopped #${symbol}`)
             }
         } catch (e) {
-            logSendMessage(`stopping trade fail #${symbol} \n${new Error(e).message}`)
+            await logSendMessage(`stopping trade fail #${symbol} \n${new Error(e).message}`)
             processExit()
         } finally {
 
