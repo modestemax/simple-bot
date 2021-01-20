@@ -82,16 +82,17 @@ export default global.trader = new class {
     }
 
     async stopTrade() {
+        const symbol = this.currentTrade?.symbol
         try {
             if (this.currentTrade) {
-                logSendMessage(`Stopping trade #${this.currentTrade?.symbol}`)
+                logSendMessage(`Stopping trade #${symbol}`)
                 config.oco || await this.ask()
                 logTradeStatus(this.currentTrade)
                 await this.clearCurrentTrade()
-                logSendMessage(`Trade stopped #${this.currentTrade?.symbol}`)
+                logSendMessage(`Trade stopped #${symbol}`)
             }
         } catch (e) {
-            logSendMessage(`stopping trade fail #${this.currentTrade?.symbol} \n${new Error(e).message}`)
+            logSendMessage(`stopping trade fail #${symbol} \n${new Error(e).message}`)
             processExit()
         } finally {
 
@@ -123,7 +124,7 @@ export default global.trader = new class {
     async bid() {
         const signalQueue = this.#signalQueue
         console.log('bid', signalQueue)
-            //  redisSetAsync()
+        //  redisSetAsync()
         return signalQueue && await restAPI.bid(signalQueue.symbol)
     }
 
