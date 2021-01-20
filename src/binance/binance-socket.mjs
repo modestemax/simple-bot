@@ -50,16 +50,16 @@ export default new class extends EventEmitter {
         const {stream: tickEvent, data: sData} = JSON.parse(data)
         const symbol = tickEvent.split('@')[0]
         const signal = getSignal(symbol)
-        const hasGoodPrice = this.hasGoodPrice(signal)
+        // const hasGoodPrice = hasGoodPrice(signal)
         if (this.getTickEvent(symbol) === tickEvent) {
             const {p: close} = sData
-            if (hasGoodPrice) {
-                // if (percent(ask, bid) < .35) {
-                signal.update({close}) //set close to ask because we will buy to the best seller
-                this.max = signal
-                this.first = signal
-                this.emit(tickEvent, signal)
-            }
+            // if (hasGoodPrice) {
+            // if (percent(ask, bid) < .35) {
+            signal.update({close}) //set close to ask because we will buy to the best seller
+            this.max = signal
+            this.first = signal
+            this.emit(tickEvent, signal)
+            // }
         } else {//@kline
             const {o: open, c: close, h: high, x: isFinal, t: startTime, T: endTime,} = sData.k
 
@@ -69,12 +69,10 @@ export default new class extends EventEmitter {
                 signal.update({close, open, high, startTime})
             }
         }
-        hasGoodPrice && this.checkIfReadyToTrade(signal)
+        /* hasGoodPrice && */
+        this.checkIfReadyToTrade(signal)
     }
 
-    hasGoodPrice(signal) {
-        return signal?.open >= 350 * SATOSHI
-    }
 
     checkIfReadyToTrade(signal) {
         if (!global.yesterdaySymbols || global.yesterdaySymbols[signal.symbol]) {

@@ -1,6 +1,7 @@
 import {Signal,} from "./SignalClass.mjs";
+import {SATOSHI} from "../utils.mjs";
 
-export const cryptoMap =global.cryptoMap= {}
+export const cryptoMap = global.cryptoMap = {}
 
 export function getSignal(symbol) {
     if (!cryptoMap[symbol]) {
@@ -10,3 +11,6 @@ export function getSignal(symbol) {
     }
 }
 
+export function hasGoodPrice(signal) {
+    return signal?.open >= 350 * SATOSHI
+}

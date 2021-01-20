@@ -1,4 +1,4 @@
-import {cryptoMap} from "../db/index.mjs";
+import {cryptoMap, hasGoodPrice} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
 import consola from "consola";
 import sendgrid from "../email.mjs";
@@ -25,7 +25,7 @@ export default {
     },
     enter(signal) {
 
-        const sortedByPercent = Object.values(cryptoMap).filter(a => a.percent)
+        const sortedByPercent = Object.values(cryptoMap).filter(hasGoodPrice).filter(a => a.percent)
             .sort((a, b) => a.percent < b.percent ? 1 : -1)
         const enter =
             (!gotProfit || !(config.stop_on_profit && gotProfit)) &&
