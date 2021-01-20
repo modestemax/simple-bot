@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import {getSignal} from '../db/index.mjs' ;
+import {getSignal, hasGoodPrice} from '../db/index.mjs' ;
 import {config} from "../db/firestore.mjs";
 import {percent} from "../db/SignalClass.mjs";
 import {noop, ONE_MINUTE, SATOSHI} from "../utils.mjs";
@@ -91,7 +91,7 @@ export default new class extends EventEmitter {
 
 
     set max(signal) {
-        if (!this.max?.max || this.max?.max < signal.max) {
+        if (hasGoodPrice(signal) && !this.max?.max || this.max?.max < signal.max) {
             this.#max = signal
             this.logMax()
             clearInterval(this.#timeout.max)
@@ -104,7 +104,7 @@ export default new class extends EventEmitter {
     }
 
     set first(signal) {
-        if (!this.first?.percent || this.first?.percent < signal.percent) {
+        if (hasGoodPrice(signal) && !this.first?.percent || this.first?.percent < signal.percent) {
             this.#first = signal
             this.logFirst()
             clearInterval(this.#timeout.first)

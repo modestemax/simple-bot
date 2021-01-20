@@ -12,5 +12,5 @@ export function getSignal(symbol) {
 }
 
 export function hasGoodPrice(signal) {
-    return signal?.open >= 350 * SATOSHI
+    return signal.hasGoodPrice = (signal?.open >= 350 * SATOSHI)
 }
