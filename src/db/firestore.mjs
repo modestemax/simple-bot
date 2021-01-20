@@ -3,8 +3,9 @@ import {noop} from "../utils.mjs";
 import strategies from "../strategies/index.mjs";
 import {logConfig} from "../log.mjs";
 
-export const config = {
+export const config = global.config = {
     enter_trade: 25,
+    min_good_price: 350,
     timeframe: '1d',
     strategy: '_first_',
     stop_lost: 3,
@@ -31,8 +32,8 @@ const configRef = db.collection('bot').doc('config');
 const pt = 'z_t_t_'
 const ts = 'z_t_sd_'
 const lc = 'z_t_lc_'
-const logsCollection='logs'
-const dateString =' '+ new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
+const logsCollection = 'logs'
+const dateString = ' ' + new Date().toISOString().split('T')[0] + ' ' + new Date().toDateString().split(' ')[0]
 
 export default new class {
 
@@ -59,7 +60,7 @@ export default new class {
         config.strategy.gotProfit = await this.#getProfitTag()
         config.strategy.tradeStarted = await this.#getTradeStarted()
         config.strategy.lostCount = await this.#getLossCount()
-        global.config = config
+
         logConfig(config)
         return config
     }
