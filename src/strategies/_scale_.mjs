@@ -1,6 +1,6 @@
 import {cryptoMap} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
-import consola from "consola";
+//import consola from "consola";
 
 let gotProfit
 let lastExitPercent
@@ -51,7 +51,7 @@ export default {
     },
 
     async switch(trader) {
-        consola.info('Switch  trade')
+        console.info('Switch  trade')
         await trader.setQueueAsCurrent()
         lastExitPercent = trader.currentTrade?.percent
         firestore.setTradeStarted({tradeStarted, lastExitPercent})

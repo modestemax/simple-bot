@@ -1,4 +1,4 @@
-import consola from "consola";
+//import consola from "consola";
 
 export default {
     enter(signal) {
@@ -27,7 +27,7 @@ export default {
     }, async switch(trader) {
         if (trader.currentTrade?.IsDelaying()) {
             if (trader.currentTrade?.isLosing() || !trader.currentTrade?.isPumping()) {
-                consola.info('Switch  trade')
+                console.info('Switch  trade')
                 await trader.setQueueAsCurrent()
             }
         }

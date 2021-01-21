@@ -2,7 +2,7 @@ import axios from 'axios';
 import qs from 'qs'
 import {config} from "../db/firestore.mjs";
 import crypto from 'crypto'
-import consola from 'consola'
+//import console from 'console'
 import socketAPI from "./binance-socket.mjs";
 import {addPercent, ONE_SECOND} from "../utils.mjs";
 import {logTrade, logError, logSendMessage} from "../log.mjs";
@@ -22,7 +22,7 @@ export class BinanceRest {
 
 
     async init(auth) {
-        consola.log('init binance rest api')
+        console.log('init binance rest api')
         this.auth = auth
         // await this.#cancelAllOpenOrders()
         await this.#getBinanceInfo()
@@ -121,7 +121,7 @@ export class BinanceRest {
     async #getBalances() {
         try {
 
-            consola.log('loading balances')
+            console.log('loading balances')
             const hasValue = b => +b.free + +b.locked
             const format = b => ({asset: b.asset.toLowerCase(), free: +b.free, locked: +b.locked})
 
@@ -154,7 +154,7 @@ export class BinanceRest {
     async #secureAPI({method, uri, params = {}, sign = true}) {
 
         try {
-            consola.log(`api ${method} ${uri}`)
+            console.log(`api ${method} ${uri}`)
             const url = `${this.#baseUrl}${uri}`
             if (sign) {
                 params.timestamp = Date.now()
@@ -181,13 +181,13 @@ export class BinanceRest {
                     })
             }
 
-            // consola.info('api result', res)
+            // console.info('api result', res)
             return res;
         } catch (e) {
             logError(`\n${JSON.stringify(arguments)}\n${JSON.stringify(e?.response?.data)}\n`)
-            consola.error(e)
-            consola.error(e?.response?.data)
-            consola.info(arguments)
+            console.error(e)
+            console.error(e?.response?.data)
+            console.info(arguments)
             throw e
         }
 
@@ -195,35 +195,35 @@ export class BinanceRest {
 
     async #publicAPI({method = 'get', uri}) {
         try {
-            consola.log(`api ${method} ${uri}`)
+            console.log(`api ${method} ${uri}`)
             const url = `${this.#baseUrl}${uri}`
             let res = await axios[method](url)
 
-            // consola.info('api result', res)
+            // console.info('api result', res)
             return res.data
         } catch (e) {
-            consola.error(e)
-            consola.error(e?.response?.data)
-            consola.info(arguments)
+            console.error(e)
+            console.error(e?.response?.data)
+            console.info(arguments)
             throw e
         }
     }
 
 
     // async sellMarketPrice({symbol, close, quantity}) {
-    //     consola.log(`selling ${symbol} at market price`)
+    //     console.log(`selling ${symbol} at market price`)
     //     return this.#postOrder({symbol, close, quantity, side: 'SELL'})
     //     // return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
     // }
 
     async bid(symbol) {
-        consola.log(`buying ${symbol} at market price`)
+        console.log(`buying ${symbol} at market price`)
         if (this.btcBalance > this.binanceInfo[symbol.toLowerCase()]?.minNotional)
             return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
     }
 
     ask({symbol, close}) {
-        consola.log(`place OCO ${symbol}`)
+        console.log(`place OCO ${symbol}`)
         const assetName = this.getAssetName(symbol)
         let quantity = this.balances[assetName] && this.balances[assetName].free
         quantity = this.normalizeQuantity({symbol, quantity})
@@ -233,7 +233,7 @@ export class BinanceRest {
     async #postOrder({symbol, close, price, stopPrice, side, type = "MARKET", quantity, quoteOrderQty}) {
         // throw "fake post error"
         symbol = symbol.toUpperCase()
-        consola.log(`${side} ${symbol} at market price`)
+        console.log(`${side} ${symbol} at market price`)
         let uri = '/api/v3/order'
 
         if (config.oco && close) {
@@ -292,7 +292,7 @@ export class BinanceRest {
 
 
     async #sellAllAssets() {
-        consola.log('selling all assets')
+        console.log('selling all assets')
         for (let assetName in this.balances) {
             // this.#checkPriceThenSell(assetName)
             await this.#sellAsset(assetName)
@@ -300,7 +300,7 @@ export class BinanceRest {
     }
 
     #sellAsset(assetName) {
-        consola.log(`selling ${assetName}`)
+        console.log(`selling ${assetName}`)
         const symbol = this.getSymbol(assetName)
         let quantity = this.balances[assetName] && this.balances[assetName].free
         quantity = this.normalizeQuantity({symbol, quantity})
@@ -335,7 +335,7 @@ export class BinanceRest {
     }
 
     async #cancelOCOOrders() {
-        consola.log('canceling all open oco order')
+        console.log('canceling all open oco order')
         for (let assetName of this.lockedAssets) {
             await this.#secureAPI({
                 method: 'delete',
@@ -346,20 +346,20 @@ export class BinanceRest {
     }
 
 //     async #cancelAllOpenOrders() {
-//         consola.log('canceling all open order')
+//         console.log('canceling all open order')
 //         for (let openOrder of await this.#getOpenOrders()) {
 //             await this.#cancelOrder(openOrder.symbol)
 //         }
 //     }
 //
 //     async #getOpenOrders() {
-//         consola.log('loading open orders')
+//         console.log('loading open orders')
 //         const orders = await this.#secureAPI({method: 'get', uri: '/api/v3/openOrders'});
 //         return orders.data
 //     }
 //
 //     #buyAsset(assetName) {
-//         consola.log(`selling ${assetName}`)
+//         console.log(`selling ${assetName}`)
 //         const symbol = this.getSymbol(assetName)
 //         return this.bid(symbol)
 //     }

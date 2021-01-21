@@ -1,6 +1,6 @@
 import {cryptoMap, hasGoodPrice} from "../db/index.mjs";
 import firestore from "../db/firestore.mjs";
-import consola from "consola";
+//import consola from "consola";
 import sendgrid from "../email.mjs";
 import {config} from "../db/firestore.mjs";
 import {log} from "../log.mjs";
@@ -95,8 +95,9 @@ export default {
 
         try {
             if (trader.signalQueue?.percent - trader.currentTrade?.percent >= config.acceptable_gap_between_first_and_second) {
+                console.trace('switching trade')
                 await trader.setQueueAsCurrent()
-                consola.info('Switch  trade')
+                console.info('Switch  trade')
             }
         } finally {
             //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1

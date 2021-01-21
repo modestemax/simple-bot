@@ -10,7 +10,7 @@ import trader from "./trader.mjs";
 // import {initSocket} from './_balance.mjs'
 import {config} from "./db/firestore.mjs";
 import {restAPI} from "./binance/binance-rest.mjs";
-import consola from "consola";
+//import consola from "consola";
 import {logError} from "./log.mjs";
 import sendgrid from './email.mjs'
 import sendMessage from './telegram.mjs'
@@ -31,7 +31,7 @@ import {ONE_SECOND} from "./utils.mjs";
         console.log('config: ', config)
 
     } catch (ex) {
-        consola.error(ex)
+        console.error(ex)
         throw ex
     }
 })()

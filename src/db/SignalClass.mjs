@@ -1,4 +1,4 @@
-import consola from 'consola'
+//import consola from 'consola'
 import {ONE_MINUTE} from "../utils.mjs";
 
 const twoDecimal = (value) => Math.trunc(value * 100) / 100
@@ -187,7 +187,7 @@ export class Trade extends Signal {
             this.update({min, max})
         } else if (!(this.tradeStartedAtPercent && this.max)) {
             const error = new Error('cannot init trade')
-            consola.error(error)
+            console.error(error)
             throw error
         }
         this._stopLoss = this._stopLoss ? this._stopLoss : this.tradeStartedAtPercent - config.stop_lost;
