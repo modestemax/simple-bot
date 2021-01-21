@@ -169,6 +169,9 @@ export class Signal {
 
     _forceBuy
     get forceBuy() {
+
+        if (this instanceof Trade)
+            return cryptoMap[this.symbol]._forceBuy
         return this._forceBuy
     }
 
@@ -179,6 +182,8 @@ export class Signal {
 
     _forceSell
     get forceSell() {
+        if (this instanceof Trade)
+            return cryptoMap[this.symbol].forceSell
         return this._forceSell
     }
 

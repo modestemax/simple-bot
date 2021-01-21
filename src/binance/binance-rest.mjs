@@ -220,6 +220,7 @@ export class BinanceRest {
         console.log(`buying ${symbol} at market price`)
         if (this.btcBalance > this.binanceInfo[symbol.toLowerCase()]?.minNotional)
             return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        logSendMessage('insufficient bct for bid:' + this.btcBalance)
     }
 
     ask({symbol, close}) {
@@ -249,6 +250,7 @@ export class BinanceRest {
             quantity = price = stopPrice = void 0
         }
         if (!(+quantity || +quoteOrderQty) || (+quantity && +quoteOrderQty)) {
+            logSendMessage(`(!(+quantity ${quantity} || +quoteOrderQty ${quoteOrderQty}) || (+quantity && +quoteOrderQty)) ! is true :${this.btcBalance}`)
             return
         }
         if (+quoteOrderQty) quoteOrderQty = (+quoteOrderQty).toFixed(8)
@@ -261,6 +263,7 @@ export class BinanceRest {
             }
         })
         // this.#getBalances()
+        logSendMessage('bid rest api result:' + res)
         logTrade({side, symbol, cryptoMap})
         return res
     }

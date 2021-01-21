@@ -48,8 +48,8 @@ export default global.trader = new class {
                 this.listenTradeEvent()
             } catch (e) {
                 setTimeout(this.listenTradeEvent.bind(this), ONE_SECOND * 10)
-            }finally {
-              //  debugger
+            } finally {
+                //  debugger
 
             }
 
@@ -126,7 +126,10 @@ export default global.trader = new class {
         const signalQueue = this.#signalQueue
         console.log('bid', signalQueue)
         //  redisSetAsync()
-        return signalQueue && await restAPI.bid(signalQueue.symbol)
+
+        if (signalQueue)
+            return restAPI.bid(signalQueue.symbol)
+        logSendMessage('No signal in queue cannot bid')
     }
 
     async ask() {
