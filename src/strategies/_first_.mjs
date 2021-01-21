@@ -97,7 +97,7 @@ export default {
             if (trader.signalQueue?.percent - trader.currentTrade?.percent >= config.acceptable_gap_between_first_and_second) {
                 console.trace('switching trade')
                 await trader.setQueueAsCurrent()
-                console.info('Switch  trade')
+                console.info('Trade switched')
             }
         } finally {
             //  lossCount[trader.currentTrade.symbol] = (lossCount[trader.currentTrade.symbol] || 0) + 1

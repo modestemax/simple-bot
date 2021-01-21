@@ -90,7 +90,7 @@ export class BinanceRest {
                     )
                     break
             }
-            console.log(data)
+            console.log('btcBalance', this.btcBalance)
         }
     }
 

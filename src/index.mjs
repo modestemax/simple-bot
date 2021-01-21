@@ -2,7 +2,7 @@ import cstamp from 'console-stamp'
 
 // cstamp(consola, 'HH:MM:ss.l');
 // cstamp(consola );
-import "./global.mjs"
+import "./redis.mjs"
 import socketAPI from './binance/binance-socket.mjs'
 import firestore from './db/firestore.mjs'
 import trader from "./trader.mjs";
@@ -23,12 +23,8 @@ import {ONE_SECOND} from "./utils.mjs";
         await restAPI.init(config.auth)
         socketAPI.init(restAPI)
         trader.init()
-        sendgrid.send({body: "Bot Started :" + config.instance_name})
+        // sendgrid.send({body: "Bot Started :" + config.instance_name})
         sendMessage("Bot Started :" + config.instance_name)
-
-        console.log('timeframe: ', config.timeframe)
-        console.log('enter_trade: ', config.enter_trade)
-        console.log('config: ', config)
 
     } catch (ex) {
         console.error(ex)
@@ -38,9 +34,8 @@ import {ONE_SECOND} from "./utils.mjs";
 
 
 process.on('uncaughtException', function (err) {
-    err = new Error(err)
-    logError((new Date).toUTCString() + ' uncaughtException:', err.message)
-    logError(err.stack)
+    logError((new Date).toUTCString() + ' uncaughtException:', err?.message)
+    logError(err?.stack)
     processExit(1)
 })
 
@@ -50,4 +45,6 @@ process.on('unhandledRejection', (reason, promise) => {
     // Application specific logging, throwing an error, or other logic here
 });
 
-//setInterval(() => process.exit(), 15 * 60 * ONE_SECOND);
+process.on("exit", async () => {
+   console.trace('exiting bot')
+})

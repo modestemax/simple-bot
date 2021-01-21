@@ -88,7 +88,7 @@ export default global.trader = new class {
                 logSendMessage(`Stopping trade #${symbol}`)
                 config.oco || await this.ask()
                 logTradeStatus(this.currentTrade)
-                await this.clearCurrentTrade()
+                this.clearCurrentTrade()
                 logSendMessage(`Trade stopped #${symbol}`)
             }
         } catch (e) {
@@ -130,7 +130,7 @@ export default global.trader = new class {
 
     async ask() {
         const currentTrade = this.currentTrade
-        console.log('ask', currentTrade)
+        console.trace('ask', currentTrade)
         // currentTrade && await restAPI.ask({symbol: currentTrade.symbol, /*quoteOrderQty: currentTrade.close*/})
         return currentTrade && await restAPI.ask(currentTrade)
     }

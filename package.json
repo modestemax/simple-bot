@@ -41,6 +41,7 @@
     "fetch-json": "^2.2.7",
     "firebase": "^7.19.0",
     "node-fetch": "^2.6.0",
+    "node-redis-pubsub": "^5.0.0",
     "qs": "^6.9.4",
     "redis": "^3.0.2",
     "telegram-bot-api": "^2.0.1",
