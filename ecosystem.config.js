@@ -54,7 +54,7 @@ module.exports = {
             ref: 'origin/master',
             repo: 'https://github.com/modestemax/simple-bot.git',
             path: '/root/projects/simple-bot',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --time --env production'
         }
     }
 };
