@@ -167,6 +167,25 @@ export class Signal {
         return this.percent >= config.enter_trade + config.take_profit
     }
 
+    _forceBuy
+    get forceBuy() {
+        return this._forceBuy
+    }
+
+    set forceBuy(value) {
+        this._forceBuy = value
+        this._forceSell = !value
+    }
+
+    _forceSell
+    get forceSell() {
+        return this._forceSell
+    }
+
+    set forceSell(value) {
+        this._forceSell = value
+        this._forceBuy = !value
+    }
 }
 
 

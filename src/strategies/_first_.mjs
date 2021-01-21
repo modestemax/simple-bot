@@ -53,8 +53,8 @@ export default {
 
     async exit(trader) {
         const {currentTrade} = trader
-
-        if (currentTrade?.isBelowStopLoss() /*&& currentTrade?.isNotPick()*/) {
+        if (currentTrade.forceBuy) return
+        if (currentTrade?.isBelowStopLoss() || currentTrade.forceSell /*&& currentTrade?.isNotPick()*/) {
             try {
                 await trader.stopTrade()
                 sendgrid.send({body: `out trade:\ntrade=${JSON.stringify(currentTrade?.symbol)}\npercent=${JSON.stringify(currentTrade?.percent)}`})

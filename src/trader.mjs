@@ -35,7 +35,7 @@ export default global.trader = new class {
     listenTradeEvent() {
         socketAPI.once(socketAPI.TRADE_EVENT, async (signal) => {
             //  console.log('AA')
-            let error
+
             try {
                 if (signal) {
                     this.addQueue(signal)
@@ -45,11 +45,12 @@ export default global.trader = new class {
                         signal.symbol !== this.currentTrade.symbol && await config.strategy?.switch(this)
                     }
                 }
+                this.listenTradeEvent()
             } catch (e) {
-                error = true
                 setTimeout(this.listenTradeEvent.bind(this), ONE_SECOND * 10)
-            } finally {
-                error || this.listenTradeEvent()
+            }finally {
+              //  debugger
+
             }
 
         })
