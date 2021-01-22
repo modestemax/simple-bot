@@ -6,6 +6,7 @@ const app = {
     autorestart: true,
     watch: true,
     max_memory_restart: '1G',
+    "log-date-format": 'HH:mm',
     env: {
         NODE_ENV: 'development'
     },
