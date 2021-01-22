@@ -192,7 +192,8 @@ export class BinanceRest {
             console.info(arguments)
             throw e
         } finally {
-            process.nextTick(async () => await this.#getBalances())
+            //get balance if not called from get balance
+            uri !== '/api/v3/account' && process.nextTick(async () => await this.#getBalances())
         }
 
     }
