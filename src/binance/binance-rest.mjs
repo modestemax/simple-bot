@@ -90,7 +90,7 @@ export class BinanceRest {
                     )
                     break
             }
-            console.log('btcBalance', this.btcBalance)
+            logSendMessage(`btcBalance:${this.btcBalance}`)
         }
     }
 
@@ -140,6 +140,8 @@ export class BinanceRest {
         } catch (e) {
             logSendMessage('Error loading balance ' + new Error(e).message)
             processExit()
+        } finally {
+            logSendMessage(`get balance, btc:${this.btcBalance}, bnb:${this.bnbBalance}, others:${JSON.stringify(this.balances)}`)
         }
     }
 
@@ -189,6 +191,8 @@ export class BinanceRest {
             console.error(e?.response?.data)
             console.info(arguments)
             throw e
+        } finally {
+            process.nextTick(async () => await this.#getBalances())
         }
 
     }
