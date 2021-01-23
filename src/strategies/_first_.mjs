@@ -108,16 +108,16 @@ export default {
 
 function logEnter(enter, signal) {
     process.nextTick(() => {
-        if (enter) {
-            sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}`})
-        }
+        // if (enter) {
+        //     sendgrid.send({body: `enter trade:\nsignal=${JSON.stringify(signal.symbol)}\npercent=${JSON.stringify(signal.percent)}%`})
+        // }
         if (signal.isAboveEnterTrade() && !_above[signal.symbol]) {
             _above[signal.symbol] = true
-            log(`${signal.symbol} (${signal.percent.toFixed(0)}) is ${Object.keys(_above).length}nth above enter trade ${config.enter_trade}`)
+            log(`${signal.symbol} (${signal.percent.toFixed(0)}%) is ${Object.keys(_above).length}nth above enter trade ${config.enter_trade}%`)
         }
         if (signal.isAboveTakeProfit() && !_above[signal.symbol]?.take_profit) {
             _above[signal.symbol] = {take_profit: true}
-            log(`${signal.symbol} (${signal.percent.toFixed(0)}) is ${Object.values(_above).filter(v => v.take_profit).length}nth above take profit ${config.take_profit + config.enter_trade}`)
+            log(`${signal.symbol} (${signal.percent.toFixed(0)}%) is ${Object.values(_above).filter(v => v.take_profit).length}nth above take profit ${config.take_profit + config.enter_trade}%`)
         }
         redisClient.set('above', JSON.stringify(_above))
     })
