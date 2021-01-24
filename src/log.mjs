@@ -105,10 +105,14 @@ export function logTradeStatus(currentTrade) {
 }
 
 let t = Date.now()
+let oldTrade = {}
 
 export function logTradeProgress(trade) {
-    if (Date.now() - t > 60e3)
+    if (Date.now() - t > 60e3 || (trade.change !== oldTrade?.change && trade.symbol === oldTrade?.symbol) || (trade.symbol !== oldTrade?.symbol))
+
         process.nextTick(async () => {
+            oldTrade.symbol = trade.symbol
+            oldTrade.change = trade.change
             t = Date.now()
             const message_id = trade.message_id
             const transmitMessage = message_id ? editMessageText : sendMessage
