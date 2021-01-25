@@ -132,7 +132,7 @@ export class BinanceRest {
                 .map(format)
 
             this.balances = balances.filter(b => !/^(bnb|btc)$/i.test(b.asset))
-                .filter(b => b.free > this.binanceInfo[this.getSymbol(b.asset)].minQty)
+                .filter(b => b.free > this.binanceInfo[this.getSymbol(b.asset)]?.minQty)
                 .reduce((balance, asset) => ({...balance, [asset.asset]: asset}), {})
             this.btcBalance = balances.filter(b => /^btc$/i.test(b.asset))[0]?.free
             this.bnbBalance = balances.filter(b => /^bnb$/i.test(b.asset))[0]?.free
