@@ -81,7 +81,7 @@ export class BinanceRest {
                             if ((assetName + BTC_ASSET_NAME).toLowerCase() === 'btcbtc') {
                                 this.btcBalance = +free
                             } else {
-                                this.balances[assetName.toLowerCase()] && this.canTradeAsset(asset.a) && Object.assign(this.balances[assetName.toLowerCase()], {
+                                this.balances[assetName.toLowerCase()] && this.canTradeAsset(assetName) && Object.assign(this.balances[assetName.toLowerCase()], {
                                     free: +free,
                                     locked: +locked
                                 })
