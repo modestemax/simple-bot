@@ -5,6 +5,7 @@ const app = {
     instances: 1,
     autorestart: true,
     watch: true,
+    time: true,
     max_memory_restart: '1G',
     log_date_format: 'HH:mm',
     env: {
