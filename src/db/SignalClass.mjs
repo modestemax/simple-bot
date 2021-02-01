@@ -223,7 +223,12 @@ export class Trade extends Signal {
     $percent() {
         super.$percent()
         if (this.open && this.close) {
-            config.trailing_stop_loss && (this._stopLoss = +(this.max - config.stop_lost).toFixed(2))
+            if (config.trailing_stop_loss) {
+                const trailing_step = +config.trailing_stop_loss_step ? +config.trailing_stop_loss_step : 0
+                const max_gain = this.max - this.tradeStartedAtPercent
+                const step_count = Math.floor(max_gain / trailing_step)
+                this._stopLoss = +(step_count * trailing_step).toFixed(2)
+            }
         }
     }
 

@@ -44,6 +44,7 @@
     "node-redis-pubsub": "^5.0.0",
     "qs": "^6.9.4",
     "redis": "^3.0.2",
+    "simple-rate-limiter": "^0.2.3",
     "telegram-bot-api": "^2.0.1",
     "ws": "^7.3.1"
   }

@@ -15,6 +15,7 @@ export const config = global.config = {
     oco: false,
     test: true,
     trailing_stop_loss: true,
+    trailing_stop_loss_step: 3,
     take_profit: 2,
     acceptable_loss_on_gain_percentage: 50,
     trade_max_time_minute: 30,
