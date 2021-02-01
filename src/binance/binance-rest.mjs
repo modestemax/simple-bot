@@ -221,10 +221,15 @@ export class BinanceRest {
     //     // return this.#postOrder({symbol, quoteOrderQty, side: 'SELL'})
     // }
 
-    async bid(symbol) {
+    async bid({symbol, close}) {
         console.log(`buying ${symbol} at market price`)
-        if (this.btcBalance > this.binanceInfo[symbol.toLowerCase()]?.minNotional)
-            return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        if (this.btcBalance > this.binanceInfo[symbol.toLowerCase()]?.minNotional) {
+
+            if (config.oco_buy) {
+                return this.#postOrder({symbol, price: close, quoteOrderQty: this.btcBalance, side: 'BUY', type: 'OCO'})
+            } else
+                return this.#postOrder({symbol, quoteOrderQty: this.btcBalance, side: 'BUY'})
+        }
         logSendMessage('insufficient bct for bid:' + this.btcBalance)
     }
 

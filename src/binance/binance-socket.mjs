@@ -6,6 +6,10 @@ import {noop, ONE_MINUTE, SATOSHI} from "../utils.mjs";
 import EventEmitter from 'events'
 
 
+import Binance from 'binance-api-node'
+
+const client = new Binance.default()
+
 export default new class extends EventEmitter {
 
     get FINAL_EVENT() {
@@ -45,7 +49,7 @@ export default new class extends EventEmitter {
         this.#restartHandle = setTimeout(() => processExit(), ONE_MINUTE)
     }
 
-    onStream = ({data}) => {
+    onStream = async ({data}) => {
         this.restartProcess()
         const {stream: tickEvent, data: sData} = JSON.parse(data)
         const symbol = tickEvent.split('@')[0]
@@ -53,8 +57,12 @@ export default new class extends EventEmitter {
         // const hasGoodPrice = hasGoodPrice(signal)
         if (this.getTickEvent(symbol) === tickEvent) {
             const {p: close} = sData
-            // if (hasGoodPrice) {
-            // if (percent(ask, bid) < .35) {
+
+            if(symbol==='ornbtc'){
+                console.log(close)
+                console.log(await client.avgPrice({symbol:symbol.toUpperCase()}))
+            }
+
             signal.update({close}) //set close to ask because we will buy to the best seller
             this.max = signal
             this.first = signal

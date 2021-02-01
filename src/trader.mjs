@@ -128,7 +128,7 @@ export default global.trader = new class {
         //  redisSetAsync()
 
         if (signalQueue)
-            return restAPI.bid(signalQueue.symbol)
+            return restAPI.bid(signalQueue)
         logSendMessage('No signal in queue cannot bid')
     }
 

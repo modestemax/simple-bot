@@ -36,6 +36,7 @@
     "@sendgrid/mail": "^7.3.0",
     "axios": "^0.20.0",
     "binance-api-node": "^0.10.4",
+    "binance-oco": "^3.1.2",
     "consola": "^2.15.0",
     "console-stamp": "^0.2.9",
     "fetch-json": "^2.2.7",
@@ -44,6 +45,7 @@
     "node-redis-pubsub": "^5.0.0",
     "qs": "^6.9.4",
     "redis": "^3.0.2",
+    "simple-rate-limiter": "^0.2.3",
     "telegram-bot-api": "^2.0.1",
     "ws": "^7.3.1"
   }
