@@ -215,7 +215,7 @@ export class Trade extends Signal {
             console.error(error)
             throw error
         }
-        this._initialStopLoss = this._stopLoss ? this._stopLoss : this.tradeStartedAtPercent - config.stop_lost;
+        this._initialStopLoss = +(this._stopLoss ? this._stopLoss : this.tradeStartedAtPercent - config.stop_lost).toFixed(2);
         this._stopLoss = this._initialStopLoss
         this._startTime = this._startTime ? this._startTime : Date.now()
         this._grandMin = grandMin?.length ? ['/', ...grandMin] : null
@@ -229,7 +229,7 @@ export class Trade extends Signal {
                 const trailing_step = +config.trailing_stop_loss_step ? +config.trailing_stop_loss_step : 0
                 const max_gain = this.max - this.tradeStartedAtPercent
                 const step_count = Math.floor(max_gain / trailing_step)
-                this._stopLoss = this._initialStopLoss + (step_count * trailing_step).toFixed(2)
+                this._stopLoss = this._initialStopLoss + +(step_count * trailing_step).toFixed(2)
             }
         }
     }
